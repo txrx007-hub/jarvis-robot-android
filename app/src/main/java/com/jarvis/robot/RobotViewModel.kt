@@ -54,6 +54,13 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     var sleepingNow by mutableStateOf(false)
         private set
 
+    var serverFeedback by mutableStateOf<Feedback?>(null)
+        private set
+    var backendPin by mutableStateOf("")
+        private set
+    private var pinFor = ""
+    private var pinRetryAt = 0L
+
     private var api = RobotApi(host)
     private var pollJob: Job? = null
     private var driveJob: Job? = null
@@ -72,6 +79,9 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         settings = emptyList()
         settingsError = null
         sleepingNow = false
+        serverFeedback = null
+        backendPin = ""
+        pinFor = ""
         releaseAll()
         if (pollJob?.isActive == true) loadSettings()
     }
@@ -114,6 +124,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
             if (current !== api) continue // the address changed while the request was in flight
             result.onSuccess {
                 status = it
+                loadBackendPin(current, it)
                 failures = 0
                 sleepingNow = false
                 if (!online) {
@@ -218,6 +229,52 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
                 val (l, r) = wheelCommand(held.toSet())
                 runCatching { current.drive(l, r) }
                 delay(150)
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------ volume and voice server
+
+    /** Sets the requested volume (0..100); the next status poll shows what the speaker really plays. */
+    fun setVolume(value: Int) {
+        val current = api
+        viewModelScope.launch {
+            runCatching { withContext(Dispatchers.IO) { current.setVolume(value) } }
+        }
+    }
+
+    /** "default" = the xiaozhi.me cloud, otherwise a LAN address. The robot restarts about 2 s after a successful save. */
+    fun setServer(value: String) {
+        val current = api
+        serverFeedback = Feedback(true, "Saving...")
+        viewModelScope.launch {
+            val r = runCatching { withContext(Dispatchers.IO) { current.setServer(value) } }
+            serverFeedback = r.fold(
+                { Feedback(it.ok, it.message.ifEmpty { if (it.ok) "Saved. Jarvis restarts." else "Not saved." }) },
+                { Feedback(false, "Could not reach Jarvis") },
+            )
+            backendPin = ""
+            pinFor = ""
+        }
+    }
+
+    /** The PIN of the own server's control panel, shown so the panel can be opened from this phone. */
+    private fun loadBackendPin(current: RobotApi, s: Status) {
+        val url = if (s.serverCustom) s.panelUrl else ""
+        if (url.isEmpty()) {
+            backendPin = ""
+            pinFor = ""
+            return
+        }
+        if (pinFor == url || System.currentTimeMillis() < pinRetryAt) return
+        pinFor = url
+        viewModelScope.launch {
+            val r = runCatching { withContext(Dispatchers.IO) { current.backendPin(url) } }
+            if (current !== api) return@launch
+            r.onSuccess { backendPin = it }.onFailure {
+                backendPin = ""
+                pinFor = ""
+                pinRetryAt = System.currentTimeMillis() + 30_000
             }
         }
     }

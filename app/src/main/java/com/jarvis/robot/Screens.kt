@@ -56,6 +56,8 @@ data class MainUiState(
     val held: List<Dir> = emptyList(),
     val powerFeedback: Feedback? = null,
     val sleepingNow: Boolean = false,
+    val serverFeedback: Feedback? = null,
+    val backendPin: String = "",
 )
 
 /** What the main screen can ask for; the ViewModel implements these, tests and previews pass no-ops. */
@@ -68,6 +70,8 @@ class MainActions(
     val onSave: (key: String, value: String) -> Unit = { _, _ -> },
     val onReset: ((Boolean) -> Unit) -> Unit = {},
     val onTheme: (ThemeMode) -> Unit = {},
+    val onSetVolume: (Int) -> Unit = {},
+    val onSetServer: (String) -> Unit = {},
 )
 
 @Composable
@@ -84,6 +88,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         held = vm.held,
         powerFeedback = vm.powerFeedback,
         sleepingNow = vm.sleepingNow,
+        serverFeedback = vm.serverFeedback,
+        backendPin = vm.backendPin,
     )
     val actions = remember(vm) {
         MainActions(
@@ -95,6 +101,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onSave = vm::save,
             onReset = vm::resetAll,
             onTheme = vm::setTheme,
+            onSetVolume = vm::setVolume,
+            onSetServer = vm::setServer,
         )
     }
     MainContent(state, actions)
@@ -176,6 +184,9 @@ fun MainContent(
                 onNap = actions.onNap,
                 onDeepSleep = actions.onDeepSleep,
             )
+
+            VolumeCard(status, actions.onSetVolume)
+            ServerCard(status, state.serverFeedback, state.backendPin, actions.onSetServer)
 
             if (showRemote) RemotePanel(state.held, actions.onHold)
 

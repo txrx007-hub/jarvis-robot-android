@@ -11,7 +11,9 @@ object SampleData {
             "camera_sensor":"OV3660","ssid":"HomeWiFi","ip":"192.168.1.50","mac":"AA:BB:CC:DD:EE:FF","rssi":-51,
             "uptime_s":946,"state":3,"napping":false,"cpu_load":42,"fps":27,"heap_largest_kb":61,
             "audio_in_hz":16000,"audio_out_hz":24000,"power":"battery","cpu_mhz":240,"ram_free_kb":71,
-            "ram_total_kb":399,"psram_free_kb":3300,"psram_total_kb":8192}""",
+            "ram_total_kb":399,"psram_free_kb":3300,"psram_total_kb":8192,
+            "volume":100,"volume_requested":100,"volume_cap":100,"server":"http://192.168.1.20:8003/xiaozhi/ota/",
+            "server_custom":true,"panel_url":"http://192.168.1.20:8090/"}""",
         ),
     )
 
@@ -26,7 +28,6 @@ object SampleData {
           {"key":"soft_start_ms","kind":"int","help":"ramp-up time that limits current spikes","min":0,"max":1000,"step":10,"value":200},
           {"key":"mic_gain_db","kind":"int","help":"software microphone gain in dB","min":0,"max":24,"step":1,"value":18},
           {"key":"wake_threshold","kind":"hundredths","help":"wake word threshold, lower wakes more easily","min":0.5,"max":0.95,"step":0.01,"value":0.52},
-          {"key":"max_volume","kind":"int","help":"speaker volume cap (brownout protection)","min":30,"max":100,"step":1,"value":80},
           {"key":"wake_chirp","kind":"bool","help":"short chirp right after the wake word","value":true},
           {"key":"idle_clock_min","kind":"int","help":"minutes of idle before the clock","min":0,"max":60,"step":1,"value":5},
           {"key":"quiet_start","kind":"time","help":"night mode start, HH:MM or off","value":"22:30"},

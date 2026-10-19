@@ -25,6 +25,14 @@ data class Status(
     val rssi: Int? = null,
     val audioInHz: Int = 0,
     val audioOutHz: Int = 0,
+    // volume card (null on firmware without /api/volume)
+    val volume: Int? = null,
+    val volumeRequested: Int? = null,
+    val volumeCap: Int? = null,
+    // voice server card (null on firmware without /api/server)
+    val server: String? = null,
+    val serverCustom: Boolean = false,
+    val panelUrl: String = "",
 )
 
 enum class Kind { INT, BOOL, HUNDREDTHS, TIME, ENUM, TEXT }
@@ -49,6 +57,8 @@ data class SaveResult(val ok: Boolean, val message: String, val updated: Setting
 
 data class PowerResult(val ok: Boolean, val message: String)
 
+data class VolumeResult(val ok: Boolean, val volume: Int, val requested: Int, val cap: Int)
+
 fun parseStatus(o: JSONObject): Status {
     fun intOrNull(k: String): Int? = if (o.has(k) && !o.isNull(k)) o.optInt(k) else null
     return Status(
@@ -72,6 +82,12 @@ fun parseStatus(o: JSONObject): Status {
         rssi = intOrNull("rssi"),
         audioInHz = o.optInt("audio_in_hz", 0),
         audioOutHz = o.optInt("audio_out_hz", 0),
+        volume = intOrNull("volume"),
+        volumeRequested = intOrNull("volume_requested"),
+        volumeCap = intOrNull("volume_cap"),
+        server = if (o.has("server")) o.optString("server") else null,
+        serverCustom = o.optBoolean("server_custom", false),
+        panelUrl = o.optString("panel_url", ""),
     )
 }
 
@@ -125,7 +141,6 @@ private val LABELS = mapOf(
     "soft_start_ms" to "Soft start ramp",
     "mic_gain_db" to "Microphone gain",
     "wake_threshold" to "Wake sensitivity",
-    "max_volume" to "Max volume",
     "shutter_sound" to "Camera shutter sound",
     "wake_chirp" to "Wake chirp",
     "idle_clock_min" to "Idle clock after",
@@ -148,7 +163,7 @@ fun fmtValue(def: SettingDef): String = when (def.kind) {
     Kind.INT -> def.value + when {
         def.key.contains("_ms") || def.key == "turn_ms_per_90" -> " ms"
         def.key == "mic_gain_db" -> " dB"
-        def.key.contains("speed") || def.key == "max_volume" -> "%"
+        def.key.contains("speed") -> "%"
         def.key == "idle_clock_min" -> " min"
         else -> ""
     }
@@ -202,7 +217,7 @@ val SETTINGS_GROUPS = listOf(
         listOf("motor_trim", "turn_ms_per_90", "motor_a_invert", "motor_b_invert", "motor_swap", "soft_start_ms"),
         true,
     ),
-    SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "max_volume", "wake_chirp"), true),
+    SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
     SettingsGroup("Visualizer", listOf("visualizer_mode"), false),
@@ -243,6 +258,13 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
             "“switch the screen effect to radial” (off, winamp, rainbow, scope, radial, vu, mouth, orb)",
         ),
         VoiceCommand("Clock / screensaver", "“show the clock”"),
+        VoiceCommand("QR: settings page", "“show me a QR code for your settings page” (Jarvis shows a code that opens the settings page)"),
+        VoiceCommand("QR: backend", "“show me a QR code for your backend” / “…for your server” (needs your own server)"),
+        VoiceCommand("Both QR codes", "“show me your QR codes” / “how do I open your pages?” (one after the other, about a minute)"),
+    ),
+    "Volume" to listOf(
+        VoiceCommand("Read it", "“what is your volume?”, “what is your max volume?”"),
+        VoiceCommand("Change it", "“set the volume to 80”, “turn the volume up” (100 is full volume)"),
     ),
     "Faces" to listOf(
         VoiceCommand("Show an expression", "“look sad”, “show a happy face”"),

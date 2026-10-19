@@ -74,6 +74,30 @@ class RobotApi(host: String) {
         post("/api/drive?l=${left.coerceIn(-100, 100)}&r=${right.coerceIn(-100, 100)}", client = fast)
     }
 
+    /** Requested speaker volume 0..100 (night mode may still hold the played volume lower). */
+    fun setVolume(value: Int): VolumeResult {
+        val o = JSONObject(post("/api/volume?value=${value.coerceIn(0, 100)}"))
+        return VolumeResult(o.optBoolean("ok"), o.optInt("volume", value), o.optInt("volume_requested", value), o.optInt("volume_cap", 100))
+    }
+
+    /** value = "default" (xiaozhi.me cloud) or a LAN address like 192.168.1.20[:port]. The robot restarts about 2 s later. */
+    fun setServer(value: String): PowerResult {
+        val body = JSONObject().put("server", value).toString().toRequestBody("application/json".toMediaType())
+        val o = JSONObject(post("/api/server", body))
+        return PowerResult(o.optBoolean("ok"), o.optString("message", ""))
+    }
+
+    /**
+     * The backend's PIN for other devices. The backend hands it only to pages opened from the robot (it checks the Referer),
+     * so the request says it comes from the robot's page, exactly like the landing page does. "" when it is not offered.
+     */
+    fun backendPin(panelUrl: String): String {
+        val base = if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
+        val req = Request.Builder().url(base + "pin.js").header("Referer", "http://$host/").get().build()
+        // the reply is: window.JARVIS_PANEL_PIN = "123456";  (digits only; empty when the backend does not offer it)
+        return call(normal, req).substringAfter("=").substringAfter('"').substringBefore('"').filter { it.isDigit() }
+    }
+
     /** action = nap | wake | deepsleep (minutes 0 = until the BOOT button, max 1440). */
     fun power(action: String, minutes: Int = 0): PowerResult {
         val q = if (action == "deepsleep") "action=deepsleep&minutes=$minutes" else "action=$action"

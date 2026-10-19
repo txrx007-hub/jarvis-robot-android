@@ -106,6 +106,28 @@ class ModelsTest {
     }
 
     @Test
+    fun parsesVolumeAndServerFields() {
+        val s = parseStatus(JSONObject("""{"volume":78,"volume_requested":90,"volume_cap":78,"server":"http://192.168.1.20:8003/xiaozhi/ota/",
+            "server_custom":true,"panel_url":"http://192.168.1.20:8090/"}"""))
+        assertEquals(78, s.volume)
+        assertEquals(90, s.volumeRequested)
+        assertEquals(78, s.volumeCap)
+        assertTrue(s.serverCustom)
+        assertEquals("http://192.168.1.20:8090/", s.panelUrl)
+        // firmware older than build 30: no volume / server card
+        val old = parseStatus(JSONObject(realStatus))
+        assertNull(old.volumeRequested)
+        assertNull(old.server)
+        assertFalse(old.serverCustom)
+    }
+
+    @Test
+    fun maxVolumeIsGoneFromTheSettingsLayout() {
+        assertFalse(SETTINGS_GROUPS.any { "max_volume" in it.keys })
+        assertTrue(VOICE_COMMANDS.any { it.first == "Volume" })
+    }
+
+    @Test
     fun uptimeAndUsageFormats() {
         assertEquals("2m 5s", fmtUptime(125))
         assertEquals("15m 46s", fmtUptime(946))

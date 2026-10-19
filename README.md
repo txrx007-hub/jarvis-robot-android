@@ -25,6 +25,8 @@ fake. The photo on the splash and icon is the author's robot.)
 |---|---|
 | Info table | Board, camera detected (+ sensor), MAC, ping, mode (console / battery), status, uptime, FPS, CPU, PSRAM, RAM, heap, WiFi signal, audio rate |
 | Remote control | Hold-to-drive pad at full speed; the app re-sends every 150 ms and the robot stops 500 ms after the last command, so a dropped connection stops it. Two arrows together turn in an arc. The screen stays on while the pad is open and leaving the app stops the robot. |
+| Volume | Slider 0-100 (100 is full volume); says so when night mode (quiet hours) holds it lower |
+| Voice server | Shows whether the robot uses the xiaozhi.me cloud or your own server; switch either way (the robot restarts), open the own server's control panel in the browser and see its PIN |
 | Power | Nap / Wake up, Deep sleep for any hours + minutes with shortcuts and a confirmation |
 | Settings | Built from the robot's own settings list (so new firmware settings appear without an app update); Motors, Audio and wake word, Screen and quiet hours are collapsible |
 | Voice commands | The list of what you can say to the robot |

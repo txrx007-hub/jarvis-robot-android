@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontStyle
@@ -306,6 +307,110 @@ private fun ChipButton(text: String, onClick: () -> Unit) {
         border = BorderStroke(1.dp, p.accent),
         modifier = Modifier.height(36.dp),
     ) { Text(text, color = p.accent, fontSize = 13.sp) }
+}
+
+// ------------------------------------------------------------------ volume card
+
+/** The slider sends the value when the finger lifts; the speaker plays the lower of this and the night-mode limit. */
+@Composable
+fun VolumeCard(status: Status?, onSet: (Int) -> Unit) {
+    val p = LocalPalette.current
+    val requested = status?.volumeRequested ?: return
+    val played = status.volume ?: requested
+    val cap = status.volumeCap ?: 100
+    var live by remember { mutableFloatStateOf(requested.toFloat()) }
+    var dragging by remember { mutableStateOf(false) }
+    if (!dragging && live.roundToInt() != requested) live = requested.toFloat()
+    JCard {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Volume", fontWeight = FontWeight.SemiBold, color = p.text)
+            Text("${if (dragging) live.roundToInt() else played}%", color = p.accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        }
+        Slider(
+            value = live,
+            onValueChange = { dragging = true; live = it },
+            onValueChangeFinished = { onSet(live.roundToInt()); dragging = false },
+            valueRange = 0f..100f,
+            colors = SliderDefaults.colors(
+                thumbColor = p.accent,
+                activeTrackColor = p.accent,
+                inactiveTrackColor = p.border,
+                activeTickColor = Color.Transparent,
+                inactiveTickColor = Color.Transparent,
+            ),
+        )
+        Text(
+            if (requested > cap) "Asked for $requested%, but night mode (quiet hours) limits it to $cap%." else "100% is full volume.",
+            color = p.muted,
+            fontSize = 13.sp,
+        )
+    }
+}
+
+// ------------------------------------------------------------------ voice server card
+
+@Composable
+fun ServerCard(
+    status: Status?,
+    feedback: Feedback?,
+    backendPin: String,
+    onSetServer: (String) -> Unit,
+) {
+    val p = LocalPalette.current
+    val server = status?.server ?: return
+    val own = status.serverCustom
+    val hostPart = Regex("^[a-z]+://([^/]+)", RegexOption.IGNORE_CASE).find(server)?.groupValues?.get(1) ?: server
+    var editing by remember { mutableStateOf(false) }
+    var address by remember(hostPart, own) { mutableStateOf(if (own) hostPart.removeSuffix(":8003") else "") }
+    var confirm by remember { mutableStateOf<String?>(null) }   // the value waiting for a yes
+    val uri = LocalUriHandler.current
+
+    JCard {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Voice server", fontWeight = FontWeight.SemiBold, color = p.text)
+            Text(if (own) "Own server" else "Cloud (xiaozhi.me)", color = p.accent, fontSize = 13.sp)
+        }
+        Text(if (own) "Talking to $hostPart" else "Using the built-in default server.", color = p.muted, fontSize = 13.sp)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            JButton("Own server…", Modifier.weight(1f)) { editing = !editing }
+            JButton("Use cloud", Modifier.weight(1f)) { if (own) confirm = "default" }
+        }
+        if (own && status.panelUrl.isNotEmpty()) {
+            JButton("Open Jarvis backend ↗", Modifier.fillMaxWidth()) { uri.openUri(status.panelUrl) }
+            if (backendPin.isNotEmpty()) {
+                Text("Backend PIN for other devices: $backendPin", color = p.muted, fontSize = 13.sp)
+            }
+        }
+        if (editing) {
+            OutlinedTextField(
+                value = address,
+                onValueChange = { address = it.trim() },
+                singleLine = true,
+                label = { Text("192.168.x.y or name.local") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Text("Port 8003 is assumed; add :port to change it. Only addresses on your own network are accepted.", color = p.muted, fontSize = 13.sp)
+            JButton("Save and restart Jarvis", Modifier.fillMaxWidth()) { if (address.isNotEmpty()) confirm = address }
+        }
+        feedback?.let { Text(it.text, color = if (it.ok) p.success else p.danger, fontSize = 13.sp) }
+    }
+    confirm?.let { value ->
+        AlertDialog(
+            onDismissRequest = { confirm = null },
+            title = { Text("Change the voice server") },
+            text = {
+                Text(
+                    if (value == "default") "Go back to the xiaozhi.me cloud? Jarvis restarts."
+                    else "Use your own server at $value? Jarvis restarts and talks to it.",
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { confirm = null; editing = false; onSetServer(value) }) { Text("Save", color = p.accent) }
+            },
+            dismissButton = { TextButton(onClick = { confirm = null }) { Text("Cancel") } },
+        )
+    }
 }
 
 // ------------------------------------------------------------------ remote control
