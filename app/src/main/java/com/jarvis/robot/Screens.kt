@@ -235,7 +235,7 @@ fun PhoneContent(
             }
             if (showCamera) CameraPanel(state, onHide = { showCamera = false })
             if (state.music?.enabled == true) MusicCard(state.music, actions.onMusicStop, actions.onMusicNext)
-            if (showVoice) VoiceCommandsPanel(haOk = state.haOk)
+            if (showVoice) VoiceCommandsPanel(haOk = state.haOk, musicOn = state.music?.enabled == true)
 
             PowerCard(
                 status = status,

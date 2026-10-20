@@ -111,7 +111,7 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
                         Column(Modifier.widthIn(max = 560.dp)) { state.music?.let { MusicCard(it, actions.onMusicStop, actions.onMusicNext) } }
                     }
                     SECTION_BACKEND -> Backend(state, actions)
-                    SECTION_COMMANDS -> VoiceCommandsPanel(columns, state.haOk)
+                    SECTION_COMMANDS -> VoiceCommandsPanel(columns, state.haOk, state.music?.enabled == true)
                     SECTION_LOOK -> Appearance(state, actions)
                     else -> {
                         val defs = groups.firstOrNull { it.first.title == selected }?.second.orEmpty()

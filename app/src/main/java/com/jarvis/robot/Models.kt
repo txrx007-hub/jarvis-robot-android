@@ -245,7 +245,7 @@ fun groupSettings(defs: List<SettingDef>): List<Pair<SettingsGroup, List<Setting
 // ---------------------------------------------------------------- voice commands (same list as the page)
 
 /** [instant] = done by the own backend before the brain (shown in its own colour); the others work with any server. */
-data class VoiceCommand(val title: String, val example: String, val instant: Boolean = false, val ha: Boolean = false)
+data class VoiceCommand(val title: String, val example: String, val instant: Boolean = false, val ha: Boolean = false, val music: Boolean = false)
 
 val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
     "Movement" to listOf(
@@ -335,7 +335,16 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("State", "“is the living room light on?”, “which lights are on?”, “what is the temperature in the living room?”", ha = true),
         VoiceCommand("Anything else", "“make the lights cosy”: the brain picks the Home Assistant action itself", ha = true),
         VoiceCommand("Never", "locks, alarms and garage doors: Jarvis refuses", ha = true),
-    )
+    ),
+    "Music: songs from your music folder" to listOf(
+        VoiceCommand("Play", "“play something random”, “play a song by Queen”, “play Bohemian Rhapsody”, “speel een nummer van Abba” (30 seconds of the song)", music = true),
+        VoiceCommand("Control", "“next song”, “stop the music”, “what is this song?”, or the Stop button in this app", music = true),
+    ),
+    "Music: radio and podcasts" to listOf(
+        VoiceCommand("Radio", "“play Radio 538”, “play jazz radio”, “put on NPO Radio 2”, “speel Q-music” (plays until you stop it)", music = true),
+        VoiceCommand("Podcasts", "“play the latest episode of Huberman Lab”, “play podcast The Daily”", music = true),
+        VoiceCommand("Stop", "“stop the radio”, “stop”, or the Stop button in this app", music = true),
+    ),
 )
 
 // ---------------------------------------------------------------- remote control
