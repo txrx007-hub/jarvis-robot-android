@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
@@ -81,14 +80,18 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
         ThemeBackdrop()
         Row(Modifier.fillMaxSize().displayCutoutPadding().statusBarsPadding().navigationBarsPadding()) {
             NavPane(state, actions, sections, selected) { selected = it }
-            // The Backend section holds the volume and server cards with the backend page below them, filling the pane:
-            // no scrolling column around it (the page scrolls itself).
+            val panelUrl = state.status?.panelUrl.orEmpty()
+            if (selected == SECTION_BACKEND && state.status?.serverCustom == true && panelUrl.isNotEmpty()) {
+                // The backend page alone, from the top of the right side down to the bottom (the page scrolls itself).
+                BackendWeb(panelUrl, state.host, state.palette, Modifier.weight(1f).fillMaxHeight().padding(12.dp).clip(RoundedCornerShape(12.dp)))
+                return@Row
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .imePadding()
-                    .then(if (selected == SECTION_BACKEND) Modifier else Modifier.verticalScroll(rememberScrollState()))
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 28.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
@@ -102,7 +105,7 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
                     SECTION_CAMERA -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Column(Modifier.widthIn(max = 720.dp)) { CameraPanel(state, onTake = actions.onPhoto) }
                     }
-                    SECTION_BACKEND -> Backend(state, actions, columns)
+                    SECTION_BACKEND -> Backend(state, actions)
                     SECTION_COMMANDS -> VoiceCommandsPanel(columns)
                     SECTION_LOOK -> Appearance(state, actions)
                     else -> {
@@ -232,22 +235,14 @@ private fun Columns(count: Int, items: List<@Composable () -> Unit>) {
     }
 }
 
-/** Volume and voice server on top, the backend page under them using the rest of the pane. */
+/** Only seen when Jarvis does not talk to an own server (otherwise the backend page fills the pane): how to switch, via the Voice server card. */
 @Composable
-private fun ColumnScope.Backend(state: MainUiState, actions: MainActions, columns: Int) {
+private fun Backend(state: MainUiState, actions: MainActions) {
     val p = LocalPalette.current
-    Columns(columns, listOf(
-        { VolumeCard(state.status, actions.onSetVolume) },
-        { ServerCard(state.status, state.serverFeedback, state.backendPin, actions.onSetServer, showOpen = false) },
-    ))
-    val panelUrl = state.status?.panelUrl.orEmpty()
-    if (state.status?.serverCustom == true && panelUrl.isNotEmpty()) {
-        BackendWeb(panelUrl, state.host, state.palette, Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(12.dp)))
-    } else {
-        JCard {
-            Text("The backend page is there when Jarvis talks to your own server (Voice server card).", color = p.muted, fontSize = 13.sp)
-        }
+    JCard {
+        Text("The backend page is there when Jarvis talks to your own server. Set it here:", color = p.muted, fontSize = 13.sp)
     }
+    ServerCard(state.status, state.serverFeedback, state.backendPin, actions.onSetServer, showOpen = false)
 }
 
 @Composable
@@ -264,6 +259,7 @@ private fun Overview(state: MainUiState, actions: MainActions, columns: Int) {
             )
         },
         { VolumeCard(state.status, actions.onSetVolume) },
+        { ServerCard(state.status, state.serverFeedback, state.backendPin, actions.onSetServer, showOpen = false) },
     ))
 }
 
