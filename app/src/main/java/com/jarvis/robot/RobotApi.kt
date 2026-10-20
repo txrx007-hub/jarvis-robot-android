@@ -114,6 +114,16 @@ class RobotApi(host: String) {
         return call(normal, req).substringAfter("=").substringAfter('"').substringBefore('"').filter { it.isDigit() }
     }
 
+    /**
+     * Whether Home Assistant works from the backend (its /ha.js says {"ok": true}); asked like the PIN, as a page of the robot.
+     * The Home Assistant commands are listed only while it does.
+     */
+    fun homeAssistantOk(panelUrl: String): Boolean {
+        val base = if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
+        val req = Request.Builder().url(base + "ha.js").header("Referer", "http://$host/").get().build()
+        return Regex("\"ok\"\\s*:\\s*true").containsMatchIn(call(normal, req))
+    }
+
     /** action = nap | wake | deepsleep (minutes 0 = until the BOOT button, max 1440). */
     fun power(action: String, minutes: Int = 0): PowerResult {
         val q = if (action == "deepsleep") "action=deepsleep&minutes=$minutes" else "action=$action"

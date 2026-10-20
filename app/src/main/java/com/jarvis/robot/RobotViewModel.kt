@@ -83,6 +83,11 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     private var pinFor = ""
     private var pinRetryAt = 0L
 
+    /** True while the backend reports that Home Assistant works; the Home Assistant commands are listed only then. Asked again every 2 minutes. */
+    var haOk by mutableStateOf(false)
+        private set
+    private var haCheckedAt = 0L
+
     private var api = RobotApi(host)
     private var pollJob: Job? = null
     private var driveJob: Job? = null
@@ -104,6 +109,8 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         serverFeedback = null
         backendPin = ""
         pinFor = ""
+        haOk = false
+        haCheckedAt = 0L
         releaseAll()
         if (pollJob?.isActive == true) loadSettings()
     }
@@ -152,6 +159,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
             result.onSuccess {
                 status = it
                 loadBackendPin(current, it)
+                loadHaOk(current, it)
                 failures = 0
                 sleepingNow = false
                 if (!online) {
@@ -305,6 +313,21 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
             )
             backendPin = ""
             pinFor = ""
+        }
+    }
+
+    private fun loadHaOk(current: RobotApi, s: Status) {
+        val url = if (s.serverCustom) s.panelUrl else ""
+        if (url.isEmpty()) {
+            haOk = false
+            return
+        }
+        val now = System.currentTimeMillis()
+        if (now - haCheckedAt < 120_000) return
+        haCheckedAt = now
+        viewModelScope.launch {
+            val ok = runCatching { withContext(Dispatchers.IO) { current.homeAssistantOk(url) } }.getOrDefault(false)
+            if (current === api) haOk = ok
         }
     }
 

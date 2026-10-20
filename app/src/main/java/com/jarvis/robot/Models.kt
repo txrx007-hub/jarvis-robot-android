@@ -245,7 +245,7 @@ fun groupSettings(defs: List<SettingDef>): List<Pair<SettingsGroup, List<Setting
 // ---------------------------------------------------------------- voice commands (same list as the page)
 
 /** [instant] = done by the own backend before the brain (shown in its own colour); the others work with any server. */
-data class VoiceCommand(val title: String, val example: String, val instant: Boolean = false)
+data class VoiceCommand(val title: String, val example: String, val instant: Boolean = false, val ha: Boolean = false)
 
 val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
     "Movement" to listOf(
@@ -321,6 +321,21 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("Briefing", "“good morning” (weather, timers, notes and news on the topics set in the backend)", instant = true),
         VoiceCommand("In Dutch too", "“vooruit”, “hoe laat is het?”, “zet een timer op 10 minuten”, “wees kalm”, “goedemorgen”", instant = true),
     ),
+    "Home: lights and switches" to listOf(
+        VoiceCommand("On and off", "“turn off the living room light”, “turn on the tv”, “switch off the fan”, “woonkamer lamp aan”, “doe de schuur uit”", ha = true),
+        VoiceCommand("Brightness", "“dim the game room to 40”, “zet de lamp op 30 procent”", ha = true),
+        VoiceCommand("Whole rooms", "“turn off all lights in the living room”, “lights off” (asks first when it is more than five)", ha = true),
+    ),
+    "Home: scenes, scripts and heating" to listOf(
+        VoiceCommand("Scenes and scripts", "“start the netflix scene”, “run the goodnight script”, “zet de disco scene aan”", ha = true),
+        VoiceCommand("Heating", "“set the AC livingroom to 21”, “zet de airco kantoor op 20”, “make it warmer” (with two thermostats it asks which one)", ha = true),
+        VoiceCommand("Blinds", "“close the blinds” (asks for a yes first)", ha = true),
+    ),
+    "Home: questions" to listOf(
+        VoiceCommand("State", "“is the living room light on?”, “which lights are on?”, “what is the temperature in the living room?”", ha = true),
+        VoiceCommand("Anything else", "“make the lights cosy”: the brain picks the Home Assistant action itself", ha = true),
+        VoiceCommand("Never", "locks, alarms and garage doors: Jarvis refuses", ha = true),
+    )
 )
 
 // ---------------------------------------------------------------- remote control

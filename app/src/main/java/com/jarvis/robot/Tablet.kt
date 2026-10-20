@@ -106,7 +106,7 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
                         Column(Modifier.widthIn(max = 720.dp)) { CameraPanel(state, onTake = actions.onPhoto) }
                     }
                     SECTION_BACKEND -> Backend(state, actions)
-                    SECTION_COMMANDS -> VoiceCommandsPanel(columns)
+                    SECTION_COMMANDS -> VoiceCommandsPanel(columns, state.haOk)
                     SECTION_LOOK -> Appearance(state, actions)
                     else -> {
                         val defs = groups.firstOrNull { it.first.title == selected }?.second.orEmpty()

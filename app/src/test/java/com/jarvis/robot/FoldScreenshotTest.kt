@@ -73,6 +73,9 @@ class FoldInnerScreenshotTest {
     @Test fun innerBackend() = shot("Backend")
     @Test fun innerSplash() = rule.snapshot { JarvisTheme(ThemeMode.DARK, AppPalette.BLUEBERRY) { SplashScreen() } }
     @Test fun innerCommands() = shot("Voice commands", palette = AppPalette.CLASSIC)
+    @Test fun innerCommandsHome() = rule.snapshot {
+        JarvisTheme(ThemeMode.DARK, AppPalette.CLASSIC) { MainContent(online.copy(haOk = true), MainActions(), initialSection = "Voice commands") }
+    }
     @Test fun innerMotors() = shot("Motors")
     @Test fun innerAppearance() = shot("Appearance")
 }

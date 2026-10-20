@@ -67,6 +67,7 @@ data class MainUiState(
     val photoBusy: Boolean = false,
     val photoError: String? = null,
     val palette: AppPalette = AppPalette.CLASSIC,
+    val haOk: Boolean = false,
 )
 
 /** What the main screen can ask for; the ViewModel implements these, tests and previews pass no-ops. */
@@ -106,6 +107,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         photoTime = vm.photoTime,
         photoBusy = vm.photoBusy,
         photoError = vm.photoError,
+        haOk = vm.haOk,
         palette = vm.palette,
     )
     val actions = remember(vm) {
@@ -226,7 +228,7 @@ fun PhoneContent(
                 actions.onPhoto()
             }
             if (showCamera) CameraPanel(state, onHide = { showCamera = false })
-            if (showVoice) VoiceCommandsPanel()
+            if (showVoice) VoiceCommandsPanel(haOk = state.haOk)
 
             PowerCard(
                 status = status,
