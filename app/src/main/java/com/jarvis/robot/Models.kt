@@ -342,7 +342,7 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
     ),
     "Music: radio and podcasts" to listOf(
         VoiceCommand("Radio", "“play Radio 538”, “play jazz radio”, “put on NPO Radio 2”, “speel Q-music” (plays until you stop it)", music = true),
-        VoiceCommand("Podcasts", "“play the latest episode of Huberman Lab”, “play podcast The Daily”", music = true),
+        VoiceCommand("Podcasts", "“play the latest episode of <a podcast from your list>”, “play podcast <name>” (the shows you list in music/radio.yaml on the backend)", music = true),
         VoiceCommand("Stop", "“stop the radio”, “stop”, or the Stop button in this app", music = true),
     ),
 )

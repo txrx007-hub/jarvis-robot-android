@@ -1,4 +1,4 @@
-﻿plugins {
+plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -13,8 +13,8 @@ android {
         applicationId = "com.jarvis.robot"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "2.8"
+        versionCode = 11
+        versionName = "2.9"
     }
 
     buildTypes {
