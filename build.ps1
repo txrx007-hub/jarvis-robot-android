@@ -9,5 +9,6 @@ if (-not $env:ANDROID_HOME -and -not (Test-Path "$PSScriptRoot\local.properties"
     Write-Error "Set ANDROID_HOME to your Android SDK folder (or create local.properties with sdk.dir=...)."
     exit 1
 }
-& "$PSScriptRoot\gradlew.bat" @GradleArgs
+# --no-daemon: the build ends with the process, nothing stays behind holding memory or the console
+& "$PSScriptRoot\gradlew.bat" --no-daemon @GradleArgs
 exit $LASTEXITCODE
