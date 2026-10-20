@@ -40,6 +40,12 @@ class FoldScreenshotTest {
         JarvisTheme(ThemeMode.DARK, AppPalette.BLUEBERRY) { MainContent(withPhoto.copy(palette = AppPalette.BLUEBERRY), MainActions(), initialShowCamera = true) }
     }
 
+    @Test fun coverMusic() = coverRule.snapshot {
+        JarvisTheme(ThemeMode.DARK, AppPalette.SUCCULENT) {
+            MainContent(online.copy(palette = AppPalette.SUCCULENT, music = MusicStatus(true, 128, "Alpha Song", "Test Artist")), MainActions(), initialShowCamera = false)
+        }
+    }
+
     @Test fun coverClassicDark() = coverRule.snapshot { JarvisTheme(ThemeMode.DARK) { MainContent(online.copy(palette = AppPalette.CLASSIC), MainActions()) } }
 
     @Test fun coverBlueberryDark() = coverRule.snapshot {
@@ -68,6 +74,11 @@ class FoldInnerScreenshotTest {
     @Test fun innerOverviewSucculentLight() = shot(SECTION_OVERVIEW, ThemeMode.LIGHT, AppPalette.SUCCULENT)
     @Test fun innerCamera() = rule.snapshot {
         JarvisTheme(ThemeMode.DARK, AppPalette.SUCCULENT) { MainContent(withPhoto.copy(palette = AppPalette.SUCCULENT), MainActions(), initialSection = "Camera") }
+    }
+    @Test fun innerMusic() = rule.snapshot {
+        JarvisTheme(ThemeMode.DARK, AppPalette.BLUEBERRY) {
+            MainContent(online.copy(palette = AppPalette.BLUEBERRY, music = MusicStatus(true, 128, "Alpha Song", "Test Artist")), MainActions(), initialSection = "Music")
+        }
     }
     @Test fun innerRemote() = shot("Remote control")
     @Test fun innerBackend() = shot("Backend")

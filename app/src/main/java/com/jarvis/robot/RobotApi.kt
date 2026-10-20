@@ -1,5 +1,8 @@
 package com.jarvis.robot
 
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -39,6 +42,51 @@ class RobotApi(host: String) {
         .readTimeout(12000, TimeUnit.MILLISECONDS)
         .callTimeout(15000, TimeUnit.MILLISECONDS)
         .build()
+
+    // The backend's panel signs the app in through its /auto page (it recognises the robot as the referrer, like the landing page's button) and then
+    // wants a cookie on every call: a tiny in-memory jar for that.
+    private val panelCookies = mutableListOf<Cookie>()
+    private val panelClient: OkHttpClient = normal.newBuilder()
+        .cookieJar(object : CookieJar {
+            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                synchronized(panelCookies) { panelCookies.removeAll { c -> cookies.any { it.name == c.name } }; panelCookies.addAll(cookies) }
+            }
+            override fun loadForRequest(url: HttpUrl): List<Cookie> = synchronized(panelCookies) { panelCookies.toList() }
+        })
+        .build()
+
+    private fun panelBase(panelUrl: String) = if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
+
+    private fun panelLogin(panelUrl: String) {
+        panelClient.newCall(Request.Builder().url(panelBase(panelUrl) + "auto").header("Referer", "http://$host/").get().build()).execute().close()
+    }
+
+    private fun panelCall(panelUrl: String, build: (String) -> Request): String {
+        for (attempt in 0..1) {
+            panelClient.newCall(build(panelBase(panelUrl))).execute().use { r ->
+                if (r.code == 401 && attempt == 0) {
+                    panelLogin(panelUrl)
+                    return@use
+                }
+                if (!r.isSuccessful) throw java.io.IOException("HTTP ${r.code}")
+                return r.body?.string() ?: ""
+            }
+        }
+        throw java.io.IOException("not signed in")
+    }
+
+    /** The music module's state (needs the backend's music module; null when it cannot be asked). */
+    fun musicStatus(panelUrl: String): MusicStatus? {
+        val o = JSONObject(panelCall(panelUrl) { Request.Builder().url(it + "api/music").get().build() })
+        val now = o.optJSONObject("now")
+        return MusicStatus(o.optBoolean("enabled"), o.optInt("tracks"), now?.optString("title"), now?.optString("artist"))
+    }
+
+    /** action = stop | next */
+    fun musicControl(panelUrl: String, action: String): Boolean {
+        val body = JSONObject().put("action", action).toString().toRequestBody("application/json".toMediaType())
+        return JSONObject(panelCall(panelUrl) { Request.Builder().url(it + "api/music/control").header("X-Panel", "1").post(body).build() }).optBoolean("ok")
+    }
 
     private fun url(path: String) = "http://$host$path"
 

@@ -68,6 +68,7 @@ data class MainUiState(
     val photoError: String? = null,
     val palette: AppPalette = AppPalette.CLASSIC,
     val haOk: Boolean = false,
+    val music: MusicStatus? = null,
 )
 
 /** What the main screen can ask for; the ViewModel implements these, tests and previews pass no-ops. */
@@ -82,6 +83,8 @@ class MainActions(
     val onTheme: (ThemeMode) -> Unit = {},
     val onPalette: (AppPalette) -> Unit = {},
     val onPhoto: () -> Unit = {},
+    val onMusicStop: () -> Unit = {},
+    val onMusicNext: () -> Unit = {},
     val onSetVolume: (Int) -> Unit = {},
     val onSetServer: (String) -> Unit = {},
 )
@@ -108,6 +111,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         photoBusy = vm.photoBusy,
         photoError = vm.photoError,
         haOk = vm.haOk,
+        music = vm.music,
         palette = vm.palette,
     )
     val actions = remember(vm) {
@@ -122,6 +126,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onTheme = vm::setTheme,
             onPalette = vm::choosePalette,
             onPhoto = vm::takePhoto,
+            onMusicStop = vm::musicStop,
+            onMusicNext = vm::musicNext,
             onSetVolume = vm::setVolume,
             onSetServer = vm::setServer,
         )
@@ -228,6 +234,7 @@ fun PhoneContent(
                 actions.onPhoto()
             }
             if (showCamera) CameraPanel(state, onHide = { showCamera = false })
+            if (state.music?.enabled == true) MusicCard(state.music, actions.onMusicStop, actions.onMusicNext)
             if (showVoice) VoiceCommandsPanel(haOk = state.haOk)
 
             PowerCard(

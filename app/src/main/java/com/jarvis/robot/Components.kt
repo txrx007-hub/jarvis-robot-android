@@ -461,6 +461,31 @@ fun CameraPanel(state: MainUiState, onHide: (() -> Unit)? = null, onTake: (() ->
     }
 }
 
+// ------------------------------------------------------------------ music
+
+/** The backend's music player: what is playing (a short clip of a song, chosen by voice) and Stop / Next. Shown while the module is on. */
+@Composable
+fun MusicCard(music: MusicStatus, onStop: () -> Unit, onNext: () -> Unit) {
+    val p = LocalPalette.current
+    JCard {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Music", fontWeight = FontWeight.SemiBold, color = p.text)
+            Text("${music.tracks} songs", color = p.muted, fontSize = 13.sp)
+        }
+        val playing = !music.title.isNullOrEmpty()
+        Text(
+            if (playing) "Playing: ${music.title}" + (music.artist?.takeIf { it.isNotEmpty() }?.let { " - $it" } ?: "")
+            else "Nothing playing. Say: Jarvis, play something random.",
+            color = if (playing) p.accent else p.muted,
+            fontSize = 14.sp,
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            JButton("Stop", Modifier.weight(1f), danger = true, onClick = onStop)
+            JButton("Next song", Modifier.weight(1f), onClick = onNext)
+        }
+    }
+}
+
 // ------------------------------------------------------------------ remote control
 
 @Composable

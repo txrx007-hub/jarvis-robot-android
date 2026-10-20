@@ -372,3 +372,7 @@ fun sleepText(total: Int): String {
     val mp = if (m > 0) "$m min" else ""
     return "for " + listOf(hp, mp).filter { it.isNotEmpty() }.joinToString(" ")
 }
+
+
+/** The backend's music module: is it on (a folder is set), how many songs, and what is playing right now. */
+data class MusicStatus(val enabled: Boolean, val tracks: Int, val title: String?, val artist: String?)

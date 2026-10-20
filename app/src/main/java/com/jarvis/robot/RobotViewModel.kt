@@ -88,6 +88,11 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         private set
     private var haCheckedAt = 0L
 
+    /** The backend's music module (null = not on or not asked yet): the Music card shows while it is on. Asked every 4 seconds while the app is on screen. */
+    var music by mutableStateOf<MusicStatus?>(null)
+        private set
+    private var musicCheckedAt = 0L
+
     private var api = RobotApi(host)
     private var pollJob: Job? = null
     private var driveJob: Job? = null
@@ -111,6 +116,8 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         pinFor = ""
         haOk = false
         haCheckedAt = 0L
+        music = null
+        musicCheckedAt = 0L
         releaseAll()
         if (pollJob?.isActive == true) loadSettings()
     }
@@ -160,6 +167,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
                 status = it
                 loadBackendPin(current, it)
                 loadHaOk(current, it)
+                loadMusic(current, it)
                 failures = 0
                 sleepingNow = false
                 if (!online) {
@@ -313,6 +321,35 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
             )
             backendPin = ""
             pinFor = ""
+        }
+    }
+
+    private fun loadMusic(current: RobotApi, s: Status) {
+        val url = if (s.serverCustom) s.panelUrl else ""
+        if (url.isEmpty()) {
+            music = null
+            return
+        }
+        val now = System.currentTimeMillis()
+        if (now - musicCheckedAt < 4_000) return
+        musicCheckedAt = now
+        viewModelScope.launch {
+            val m = runCatching { withContext(Dispatchers.IO) { current.musicStatus(url) } }.getOrNull()
+            if (current === api) music = m
+        }
+    }
+
+    fun musicStop() = musicAct("stop")
+
+    fun musicNext() = musicAct("next")
+
+    private fun musicAct(action: String) {
+        val current = api
+        val url = status?.panelUrl.orEmpty()
+        if (url.isEmpty()) return
+        viewModelScope.launch {
+            runCatching { withContext(Dispatchers.IO) { current.musicControl(url, action) } }
+            musicCheckedAt = 0L
         }
     }
 
