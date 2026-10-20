@@ -195,9 +195,12 @@ private fun InfoColumn(rows: List<Pair<String, String>>, labelWidth: Int, highli
 fun VoiceCommandsPanel() {
     val p = LocalPalette.current
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Original commands (cyan): understood by the brain, work with any server.", color = p.accent, fontSize = 12.sp)
+        Text("Instant commands (orange): only with your own server. Done at once, no brain, no waiting; they keep working when the brain is down.", color = p.instant, fontSize = 12.sp)
         for ((group, items) in VOICE_COMMANDS) {
+            val instant = items.any { it.instant }
             JCard {
-                Text(group, color = p.accent, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Text(group, color = if (instant) p.instant else p.accent, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 for (item in items) {
                     Column {
                         Text(item.title, color = p.text, fontSize = 14.sp)

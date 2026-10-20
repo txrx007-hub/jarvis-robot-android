@@ -244,7 +244,8 @@ fun groupSettings(defs: List<SettingDef>): List<Pair<SettingsGroup, List<Setting
 
 // ---------------------------------------------------------------- voice commands (same list as the page)
 
-data class VoiceCommand(val title: String, val example: String)
+/** [instant] = done by the own backend before the brain (shown in its own colour); the others work with any server. */
+data class VoiceCommand(val title: String, val example: String, val instant: Boolean = false)
 
 val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
     "Movement" to listOf(
@@ -296,6 +297,29 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
     ),
     "Built into upstream" to listOf(
         VoiceCommand("Volume, photo, status, theme", "“turn the volume up”, “take a photo”, “switch to dark theme”"),
+    ),
+    "Instant: stop and drive" to listOf(
+        VoiceCommand("Stop", "“stop”, “halt”, “freeze”", instant = true),
+        VoiceCommand("Drive", "“go forward”, “go back”, “go forward for 3 seconds”", instant = true),
+        VoiceCommand("Turn", "“turn left”, “turn right”, “turn around”", instant = true),
+        VoiceCommand("Dance", "“dance”", instant = true),
+    ),
+    "Instant: sound and screen" to listOf(
+        VoiceCommand("Volume", "“volume 50”, “volume up”, “volume down”, “louder”, “full volume”", instant = true),
+        VoiceCommand("Theme", "“dark mode”, “light mode”", instant = true),
+        VoiceCommand("Brightness", "“brightness 30”", instant = true),
+    ),
+    "Instant: time and timers" to listOf(
+        VoiceCommand("Time and date", "“what time is it?”, “what day is it?”", instant = true),
+        VoiceCommand("Timer", "“set a timer for 5 minutes”, “cancel all timers”", instant = true),
+    ),
+    "Instant: moods" to listOf(
+        VoiceCommand("Mood", "“be cheerful”, “be calm”, “be serious”, “be dry”, “back to normal”", instant = true),
+    ),
+    "Instant: explore and briefing" to listOf(
+        VoiceCommand("Explore", "“explore the room” (looks around, steps forward, looks again, then tells you what it found)", instant = true),
+        VoiceCommand("Briefing", "“good morning” (weather, timers, notes and news on the topics set in the backend)", instant = true),
+        VoiceCommand("In Dutch too", "“vooruit”, “hoe laat is het?”, “zet een timer op 10 minuten”, “wees kalm”, “goedemorgen”", instant = true),
     ),
 )
 

@@ -20,6 +20,7 @@ data class Palette(
     val muted: Color,
     val danger: Color,
     val success: Color,
+    val instant: Color,
     val field: Color,
     val isDark: Boolean,
 )
@@ -27,13 +28,13 @@ data class Palette(
 val DarkPalette = Palette(
     bg = Color(0xFF0B1416), card = Color(0xFF101F22), border = Color(0xFF1C3236),
     accent = Color(0xFF20E0E0), text = Color(0xFFE8F6F5), muted = Color(0xFF8FB9B6),
-    danger = Color(0xFFFF8A8A), success = Color(0xFF6BE3AB), field = Color(0xFF0C1A1C), isDark = true,
+    danger = Color(0xFFFF8A8A), success = Color(0xFF6BE3AB), instant = Color(0xFFFFB86B), field = Color(0xFF0C1A1C), isDark = true,
 )
 
 val LightPalette = Palette(
     bg = Color(0xFFEEF5F5), card = Color(0xFFFFFFFF), border = Color(0xFFC9DCDC),
     accent = Color(0xFF0A8F95), text = Color(0xFF12292B), muted = Color(0xFF55777A),
-    danger = Color(0xFFC0392B), success = Color(0xFF1B8F5A), field = Color(0xFFF3F8F8), isDark = false,
+    danger = Color(0xFFC0392B), success = Color(0xFF1B8F5A), instant = Color(0xFFB3560A), field = Color(0xFFF3F8F8), isDark = false,
 )
 
 val LocalPalette = staticCompositionLocalOf { DarkPalette }
