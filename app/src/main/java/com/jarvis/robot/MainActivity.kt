@@ -20,6 +20,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -106,22 +109,25 @@ private fun Root(vm: RobotViewModel) {
 }
 
 const val SPLASH_MS = 4000L
-const val SPLASH_SIZE = 0.7f // share of the screen's width and height the photo takes
+const val SPLASH_WIDTH = 0.7f   // share of the screen's width the photo may take
+const val SPLASH_HEIGHT = 0.7f  // share of the screen's height the photo may take; the photo keeps its own proportions inside both
+const val SPLASH_ASPECT = 1080f / 1920f // width / height of splash.jpg (portrait)
 
-/** The robot in the user's hand, background blurred (made by tools/make_splash.py), at 70% of the screen. */
+/** The robot in the user's hand, background blurred (made by tools/make_splash.py), in its original proportions, as large as fits. */
 @Composable
 fun SplashScreen() {
-    Box(
+    BoxWithConstraints(
         modifier = Modifier.fillMaxSize().background(LocalPalette.current.bg),
         contentAlignment = Alignment.Center,
     ) {
+        val width = minOf(maxWidth * SPLASH_WIDTH, maxHeight * SPLASH_HEIGHT * SPLASH_ASPECT)
         Image(
             painter = painterResource(R.drawable.splash),
             contentDescription = "Jarvis",
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
             modifier = Modifier
-                .fillMaxWidth(SPLASH_SIZE)
-                .fillMaxHeight(SPLASH_SIZE)
+                .width(width)
+                .aspectRatio(SPLASH_ASPECT)
                 .clip(RoundedCornerShape(24.dp)),
         )
     }

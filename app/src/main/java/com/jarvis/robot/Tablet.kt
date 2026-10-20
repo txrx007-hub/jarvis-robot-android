@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
@@ -49,7 +50,7 @@ import androidx.compose.ui.unit.sp
 
 const val SECTION_OVERVIEW = "Overview"
 private const val SECTION_REMOTE = "Remote control"
-private const val SECTION_SOUND = "Volume and voice server"
+private const val SECTION_BACKEND = "Backend"
 private const val SECTION_COMMANDS = "Voice commands"
 private const val SECTION_LOOK = "Appearance"
 
@@ -64,7 +65,7 @@ private const val TWO_COLUMNS_FROM_DP = 640 // width of the right pane from whic
 fun TabletContent(state: MainUiState, actions: MainActions, initialSection: String = SECTION_OVERVIEW) {
     val p = LocalPalette.current
     val groups = groupSettings(state.settings)
-    val sections = listOf(SECTION_OVERVIEW, SECTION_REMOTE, SECTION_SOUND, SECTION_COMMANDS) +
+    val sections = listOf(SECTION_OVERVIEW, SECTION_REMOTE, SECTION_BACKEND, SECTION_COMMANDS) +
         groups.map { it.first.title } + SECTION_LOOK
     var selected by rememberSaveable { mutableStateOf(initialSection) }
     if (selected !in sections) selected = SECTION_OVERVIEW // e.g. the settings had not loaded yet
@@ -79,12 +80,14 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
         ThemeBackdrop()
         Row(Modifier.fillMaxSize().displayCutoutPadding().statusBarsPadding().navigationBarsPadding()) {
             NavPane(state, actions, sections, selected) { selected = it }
+            // The Backend section holds the volume and server cards with the backend page below them, filling the pane:
+            // no scrolling column around it (the page scrolls itself).
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .imePadding()
-                    .verticalScroll(rememberScrollState())
+                    .then(if (selected == SECTION_BACKEND) Modifier else Modifier.verticalScroll(rememberScrollState()))
                     .padding(horizontal = 28.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
@@ -95,10 +98,7 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
                     SECTION_REMOTE -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Column(Modifier.widthIn(max = 460.dp)) { RemotePanel(state.held, actions.onHold) }
                     }
-                    SECTION_SOUND -> Columns(columns, listOf(
-                        { VolumeCard(state.status, actions.onSetVolume) },
-                        { ServerCard(state.status, state.serverFeedback, state.backendPin, actions.onSetServer) },
-                    ))
+                    SECTION_BACKEND -> Backend(state, actions, columns)
                     SECTION_COMMANDS -> VoiceCommandsPanel(columns)
                     SECTION_LOOK -> Appearance(state, actions)
                     else -> {
@@ -224,6 +224,24 @@ private fun Columns(count: Int, items: List<@Composable () -> Unit>) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items.filterIndexed { i, _ -> i % count == c }.forEach { it() }
             }
+        }
+    }
+}
+
+/** Volume and voice server on top, the backend page under them using the rest of the pane. */
+@Composable
+private fun ColumnScope.Backend(state: MainUiState, actions: MainActions, columns: Int) {
+    val p = LocalPalette.current
+    Columns(columns, listOf(
+        { VolumeCard(state.status, actions.onSetVolume) },
+        { ServerCard(state.status, state.serverFeedback, state.backendPin, actions.onSetServer, showOpen = false) },
+    ))
+    val panelUrl = state.status?.panelUrl.orEmpty()
+    if (state.status?.serverCustom == true && panelUrl.isNotEmpty()) {
+        BackendWeb(panelUrl, state.host, state.palette, Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(12.dp)))
+    } else {
+        JCard {
+            Text("The backend page is there when Jarvis talks to your own server (Voice server card).", color = p.muted, fontSize = 13.sp)
         }
     }
 }

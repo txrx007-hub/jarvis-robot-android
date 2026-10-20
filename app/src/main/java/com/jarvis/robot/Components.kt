@@ -366,6 +366,8 @@ fun ServerCard(
     feedback: Feedback?,
     backendPin: String,
     onSetServer: (String) -> Unit,
+    onOpenBackend: (() -> Unit)? = null, // null: open the page in the browser; the tablet shows it right below instead (showOpen = false)
+    showOpen: Boolean = true,
 ) {
     val p = LocalPalette.current
     val server = status?.server ?: return
@@ -387,7 +389,11 @@ fun ServerCard(
             JButton("Use cloud", Modifier.weight(1f)) { if (own) confirm = "default" }
         }
         if (own && status.panelUrl.isNotEmpty()) {
-            JButton("Open Jarvis backend ↗", Modifier.fillMaxWidth()) { uri.openUri(status.panelUrl) }
+            if (showOpen) {
+                JButton(if (onOpenBackend != null) "Open Jarvis backend" else "Open Jarvis backend ↗", Modifier.fillMaxWidth()) {
+                    if (onOpenBackend != null) onOpenBackend() else uri.openUri(status.panelUrl)
+                }
+            }
             if (backendPin.isNotEmpty()) {
                 Text("Backend PIN for other devices: $backendPin", color = p.muted, fontSize = 13.sp)
             }

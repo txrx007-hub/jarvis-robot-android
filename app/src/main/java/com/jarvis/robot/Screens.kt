@@ -152,6 +152,7 @@ fun PhoneContent(
     val openGroups = remember { mutableStateMapOf<String, Boolean>().apply { initialOpenGroups.forEach { put(it, true) } } }
     var confirmReset by remember { mutableStateOf(false) }
     var resetNote by remember { mutableStateOf<Feedback?>(null) }
+    var showBackend by rememberSaveable { mutableStateOf(false) }
     val status = state.status
 
     Box(Modifier.fillMaxSize()) {
@@ -217,7 +218,7 @@ fun PhoneContent(
             )
 
             VolumeCard(status, actions.onSetVolume)
-            ServerCard(status, state.serverFeedback, state.backendPin, actions.onSetServer)
+            ServerCard(status, state.serverFeedback, state.backendPin, actions.onSetServer, onOpenBackend = { showBackend = true })
 
             if (showRemote) RemotePanel(state.held, actions.onHold)
 
@@ -262,6 +263,9 @@ fun PhoneContent(
             onPalette = actions.onPalette,
             onChange = actions.onTheme,
         )
+
+        // The backend page opens over this screen (back returns here, the scroll position is kept).
+        if (showBackend) BackendScreen(state) { showBackend = false }
     }
 
     if (confirmReset) {
