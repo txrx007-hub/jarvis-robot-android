@@ -34,6 +34,12 @@ class RobotApi(host: String) {
         .callTimeout(2000, TimeUnit.MILLISECONDS)
         .build()
 
+    // A photo takes the robot a second or two (camera, JPEG encoder, then the weak WiFi).
+    private val slow: OkHttpClient = normal.newBuilder()
+        .readTimeout(12000, TimeUnit.MILLISECONDS)
+        .callTimeout(15000, TimeUnit.MILLISECONDS)
+        .build()
+
     private fun url(path: String) = "http://$host$path"
 
     private fun call(client: OkHttpClient, request: Request): String =
@@ -47,6 +53,16 @@ class RobotApi(host: String) {
 
     private fun post(path: String, body: RequestBody? = null, client: OkHttpClient = normal): String =
         call(client, Request.Builder().url(url(path)).post(body ?: ByteArray(0).toRequestBody(null)).build())
+
+    /** One picture from the robot's camera as JPEG bytes (the landing page's Camera button). Nothing is analysed or sent anywhere. */
+    fun photo(): ByteArray =
+        slow.newCall(Request.Builder().url(url("/api/photo")).post(ByteArray(0).toRequestBody(null)).build()).execute().use { r ->
+            if (!r.isSuccessful) {
+                val why = r.body?.string().orEmpty().trim()
+                throw java.io.IOException(if (why.isNotEmpty() && why.length < 120) why else "HTTP ${r.code}")
+            }
+            r.body?.bytes() ?: ByteArray(0)
+        }
 
     fun status(): Status = parseStatus(JSONObject(get("/api/status")))
 

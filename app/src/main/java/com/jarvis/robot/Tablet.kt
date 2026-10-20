@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 
 const val SECTION_OVERVIEW = "Overview"
 private const val SECTION_REMOTE = "Remote control"
+private const val SECTION_CAMERA = "Camera"
 private const val SECTION_BACKEND = "Backend"
 private const val SECTION_COMMANDS = "Voice commands"
 private const val SECTION_LOOK = "Appearance"
@@ -65,7 +66,7 @@ private const val TWO_COLUMNS_FROM_DP = 640 // width of the right pane from whic
 fun TabletContent(state: MainUiState, actions: MainActions, initialSection: String = SECTION_OVERVIEW) {
     val p = LocalPalette.current
     val groups = groupSettings(state.settings)
-    val sections = listOf(SECTION_OVERVIEW, SECTION_REMOTE, SECTION_BACKEND, SECTION_COMMANDS) +
+    val sections = listOf(SECTION_OVERVIEW, SECTION_REMOTE, SECTION_CAMERA, SECTION_BACKEND, SECTION_COMMANDS) +
         groups.map { it.first.title } + SECTION_LOOK
     var selected by rememberSaveable { mutableStateOf(initialSection) }
     if (selected !in sections) selected = SECTION_OVERVIEW // e.g. the settings had not loaded yet
@@ -97,6 +98,9 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
                     SECTION_OVERVIEW -> Overview(state, actions, columns)
                     SECTION_REMOTE -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Column(Modifier.widthIn(max = 460.dp)) { RemotePanel(state.held, actions.onHold) }
+                    }
+                    SECTION_CAMERA -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                        Column(Modifier.widthIn(max = 720.dp)) { CameraPanel(state, onTake = actions.onPhoto) }
                     }
                     SECTION_BACKEND -> Backend(state, actions, columns)
                     SECTION_COMMANDS -> VoiceCommandsPanel(columns)
@@ -147,7 +151,7 @@ private fun NavPane(state: MainUiState, actions: MainActions, sections: List<Str
         Spacer(Modifier.height(6.dp))
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             for ((i, name) in sections.withIndex()) {
-                if (i == 4 && name != SECTION_LOOK) NavLabel("Robot settings")
+                if (i == 5 && name != SECTION_LOOK) NavLabel("Robot settings")
                 if (name == SECTION_LOOK) NavLabel("App")
                 NavItem(name, name == selected) { onSelect(name) }
             }

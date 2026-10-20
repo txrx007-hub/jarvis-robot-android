@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -61,6 +62,10 @@ data class MainUiState(
     val serverFeedback: Feedback? = null,
     val backendPin: String = "",
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val photo: ImageBitmap? = null,
+    val photoTime: String? = null,
+    val photoBusy: Boolean = false,
+    val photoError: String? = null,
     val palette: AppPalette = AppPalette.CLASSIC,
 )
 
@@ -75,6 +80,7 @@ class MainActions(
     val onReset: ((Boolean) -> Unit) -> Unit = {},
     val onTheme: (ThemeMode) -> Unit = {},
     val onPalette: (AppPalette) -> Unit = {},
+    val onPhoto: () -> Unit = {},
     val onSetVolume: (Int) -> Unit = {},
     val onSetServer: (String) -> Unit = {},
 )
@@ -96,6 +102,10 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         serverFeedback = vm.serverFeedback,
         backendPin = vm.backendPin,
         themeMode = vm.themeMode,
+        photo = vm.photo,
+        photoTime = vm.photoTime,
+        photoBusy = vm.photoBusy,
+        photoError = vm.photoError,
         palette = vm.palette,
     )
     val actions = remember(vm) {
@@ -109,6 +119,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onReset = vm::resetAll,
             onTheme = vm::setTheme,
             onPalette = vm::choosePalette,
+            onPhoto = vm::takePhoto,
             onSetVolume = vm::setVolume,
             onSetServer = vm::setServer,
         )
@@ -129,11 +140,12 @@ fun MainContent(
     initialOpenGroups: Set<String> = emptySet(),
     initialScrollPx: Int = 0,
     initialSection: String = SECTION_OVERVIEW,
+    initialShowCamera: Boolean = false,
 ) {
     if (LocalConfiguration.current.screenWidthDp >= TABLET_MIN_DP) {
         TabletContent(state, actions, initialSection)
     } else {
-        PhoneContent(state, actions, initialShowVoice, initialShowRemote, initialOpenGroups, initialScrollPx)
+        PhoneContent(state, actions, initialShowVoice, initialShowRemote, initialOpenGroups, initialScrollPx, initialShowCamera)
     }
 }
 
@@ -145,6 +157,7 @@ fun PhoneContent(
     initialShowRemote: Boolean = false,
     initialOpenGroups: Set<String> = emptySet(),
     initialScrollPx: Int = 0,
+    initialShowCamera: Boolean = false,
 ) {
     val p = LocalPalette.current
     var showVoice by rememberSaveable { mutableStateOf(initialShowVoice) }
@@ -153,6 +166,7 @@ fun PhoneContent(
     var confirmReset by remember { mutableStateOf(false) }
     var resetNote by remember { mutableStateOf<Feedback?>(null) }
     var showBackend by rememberSaveable { mutableStateOf(false) }
+    var showCamera by rememberSaveable { mutableStateOf(initialShowCamera) }
     val status = state.status
 
     Box(Modifier.fillMaxSize()) {
@@ -207,6 +221,11 @@ fun PhoneContent(
                     if (!showRemote) actions.onReleaseAll()
                 }
             }
+            JButton(if (state.photoBusy) "Taking photo..." else "Camera", Modifier.fillMaxWidth()) {
+                showCamera = true
+                actions.onPhoto()
+            }
+            if (showCamera) CameraPanel(state, onHide = { showCamera = false })
             if (showVoice) VoiceCommandsPanel()
 
             PowerCard(

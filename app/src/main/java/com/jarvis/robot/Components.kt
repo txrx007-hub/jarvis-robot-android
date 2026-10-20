@@ -430,6 +430,35 @@ fun ServerCard(
     }
 }
 
+// ------------------------------------------------------------------ camera
+
+/** The camera window: the last picture the robot took (it stays until the next one), when it was taken, or why there is none. */
+@Composable
+fun CameraPanel(state: MainUiState, onHide: (() -> Unit)? = null, onTake: (() -> Unit)? = null) {
+    val p = LocalPalette.current
+    JCard {
+        if (onTake != null) {
+            JButton(if (state.photoBusy) "Taking photo..." else if (state.photo == null) "Take a picture" else "Take another", Modifier.fillMaxWidth(), onClick = onTake)
+        }
+        val photo = state.photo
+        if (photo != null) {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                androidx.compose.foundation.Image(
+                    bitmap = photo,
+                    contentDescription = "Photo from Jarvis's camera",
+                    contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.dp, p.border, RoundedCornerShape(10.dp)),
+                )
+            }
+            state.photoTime?.let { Text("Taken at $it. Tap Camera again for a new one.", color = p.muted, fontSize = 13.sp) }
+        } else if (state.photoBusy) {
+            Text("Taking a picture...", color = p.muted, fontSize = 13.sp)
+        }
+        state.photoError?.let { Text("No picture: $it", color = p.danger, fontSize = 13.sp) }
+        if (onHide != null) TextButton(onClick = onHide) { Text("Hide picture", color = p.muted) }
+    }
+}
+
 // ------------------------------------------------------------------ remote control
 
 @Composable

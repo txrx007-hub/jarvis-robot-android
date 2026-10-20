@@ -2,6 +2,9 @@ package com.jarvis.robot
 
 import android.app.Application
 import android.content.Context
+import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -16,6 +19,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 enum class ThemeMode { SYSTEM, DARK, LIGHT }
 
@@ -40,6 +46,16 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     var status by mutableStateOf<Status?>(null)
+        private set
+
+    // the camera window: the last picture, when it was taken, and what went wrong if the last try failed
+    var photo by mutableStateOf<ImageBitmap?>(null)
+        private set
+    var photoTime by mutableStateOf<String?>(null)
+        private set
+    var photoBusy by mutableStateOf(false)
+        private set
+    var photoError by mutableStateOf<String?>(null)
         private set
     var online by mutableStateOf(false)
         private set
@@ -203,6 +219,29 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
             feedback.clear()
             if (ok) loadSettings()
             onDone(ok)
+        }
+    }
+
+    // ------------------------------------------------------------------ camera
+
+    /** Takes one picture; it stays in the window until the next one. */
+    fun takePhoto() {
+        if (photoBusy) return
+        val current = api
+        photoBusy = true
+        viewModelScope.launch {
+            val r = runCatching { withContext(Dispatchers.IO) { current.photo() } }
+            r.onSuccess { bytes ->
+                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+                if (bmp != null) {
+                    photo = bmp
+                    photoTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+                    photoError = null
+                } else {
+                    photoError = "the picture could not be read"
+                }
+            }.onFailure { photoError = it.message?.takeIf { m -> m.isNotBlank() } ?: "no answer from Jarvis" }
+            photoBusy = false
         }
     }
 
