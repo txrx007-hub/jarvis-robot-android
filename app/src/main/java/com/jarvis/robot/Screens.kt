@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -58,6 +60,8 @@ data class MainUiState(
     val sleepingNow: Boolean = false,
     val serverFeedback: Feedback? = null,
     val backendPin: String = "",
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val palette: AppPalette = AppPalette.CLASSIC,
 )
 
 /** What the main screen can ask for; the ViewModel implements these, tests and previews pass no-ops. */
@@ -70,6 +74,7 @@ class MainActions(
     val onSave: (key: String, value: String) -> Unit = { _, _ -> },
     val onReset: ((Boolean) -> Unit) -> Unit = {},
     val onTheme: (ThemeMode) -> Unit = {},
+    val onPalette: (AppPalette) -> Unit = {},
     val onSetVolume: (Int) -> Unit = {},
     val onSetServer: (String) -> Unit = {},
 )
@@ -90,6 +95,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         sleepingNow = vm.sleepingNow,
         serverFeedback = vm.serverFeedback,
         backendPin = vm.backendPin,
+        themeMode = vm.themeMode,
+        palette = vm.palette,
     )
     val actions = remember(vm) {
         MainActions(
@@ -101,6 +108,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onSave = vm::save,
             onReset = vm::resetAll,
             onTheme = vm::setTheme,
+            onPalette = vm::choosePalette,
             onSetVolume = vm::setVolume,
             onSetServer = vm::setServer,
         )
@@ -108,8 +116,29 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
     MainContent(state, actions)
 }
 
+/** Width from which the screen is laid out as a tablet (the Fold's inner screen); below it the single column of the phone. */
+const val TABLET_MIN_DP = 600
+
+/** Picks the layout from the window's width, so folding or unfolding the phone switches it live. */
 @Composable
 fun MainContent(
+    state: MainUiState,
+    actions: MainActions,
+    initialShowVoice: Boolean = false,
+    initialShowRemote: Boolean = false,
+    initialOpenGroups: Set<String> = emptySet(),
+    initialScrollPx: Int = 0,
+    initialSection: String = SECTION_OVERVIEW,
+) {
+    if (LocalConfiguration.current.screenWidthDp >= TABLET_MIN_DP) {
+        TabletContent(state, actions, initialSection)
+    } else {
+        PhoneContent(state, actions, initialShowVoice, initialShowRemote, initialOpenGroups, initialScrollPx)
+    }
+}
+
+@Composable
+fun PhoneContent(
     state: MainUiState,
     actions: MainActions,
     initialShowVoice: Boolean = false,
@@ -125,7 +154,8 @@ fun MainContent(
     var resetNote by remember { mutableStateOf<Feedback?>(null) }
     val status = state.status
 
-    Box(Modifier.fillMaxSize().background(p.bg)) {
+    Box(Modifier.fillMaxSize()) {
+        ThemeBackdrop()
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -152,7 +182,8 @@ fun MainContent(
                 TextButton(onClick = actions.onChangeAddress) { Text("Address", color = p.accent) }
             }
 
-            InfoTable(status, state.pingText)
+            // On a theme with a photo the table sits on a card, so the small text stays readable.
+            if (p.photo != null) JCard { InfoTable(status, state.pingText) } else InfoTable(status, state.pingText)
 
             if (!state.online) {
                 JCard {
@@ -227,6 +258,8 @@ fun MainContent(
 
         ThemeSwitch(
             modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(14.dp),
+            palette = state.palette,
+            onPalette = actions.onPalette,
             onChange = actions.onTheme,
         )
     }
@@ -261,9 +294,11 @@ fun ConnectScreen(vm: RobotViewModel, canCancel: Boolean, onDone: () -> Unit) {
     var scanNote by remember { mutableStateOf<String?>(null) }
     val found = remember { mutableStateListOf<String>() }
 
-    Box(Modifier.fillMaxSize().background(p.bg)) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        ThemeBackdrop()
         Column(
             modifier = Modifier
+                .widthIn(max = 560.dp) // on the unfolded screen the form stays a readable width in the middle
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()

@@ -4,6 +4,7 @@ import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -83,7 +85,7 @@ fun JCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> 
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(p.card)
+            .background(if (p.photo != null) p.card.copy(alpha = 0.9f) else p.card)
             .border(1.dp, p.border, RoundedCornerShape(12.dp))
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -192,19 +194,25 @@ private fun InfoColumn(rows: List<Pair<String, String>>, labelWidth: Int, highli
 // ------------------------------------------------------------------ voice commands
 
 @Composable
-fun VoiceCommandsPanel() {
+fun VoiceCommandsPanel(columns: Int = 1) {
     val p = LocalPalette.current
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Original commands (cyan): understood by the brain, work with any server.", color = p.accent, fontSize = 12.sp)
         Text("Instant commands (orange): only with your own server. Done at once, no brain, no waiting; they keep working when the brain is down.", color = p.instant, fontSize = 12.sp)
-        for ((group, items) in VOICE_COMMANDS) {
-            val instant = items.any { it.instant }
-            JCard {
-                Text(group, color = if (instant) p.instant else p.accent, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                for (item in items) {
-                    Column {
-                        Text(item.title, color = p.text, fontSize = 14.sp)
-                        Text(item.example, color = p.muted, fontSize = 13.sp, fontStyle = FontStyle.Italic)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            for (c in 0 until columns) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    for ((group, items) in VOICE_COMMANDS.filterIndexed { i, _ -> i % columns == c }) {
+                        val instant = items.any { it.instant }
+                        JCard {
+                            Text(group, color = if (instant) p.instant else p.accent, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            for (item in items) {
+                                Column {
+                                    Text(item.title, color = p.text, fontSize = 14.sp)
+                                    Text(item.example, color = p.muted, fontSize = 13.sp, fontStyle = FontStyle.Italic)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -587,7 +595,13 @@ private fun TextRow(def: SettingDef, onSave: (String) -> Unit) {
 // ------------------------------------------------------------------ theme switch
 
 @Composable
-fun ThemeSwitch(modifier: Modifier = Modifier, onChange: (ThemeMode) -> Unit) {
+fun ThemeSwitch(
+    modifier: Modifier = Modifier,
+    palette: AppPalette? = null,
+    compact: Boolean = false, // narrower spacing, for the tablet menu
+    onPalette: (AppPalette) -> Unit = {},
+    onChange: (ThemeMode) -> Unit,
+) {
     val p = LocalPalette.current
     val shape = RoundedCornerShape(50)
     Row(
@@ -595,12 +609,33 @@ fun ThemeSwitch(modifier: Modifier = Modifier, onChange: (ThemeMode) -> Unit) {
             .clip(shape)
             .background(p.card)
             .border(1.dp, p.border, shape)
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = if (compact) 8.dp else 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 8.dp),
     ) {
-        Text("Dark", color = p.muted, fontSize = 12.sp)
+        if (palette != null) {
+            for (option in AppPalette.entries) PaletteDot(option, selected = option == palette) { onPalette(option) }
+            Spacer(Modifier.width(2.dp))
+        }
+        Text("Dark", color = p.muted, fontSize = 12.sp, maxLines = 1, softWrap = false)
         Switch(checked = !p.isDark, onCheckedChange = { onChange(if (it) ThemeMode.LIGHT else ThemeMode.DARK) }, colors = jSwitchColors())
-        Text("Light", color = p.muted, fontSize = 12.sp)
+        Text("Light", color = p.muted, fontSize = 12.sp, maxLines = 1, softWrap = false)
     }
+}
+
+/** A small round swatch of a colour theme (its dark accent, ringed when it is the chosen one). */
+@Composable
+fun PaletteDot(option: AppPalette, selected: Boolean, onClick: () -> Unit) {
+    val p = LocalPalette.current
+    val accent = paletteFor(option, true).accent
+    Box(
+        modifier = Modifier
+            .size(26.dp)
+            .clip(CircleShape)
+            .border(if (selected) 2.dp else 1.dp, if (selected) p.text else p.border, CircleShape)
+            .padding(4.dp)
+            .clip(CircleShape)
+            .background(accent)
+            .clickable(onClick = onClick),
+    )
 }

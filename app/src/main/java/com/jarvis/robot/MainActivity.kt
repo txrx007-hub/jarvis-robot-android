@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         NetworkUtil.bindToWifi(applicationContext)
         setContent {
-            JarvisTheme(vm.themeMode) { Root(vm) }
+            JarvisTheme(vm.themeMode, vm.palette) { Root(vm) }
         }
     }
 

@@ -33,6 +33,12 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     )
         private set
 
+    var palette by mutableStateOf(
+        runCatching { AppPalette.valueOf(prefs.getString("palette", "CLASSIC") ?: "CLASSIC") }
+            .getOrDefault(AppPalette.CLASSIC),
+    )
+        private set
+
     var status by mutableStateOf<Status?>(null)
         private set
     var online by mutableStateOf(false)
@@ -89,6 +95,11 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     /** Quick check used by the connect screen before saving: does this address look like the robot? */
     suspend fun probe(candidate: String): Boolean = withContext(Dispatchers.IO) {
         runCatching { RobotApi(candidate).status() }.isSuccess
+    }
+
+    fun choosePalette(p: AppPalette) {
+        palette = p
+        prefs.edit().putString("palette", p.name).apply()
     }
 
     fun setTheme(mode: ThemeMode) {
