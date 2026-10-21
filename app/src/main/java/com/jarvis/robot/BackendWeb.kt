@@ -101,7 +101,7 @@ fun BackendScreen(state: MainUiState, onClose: () -> Unit) {
         ThemeBackdrop()
         Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
             PageTabs(advancedSelected = true, advancedVisible = true, onSettings = onClose, onAdvanced = {}, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-            BackendWeb(state.status?.panelUrl.orEmpty(), state.host, state.palette, Modifier.fillMaxSize())
+            BackendWeb(panelUrlOf(state.status), state.host, state.palette, Modifier.fillMaxSize())
         }
     }
 }

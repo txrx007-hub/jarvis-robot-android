@@ -119,26 +119,29 @@ fun JButton(text: String, modifier: Modifier = Modifier, danger: Boolean = false
     if (hint == null) button(modifier) else Hinted(hint, modifier) { button(Modifier.fillMaxWidth()) }   // a long press explains the button
 }
 
-/** The two pages side by side, the same size and look: "Jarvis settings" (the robot) and "Advanced" (the backend). The page you are on is filled. */
+/**
+ * The one button at the top that switches between the two pages, in the same place on both: on the robot's page it says "Advanced" (the backend
+ * control panel), on the Advanced page it says "Jarvis settings" (back to the robot).
+ */
 @Composable
 fun PageTabs(advancedSelected: Boolean, advancedVisible: Boolean, onSettings: () -> Unit, onAdvanced: () -> Unit, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        PageTab("Jarvis settings", !advancedSelected, Modifier.weight(1f), "The robot: status, power, volume and its settings", onSettings)
-        if (advancedVisible) PageTab("Advanced", advancedSelected, Modifier.weight(1f), "The backend control panel: servers, brains, voices and keys", onAdvanced)
+    Row(modifier.fillMaxWidth()) {
+        if (advancedSelected) PageTab("Jarvis settings", Modifier.weight(1f), "Back to the robot: status, power, volume and its settings", onSettings)
+        else if (advancedVisible) PageTab("Advanced", Modifier.weight(1f), "The backend control panel: servers, brains, voices and keys", onAdvanced)
     }
 }
 
 @Composable
-private fun PageTab(text: String, selected: Boolean, modifier: Modifier, hint: String, onClick: () -> Unit) {
+private fun PageTab(text: String, modifier: Modifier, hint: String, onClick: () -> Unit) {
     val p = LocalPalette.current
     val tick = rememberTick()
     Hinted(hint, modifier) {
         OutlinedButton(
             onClick = { tick(); onClick() },
-            modifier = Modifier.fillMaxWidth().height(44.dp).semantics { this.selected = selected; role = Role.Tab },
+            modifier = Modifier.fillMaxWidth().height(44.dp),
             shape = RoundedCornerShape(10.dp),
             border = BorderStroke(1.dp, p.accent),
-            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selected) p.accent.copy(alpha = 0.18f) else Color.Transparent),
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Transparent),
         ) {
             Text(text, color = p.accent, fontSize = 15.sp, maxLines = 1)
         }

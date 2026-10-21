@@ -30,17 +30,19 @@ fun rememberTick(strong: Boolean = false): () -> Unit {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Hinted(hint: String?, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    if (hint == null) {
-        Box(modifier) { content() }
-        return
+    // The caller's modifier (a row weight, a width) goes on a plain Box: TooltipBox would swallow a weight and the first button would take the whole row.
+    Box(modifier) {
+        if (hint == null) {
+            content()
+        } else {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(hint) } },
+                state = rememberTooltipState(),
+                content = content,
+            )
+        }
     }
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        tooltip = { PlainTooltip { Text(hint) } },
-        state = rememberTooltipState(),
-        modifier = modifier,
-        content = content,
-    )
 }
 
 /** The one confirm popup used for everything that is hard to undo (deep sleep, a new voice server, reset). */

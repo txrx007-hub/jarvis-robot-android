@@ -82,8 +82,8 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
         ThemeBackdrop()
         Row(Modifier.fillMaxSize().displayCutoutPadding().statusBarsPadding().navigationBarsPadding()) {
             NavPane(state, actions, sections, selected) { selected = it }
-            val panelUrl = state.status?.panelUrl.orEmpty()
-            if (selected == SECTION_BACKEND && state.status?.serverCustom == true && panelUrl.isNotEmpty()) {
+            val panelUrl = panelUrlOf(state.status)
+            if (selected == SECTION_BACKEND && panelUrl.isNotEmpty()) {
                 // The backend page alone, from the top of the right side down to the bottom (the page scrolls itself).
                 BackendWeb(panelUrl, state.host, state.palette, Modifier.weight(1f).fillMaxHeight().padding(12.dp).clip(RoundedCornerShape(12.dp)))
                 return@Row

@@ -30,6 +30,9 @@ class ModelsTest {
         assertEquals(32, s.heapLargestKb)
         assertEquals(-87, s.rssi)
         assertEquals("Idle", statusName(s))
+        assertEquals("", panelUrlOf(s))   // the cloud has no Advanced page
+        assertEquals("http://10.1.2.3:8090/", panelUrlOf(s.copy(serverCustom = true, server = "http://10.1.2.3:8003/xiaozhi/ota/")))
+        assertEquals("http://pc:9000/", panelUrlOf(s.copy(serverCustom = true, panelUrl = "http://pc:9000/")))
         assertEquals("Idle", statusName(s, musicPlaying = true))   // music mode only replaces "Speaking"
         assertEquals("Music mode", statusName(s.copy(state = 6), musicPlaying = true))
         assertEquals("Speaking", statusName(s.copy(state = 6), musicPlaying = false))

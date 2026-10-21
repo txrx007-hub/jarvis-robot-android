@@ -329,7 +329,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadMusic(current: RobotApi, s: Status) {
-        val url = if (s.serverCustom) s.panelUrl else ""
+        val url = panelUrlOf(s)
         if (url.isEmpty()) {
             music = null
             return
@@ -356,7 +356,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun musicAct(action: String) {
         val current = api
-        val url = status?.panelUrl.orEmpty()
+        val url = panelUrlOf(status)
         if (url.isEmpty()) return
         viewModelScope.launch {
             runCatching { withContext(Dispatchers.IO) { current.musicControl(url, action) } }
@@ -365,7 +365,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadHaOk(current: RobotApi, s: Status) {
-        val url = if (s.serverCustom) s.panelUrl else ""
+        val url = panelUrlOf(s)
         if (url.isEmpty()) {
             haOk = false
             return
@@ -389,7 +389,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
 
     /** The PIN of the own server's control panel, shown so the panel can be opened from this phone. */
     private fun loadBackendPin(current: RobotApi, s: Status) {
-        val url = if (s.serverCustom) s.panelUrl else ""
+        val url = panelUrlOf(s)
         if (url.isEmpty()) {
             backendPin = ""
             pinFor = ""

@@ -195,8 +195,19 @@ fun statusName(s: Status, musicPlaying: Boolean = false): String {
     return name.replaceFirstChar { it.uppercase() }
 }
 
+/**
+ * The address of the own server's control panel (the Advanced page), or "" when Jarvis uses the cloud. It comes with the robot's status; if the robot
+ * does not say, it is the server's host on port 8090.
+ */
+fun panelUrlOf(s: Status?): String {
+    if (s == null || !s.serverCustom) return ""
+    if (s.panelUrl.isNotEmpty()) return s.panelUrl
+    val host = Regex("^[a-zA-Z]+://([^/:]+)").find(s.server.orEmpty())?.groupValues?.get(1).orEmpty()
+    return if (host.isNotEmpty()) "http://$host:8090/" else ""
+}
+
 /** Does Jarvis talk to an own server that has a control panel (the Advanced page)? */
-fun hasPanel(s: Status?): Boolean = s?.serverCustom == true && s.panelUrl.isNotEmpty()
+fun hasPanel(s: Status?): Boolean = panelUrlOf(s).isNotEmpty()
 
 fun fmtAudio(s: Status): String {
     if (s.audioInHz <= 0) return "--"
