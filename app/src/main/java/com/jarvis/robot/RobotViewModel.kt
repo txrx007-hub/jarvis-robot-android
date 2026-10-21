@@ -92,6 +92,8 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     var music by mutableStateOf<MusicStatus?>(null)
         private set
     private var musicCheckedAt = 0L
+    private var musicMisses = 0   // checks in a row that got no answer at all (a busy Wi-Fi moment); the Music card stays until several in a row fail
+    private var haMisses = 0
 
     private var api = RobotApi(host)
     private var pollJob: Job? = null
@@ -117,6 +119,8 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         haOk = false
         haCheckedAt = 0L
         music = null
+        musicMisses = 0
+        haMisses = 0
         musicCheckedAt = 0L
         releaseAll()
         if (pollJob?.isActive == true) loadSettings()
@@ -335,7 +339,14 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         musicCheckedAt = now
         viewModelScope.launch {
             val m = runCatching { withContext(Dispatchers.IO) { current.musicStatus(url) } }.getOrNull()
-            if (current === api) music = m
+            if (current === api) {
+                if (m != null) {
+                    music = m
+                    musicMisses = 0
+                } else if (++musicMisses >= 4) {   // no answer 4 times in a row (about 16 s): only then the Music card goes away
+                    music = null
+                }
+            }
         }
     }
 
@@ -363,8 +374,16 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         if (now - haCheckedAt < 120_000) return
         haCheckedAt = now
         viewModelScope.launch {
-            val ok = runCatching { withContext(Dispatchers.IO) { current.homeAssistantOk(url) } }.getOrDefault(false)
-            if (current === api) haOk = ok
+            val ok = runCatching { withContext(Dispatchers.IO) { current.homeAssistantOk(url) } }.getOrNull()
+            if (current === api) {
+                if (ok != null) {
+                    haOk = ok
+                    haMisses = 0
+                } else {   // no answer: keep what was known, ask again in 15 s, and give up after 3 misses in a row
+                    haCheckedAt = System.currentTimeMillis() - 105_000
+                    if (++haMisses >= 3) haOk = false
+                }
+            }
         }
     }
 

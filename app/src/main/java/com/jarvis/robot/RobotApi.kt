@@ -61,18 +61,25 @@ class RobotApi(host: String) {
         panelClient.newCall(Request.Builder().url(panelBase(panelUrl) + "auto").header("Referer", "http://$host/").get().build()).execute().close()
     }
 
+    /** One call to the panel: signs in when asked to (401) and tries up to three times, so one slow or lost answer on the Wi-Fi does not count as "no answer". */
     private fun panelCall(panelUrl: String, build: (String) -> Request): String {
-        for (attempt in 0..1) {
-            panelClient.newCall(build(panelBase(panelUrl))).execute().use { r ->
-                if (r.code == 401 && attempt == 0) {
-                    panelLogin(panelUrl)
-                    return@use
+        var failure = java.io.IOException("not signed in")
+        for (attempt in 0..2) {
+            try {
+                val body = panelClient.newCall(build(panelBase(panelUrl))).execute().use { r ->
+                    when {
+                        r.code == 401 -> null
+                        !r.isSuccessful -> throw java.io.IOException("HTTP ${r.code}")
+                        else -> r.body?.string() ?: ""
+                    }
                 }
-                if (!r.isSuccessful) throw java.io.IOException("HTTP ${r.code}")
-                return r.body?.string() ?: ""
+                if (body != null) return body
+                panelLogin(panelUrl)   // 401: sign in (the panel knows the robot as the referrer) and ask again
+            } catch (e: java.io.IOException) {
+                failure = e
             }
         }
-        throw java.io.IOException("not signed in")
+        throw failure
     }
 
     /** The music module's state (needs the backend's music module; null when it cannot be asked). */
