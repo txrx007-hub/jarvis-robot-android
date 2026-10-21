@@ -16,6 +16,12 @@ with the firmware as it is. The robot is built on the
 |---|---|---|---|
 | <img src="docs/screenshots/app-voice-light.png" width="200"> | <img src="docs/screenshots/app-offline.png" width="200"> | <img src="docs/screenshots/app-splash.png" width="200"> | <img src="docs/screenshots/app-icon.png" width="200"> |
 
+Music card (Stop / Next song) on the cover screen and in the unfolded two-pane layout:
+
+| Folded | Unfolded |
+|---|---|
+| <img src="docs/screenshots/app-music-cover.png" width="200"> | <img src="docs/screenshots/app-music-unfolded.png" width="420"> |
+
 (Screenshots are drawn on a PC from made-up sample data; the network name, address and MAC shown are
 fake. The photo on the splash and icon is the author's robot.)
 
