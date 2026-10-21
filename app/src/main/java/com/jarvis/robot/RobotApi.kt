@@ -46,7 +46,14 @@ class RobotApi(host: String) {
     // The backend's panel signs the app in through its /auto page (it recognises the robot as the referrer, like the landing page's button) and then
     // wants a cookie on every call: a tiny in-memory jar for that.
     private val panelCookies = mutableListOf<Cookie>()
-    private val panelClient: OkHttpClient = normal.newBuilder()
+
+    // The control panel closes the connection after every answer. A client that keeps the connection for the next request (the sign-in right after a 401)
+    // then talks into a dead socket and gets "connection aborted"; so every call to the panel asks for a fresh connection and may be retried on a new one.
+    private val panelPlain: OkHttpClient = normal.newBuilder()
+        .retryOnConnectionFailure(true)
+        .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("Connection", "close").build()) }
+        .build()
+    private val panelClient: OkHttpClient = panelPlain.newBuilder()
         .cookieJar(object : CookieJar {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 synchronized(panelCookies) { panelCookies.removeAll { c -> cookies.any { it.name == c.name } }; panelCookies.addAll(cookies) }
@@ -166,7 +173,7 @@ class RobotApi(host: String) {
         val base = if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
         val req = Request.Builder().url(base + "pin.js").header("Referer", "http://$host/").get().build()
         // the reply is: window.JARVIS_PANEL_PIN = "123456";  (digits only; empty when the backend does not offer it)
-        return call(normal, req).substringAfter("=").substringAfter('"').substringBefore('"').filter { it.isDigit() }
+        return call(panelPlain, req).substringAfter("=").substringAfter('"').substringBefore('"').filter { it.isDigit() }
     }
 
     /**
@@ -176,7 +183,7 @@ class RobotApi(host: String) {
     fun homeAssistantOk(panelUrl: String): Boolean {
         val base = if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
         val req = Request.Builder().url(base + "ha.js").header("Referer", "http://$host/").get().build()
-        return Regex("\"ok\"\\s*:\\s*true").containsMatchIn(call(normal, req))
+        return Regex("\"ok\"\\s*:\\s*true").containsMatchIn(call(panelPlain, req))
     }
 
     /** action = nap | wake | deepsleep (minutes 0 = until the BOOT button, max 1440). */
