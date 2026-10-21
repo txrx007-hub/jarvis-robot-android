@@ -96,6 +96,12 @@ class RobotApi(host: String) {
         return MusicStatus(o.optBoolean("enabled"), o.optInt("tracks"), now?.optString("title"), now?.optString("artist"))
     }
 
+    /** Hands a photo of the Camera button to the backend's control panel, which keeps it in its dcim folder. */
+    fun uploadPhoto(panelUrl: String, jpeg: ByteArray) {
+        val body = jpeg.toRequestBody("image/jpeg".toMediaType())
+        panelCall(panelUrl) { Request.Builder().url(it + "api/dcim?src=button").post(body).build() }
+    }
+
     /** action = stop | next */
     fun musicControl(panelUrl: String, action: String): Boolean {
         val body = JSONObject().put("action", action).toString().toRequestBody("application/json".toMediaType())
@@ -116,7 +122,7 @@ class RobotApi(host: String) {
     private fun post(path: String, body: RequestBody? = null, client: OkHttpClient = normal): String =
         call(client, Request.Builder().url(url(path)).post(body ?: ByteArray(0).toRequestBody(null)).build())
 
-    /** One picture from the robot's camera as JPEG bytes (the landing page's Camera button). Nothing is analysed or sent anywhere. */
+    /** One picture from the robot's camera as JPEG bytes (the landing page's Camera button). Nothing is analysed; the app hands the picture to an own backend (uploadPhoto). */
     fun photo(): ByteArray =
         slow.newCall(Request.Builder().url(url("/api/photo")).post(ByteArray(0).toRequestBody(null)).build()).execute().use { r ->
             if (!r.isSuccessful) {

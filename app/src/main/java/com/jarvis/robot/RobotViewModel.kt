@@ -254,6 +254,10 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
             r.onSuccess { bytes ->
                 val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
                 if (bmp != null) {
+                    val panel = panelUrlOf(status)
+                    if (panel.isNotEmpty()) {   // an own backend keeps every photo in its dcim folder; failing to hand it over never matters here
+                        viewModelScope.launch { runCatching { withContext(Dispatchers.IO) { current.uploadPhoto(panel, bytes) } } }
+                    }
                     photo = bmp
                     photoTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
                     photoError = null
