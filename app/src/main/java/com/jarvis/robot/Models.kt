@@ -148,6 +148,7 @@ private val LABELS = mapOf(
     "quiet_end" to "Quiet hours end",
     "weather_city" to "Weather city",
     "visualizer_mode" to "Speaking screen effect",
+    "music_icon" to "Music screen picture",
     "log_level" to "Log detail",
 )
 
@@ -220,7 +221,7 @@ val SETTINGS_GROUPS = listOf(
     SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
-    SettingsGroup("Visualizer", listOf("visualizer_mode"), false),
+    SettingsGroup("Visualizer", listOf("visualizer_mode", "music_icon"), false),
     SettingsGroup("System", listOf("log_level"), false),
 )
 
