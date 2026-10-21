@@ -216,7 +216,7 @@ fun PhoneContent(
                         color = p.muted,
                         fontSize = 13.sp,
                     )
-                    JButton("Change address", Modifier.fillMaxWidth(), onClick = actions.onChangeAddress)
+                    JButton("Change address", Modifier.fillMaxWidth(), hint = "Connect to another robot", onClick = actions.onChangeAddress)
                 }
             }
 
@@ -273,7 +273,7 @@ fun PhoneContent(
             }
 
             Spacer(Modifier.height(8.dp))
-            JButton("Reset all to defaults", Modifier.fillMaxWidth(), danger = true) { confirmReset = true }
+            JButton("Reset all to defaults", Modifier.fillMaxWidth(), danger = true, hint = "Sets every robot setting back to its default") { confirmReset = true }
             resetNote?.let { Text(it.text, color = if (it.ok) p.success else p.danger, fontSize = 13.sp) }
             Text(
                 "Changes apply and save right away. On your home network only.",
@@ -297,19 +297,18 @@ fun PhoneContent(
     }
 
     if (confirmReset) {
-        AlertDialog(
-            onDismissRequest = { confirmReset = false },
-            title = { Text("Reset all settings?") },
-            text = { Text("Every setting goes back to its default. This cannot be undone.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmReset = false
-                    actions.onReset { ok ->
-                        resetNote = Feedback(ok, if (ok) "All settings reset to defaults." else "Could not reset the settings.")
-                    }
-                }) { Text("Reset", color = p.danger) }
+        ConfirmDialog(
+            title = "Reset all settings?",
+            text = "Every setting goes back to its default. This cannot be undone.",
+            confirmLabel = "Reset",
+            danger = true,
+            onConfirm = {
+                confirmReset = false
+                actions.onReset { ok ->
+                    resetNote = Feedback(ok, if (ok) "All settings reset to defaults." else "Could not reset the settings.")
+                }
             },
-            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Cancel") } },
+            onDismiss = { confirmReset = false },
         )
     }
 }
@@ -360,6 +359,10 @@ fun ConnectScreen(vm: RobotViewModel, canCancel: Boolean, onDone: () -> Unit) {
                 JButton(if (checking) "Checking..." else "Connect", Modifier.weight(1f)) {
                     val clean = normalizeHost(text)
                     if (clean.isEmpty() || checking) return@JButton
+                    if (!NetworkUtil.isHomeAddress(clean)) {
+                        error = "Only addresses on your own network are accepted (192.168.x.x, 10.x.x.x, 172.16-31.x.x, a .local name, or Tailscale 100.x.x.x)."
+                        return@JButton
+                    }
                     checking = true
                     scope.launch {
                         val ok = vm.probe(clean)
@@ -372,7 +375,7 @@ fun ConnectScreen(vm: RobotViewModel, canCancel: Boolean, onDone: () -> Unit) {
                         }
                     }
                 }
-                JButton(if (scanning) "Scanning..." else "Scan network", Modifier.weight(1f)) {
+                JButton(if (scanning) "Scanning..." else "Scan network", Modifier.weight(1f), hint = "Looks for the robot on your Wi-Fi") {
                     if (scanning) return@JButton
                     val prefix = NetworkUtil.subnetPrefix(context)
                     if (prefix == null) {

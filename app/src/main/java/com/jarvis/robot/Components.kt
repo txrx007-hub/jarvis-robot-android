@@ -5,6 +5,13 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -94,17 +101,21 @@ fun JCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> 
 }
 
 @Composable
-fun JButton(text: String, modifier: Modifier = Modifier, danger: Boolean = false, onClick: () -> Unit) {
+fun JButton(text: String, modifier: Modifier = Modifier, danger: Boolean = false, hint: String? = null, onClick: () -> Unit) {
     val p = LocalPalette.current
     val tint = if (danger) p.danger else p.accent
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier.height(48.dp),
-        shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, tint),
-    ) {
-        Text(text, color = tint, fontSize = 15.sp)
+    val tick = rememberTick(strong = danger)
+    val button = @Composable { m: Modifier ->
+        OutlinedButton(
+            onClick = { tick(); onClick() },
+            modifier = m.height(48.dp),
+            shape = RoundedCornerShape(10.dp),
+            border = BorderStroke(1.dp, tint),
+        ) {
+            Text(text, color = tint, fontSize = 15.sp)
+        }
     }
+    if (hint == null) button(modifier) else Hinted(hint, modifier) { button(Modifier.fillMaxWidth()) }   // a long press explains the button
 }
 
 /** The Motors / Audio / Screen section buttons: tap to expand the settings below. */
@@ -253,8 +264,8 @@ fun PowerCard(
             )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            JButton(if (napping) "Wake up" else "Nap", Modifier.weight(1f)) { onNap(napping) }
-            JButton("Deep sleep…", Modifier.weight(1f)) { panelOpen = !panelOpen }
+            JButton(if (napping) "Wake up" else "Nap", Modifier.weight(1f), hint = "Nap = light standby: the screen goes off, Wi-Fi and the wake word stay on") { onNap(napping) }
+            JButton("Deep sleep…", Modifier.weight(1f), hint = "Wi-Fi and the wake word go off for the time you choose, or until the BOOT button") { panelOpen = !panelOpen }
         }
         if (panelOpen) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -284,18 +295,13 @@ fun PowerCard(
         feedback?.let { Text(it.text, color = if (it.ok) p.success else p.danger, fontSize = 13.sp) }
     }
     if (confirm) {
-        AlertDialog(
-            onDismissRequest = { confirm = false },
-            title = { Text("Deep sleep") },
-            text = { Text("Deep sleep ${sleepText(total)}? Wi-Fi turns off and the robot stops responding.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirm = false
-                    panelOpen = false
-                    onDeepSleep(total)
-                }) { Text("Sleep", color = p.danger) }
-            },
-            dismissButton = { TextButton(onClick = { confirm = false }) { Text("Cancel") } },
+        ConfirmDialog(
+            title = "Deep sleep",
+            text = "Deep sleep ${sleepText(total)}? Wi-Fi turns off and the robot stops responding.",
+            confirmLabel = "Sleep",
+            danger = true,
+            onConfirm = { confirm = false; panelOpen = false; onDeepSleep(total) },
+            onDismiss = { confirm = false },
         )
     }
 }
@@ -309,7 +315,7 @@ private fun NumberField(value: String, onChange: (String) -> Unit, description: 
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = Modifier.width(76.dp),
         textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center),
-        placeholder = { Text(description, fontSize = 11.sp) },
+        placeholder = { Text(description, fontSize = 12.sp) },
     )
 }
 
@@ -389,8 +395,8 @@ fun ServerCard(
         }
         Text(if (own) "Talking to $hostPart" else "Using the built-in default server.", color = p.muted, fontSize = 13.sp)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            JButton("Own server…", Modifier.weight(1f)) { editing = !editing }
-            JButton("Use cloud", Modifier.weight(1f)) { if (own) confirm = "default" }
+            JButton("Own server…", Modifier.weight(1f), hint = "Use a voice server on your own network instead of the cloud") { editing = !editing }
+            JButton("Use cloud", Modifier.weight(1f), hint = "Go back to the xiaozhi.me cloud server") { if (own) confirm = "default" }
         }
         if (own && status.panelUrl.isNotEmpty()) {
             if (showOpen) {
@@ -417,19 +423,14 @@ fun ServerCard(
         feedback?.let { Text(it.text, color = if (it.ok) p.success else p.danger, fontSize = 13.sp) }
     }
     confirm?.let { value ->
-        AlertDialog(
-            onDismissRequest = { confirm = null },
-            title = { Text("Change the voice server") },
-            text = {
-                Text(
-                    if (value == "default") "Go back to the xiaozhi.me cloud? Jarvis restarts."
-                    else "Use your own server at $value? Jarvis restarts and talks to it.",
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { confirm = null; editing = false; onSetServer(value) }) { Text("Save", color = p.accent) }
-            },
-            dismissButton = { TextButton(onClick = { confirm = null }) { Text("Cancel") } },
+        ConfirmDialog(
+            title = "Change the voice server",
+            text = if (value == "default") "Go back to the xiaozhi.me cloud? Jarvis restarts."
+            else "Use your own server at $value? Jarvis restarts and talks to it.",
+            confirmLabel = "Save",
+            danger = false,
+            onConfirm = { confirm = null; editing = false; onSetServer(value) },
+            onDismiss = { confirm = null },
         )
     }
 }
@@ -482,8 +483,8 @@ fun MusicCard(music: MusicStatus, onStop: () -> Unit, onNext: () -> Unit) {
             fontSize = 14.sp,
         )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            JButton("Stop", Modifier.weight(1f), danger = true, onClick = onStop)
-            JButton("Next song", Modifier.weight(1f), onClick = onNext)
+            JButton("Stop", Modifier.weight(1f), danger = true, hint = "Stops the song, radio station or podcast now", onClick = onStop)
+            JButton("Next song", Modifier.weight(1f), hint = "Plays another song from the music folder", onClick = onNext)
         }
     }
 }
@@ -501,13 +502,13 @@ fun RemotePanel(held: List<Dir>, onHold: (Dir, Boolean) -> Unit) {
     }
     JCard {
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            PadButton("▲", Dir.UP in held) { onHold(Dir.UP, it) }
+            PadButton("▲", "Drive forward", Dir.UP in held) { onHold(Dir.UP, it) }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                PadButton("◀", Dir.LEFT in held) { onHold(Dir.LEFT, it) }
+                PadButton("◀", "Turn left", Dir.LEFT in held) { onHold(Dir.LEFT, it) }
                 Spacer(Modifier.size(76.dp))
-                PadButton("▶", Dir.RIGHT in held) { onHold(Dir.RIGHT, it) }
+                PadButton("▶", "Turn right", Dir.RIGHT in held) { onHold(Dir.RIGHT, it) }
             }
-            PadButton("▼", Dir.DOWN in held) { onHold(Dir.DOWN, it) }
+            PadButton("▼", "Drive backward", Dir.DOWN in held) { onHold(Dir.DOWN, it) }
             Text(
                 "Hold an arrow to drive (full speed), let go to stop. Two arrows together turn in an arc.",
                 color = p.muted,
@@ -518,22 +519,31 @@ fun RemotePanel(held: List<Dir>, onHold: (Dir, Boolean) -> Unit) {
 }
 
 @Composable
-private fun PadButton(glyph: String, pressed: Boolean, onHold: (Boolean) -> Unit) {
+private fun PadButton(glyph: String, description: String, pressed: Boolean, onHold: (Boolean) -> Unit) {
     val p = LocalPalette.current
     val shape = RoundedCornerShape(14.dp)
+    val tickDown = rememberTick(strong = true)
+    val tickUp = rememberTick()
     Box(
         modifier = Modifier
             .size(76.dp)
             .clip(shape)
             .background(if (pressed) p.accent.copy(alpha = 0.22f) else p.card)
             .border(1.dp, p.accent, shape)
+            .clearAndSetSemantics {   // TalkBack reads "Drive forward, button, hold to drive" instead of the arrow glyph
+                role = Role.Button
+                contentDescription = description
+                stateDescription = if (pressed) "Driving" else "Hold to drive"
+            }
             .pointerInput(Unit) {
                 detectTapGestures(onPress = {
+                    tickDown()
                     onHold(true)
                     try {
                         tryAwaitRelease()
                     } finally {
                         onHold(false)
+                        tickUp()
                     }
                 })
             },
@@ -554,6 +564,7 @@ fun SettingCard(def: SettingDef, feedback: Feedback?, onSave: (String) -> Unit) 
         Kind.INT, Kind.HUNDREDTHS -> def.copy(value = sliderValueText(def, live))
         else -> def
     }
+    val tick = rememberTick()
     JCard {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text(labelFor(def.key), color = p.text, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
@@ -565,10 +576,15 @@ fun SettingCard(def: SettingDef, feedback: Feedback?, onSave: (String) -> Unit) 
                 val steps = ((span / def.step).roundToInt() - 1).coerceAtLeast(0)
                 Slider(
                     value = live.coerceIn(def.min.toFloat(), def.max.toFloat()),
-                    onValueChange = { live = it },
+                    onValueChange = { v ->
+                        val before = sliderValueText(def, live)
+                        live = v
+                        if (sliderValueText(def, v) != before) tick()   // a small tick at every step, like a detent
+                    },
                     onValueChangeFinished = { onSave(sliderValueText(def, live)) },
                     valueRange = def.min.toFloat()..def.max.toFloat(),
                     steps = steps,
+                    modifier = Modifier.semantics { contentDescription = labelFor(def.key) },
                     colors = SliderDefaults.colors(
                         thumbColor = p.accent,
                         activeTrackColor = p.accent,
@@ -578,7 +594,12 @@ fun SettingCard(def: SettingDef, feedback: Feedback?, onSave: (String) -> Unit) 
                     ),
                 )
             }
-            Kind.BOOL -> Switch(checked = def.value == "1", onCheckedChange = { onSave(if (it) "1" else "0") }, colors = jSwitchColors())
+            Kind.BOOL -> Switch(
+                checked = def.value == "1",
+                onCheckedChange = { tick(); onSave(if (it) "1" else "0") },
+                modifier = Modifier.semantics { contentDescription = labelFor(def.key) },
+                colors = jSwitchColors(),
+            )
             Kind.ENUM -> EnumPicker(def.value, def.options, onSave)
             Kind.TIME -> TimeRow(def.value, onSave)
             Kind.TEXT -> TextRow(def, onSave)
@@ -682,7 +703,13 @@ fun ThemeSwitch(
             Spacer(Modifier.width(2.dp))
         }
         Text("Dark", color = p.muted, fontSize = 12.sp, maxLines = 1, softWrap = false)
-        Switch(checked = !p.isDark, onCheckedChange = { onChange(if (it) ThemeMode.LIGHT else ThemeMode.DARK) }, colors = jSwitchColors())
+        val tick = rememberTick()
+        Switch(
+            checked = !p.isDark,
+            onCheckedChange = { tick(); onChange(if (it) ThemeMode.LIGHT else ThemeMode.DARK) },
+            modifier = Modifier.semantics { contentDescription = "Light mode" },
+            colors = jSwitchColors(),
+        )
         Text("Light", color = p.muted, fontSize = 12.sp, maxLines = 1, softWrap = false)
     }
 }
@@ -692,6 +719,8 @@ fun ThemeSwitch(
 fun PaletteDot(option: AppPalette, selected: Boolean, onClick: () -> Unit) {
     val p = LocalPalette.current
     val accent = paletteFor(option, true).accent
+    val tick = rememberTick()
+    val chosen = selected
     Box(
         modifier = Modifier
             .size(26.dp)
@@ -700,6 +729,7 @@ fun PaletteDot(option: AppPalette, selected: Boolean, onClick: () -> Unit) {
             .padding(4.dp)
             .clip(CircleShape)
             .background(accent)
-            .clickable(onClick = onClick),
+            .semantics { contentDescription = "Colour theme ${option.label}"; this.selected = chosen }
+            .clickable(role = Role.RadioButton, onClickLabel = "Use the ${option.label} colours") { tick(); onClick() },
     )
 }

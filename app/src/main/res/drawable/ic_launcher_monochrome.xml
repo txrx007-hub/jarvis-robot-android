@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The themed (single colour) launcher icon of Android 13 and later: the robot's face, eyes cut out. Drawn inside the 66 dp safe zone of the 108 dp icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M38,36h32a8,8 0 0 1 8,8v24a8,8 0 0 1 -8,8h-32a8,8 0 0 1 -8,-8v-24a8,8 0 0 1 8,-8z M38,48h10v12h-10z M60,48h10v12h-10z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M52,26h4v10h-4z M50,22h8v6h-8z M24,46h4v16h-4z M80,46h4v16h-4z M44,66h20v3h-20z" />
+</vector>

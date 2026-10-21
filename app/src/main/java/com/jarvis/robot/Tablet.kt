@@ -181,7 +181,7 @@ private fun NavLabel(text: String) {
     Text(
         text.uppercase(),
         color = LocalPalette.current.muted,
-        fontSize = 11.sp,
+        fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.8.sp,
         modifier = Modifier.padding(start = 10.dp, top = 14.dp, bottom = 4.dp),
@@ -222,7 +222,7 @@ private fun OfflineCard(state: MainUiState, actions: MainActions) {
             color = p.muted,
             fontSize = 13.sp,
         )
-        JButton("Change address", Modifier.fillMaxWidth(), onClick = actions.onChangeAddress)
+        JButton("Change address", Modifier.fillMaxWidth(), hint = "Connect to another robot", onClick = actions.onChangeAddress)
     }
 }
 
@@ -300,7 +300,7 @@ private fun Appearance(state: MainUiState, actions: MainActions) {
     }
 
     Spacer(Modifier.height(10.dp))
-    JButton("Reset all robot settings to defaults", Modifier.fillMaxWidth(), danger = true) { confirmReset = true }
+    JButton("Reset all robot settings to defaults", Modifier.fillMaxWidth(), danger = true, hint = "Sets every robot setting back to its default") { confirmReset = true }
     resetNote?.let { Text(it.text, color = if (it.ok) p.success else p.danger, fontSize = 13.sp) }
     Text(
         "Changes apply and save right away. On your home network only.",
@@ -311,19 +311,18 @@ private fun Appearance(state: MainUiState, actions: MainActions) {
     )
 
     if (confirmReset) {
-        AlertDialog(
-            onDismissRequest = { confirmReset = false },
-            title = { Text("Reset all settings?") },
-            text = { Text("Every setting goes back to its default. This cannot be undone.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmReset = false
-                    actions.onReset { ok ->
-                        resetNote = Feedback(ok, if (ok) "All settings reset to defaults." else "Could not reset the settings.")
-                    }
-                }) { Text("Reset", color = p.danger) }
+        ConfirmDialog(
+            title = "Reset all settings?",
+            text = "Every setting goes back to its default. This cannot be undone.",
+            confirmLabel = "Reset",
+            danger = true,
+            onConfirm = {
+                confirmReset = false
+                actions.onReset { ok ->
+                    resetNote = Feedback(ok, if (ok) "All settings reset to defaults." else "Could not reset the settings.")
+                }
             },
-            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Cancel") } },
+            onDismiss = { confirmReset = false },
         )
     }
 }

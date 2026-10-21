@@ -49,6 +49,23 @@ object NetworkUtil {
         }
     }
 
+    /**
+     * Is this address on a home or private network (or Tailscale)? The robot's page is plain HTTP, so the app only talks to such addresses, never to the internet.
+     * Accepts 10.x, 172.16-31.x, 192.168.x, 169.254.x, Tailscale 100.64-127.x, localhost, names without a dot and .local / .lan / .ts.net names; an optional :port is ignored.
+     */
+    fun isHomeAddress(address: String): Boolean {
+        val raw = address.trim().lowercase().substringBefore('/')
+        val host = if (raw.count { it == ':' } == 1) raw.substringBefore(':') else raw
+        if (host.isEmpty()) return false
+        val parts = host.split('.')
+        if (parts.size == 4 && parts.all { it.toIntOrNull() in 0..255 }) {
+            val a = parts[0].toInt()
+            val b = parts[1].toInt()
+            return a == 10 || (a == 172 && b in 16..31) || (a == 192 && b == 168) || (a == 169 && b == 254) || (a == 100 && b in 64..127) || a == 127
+        }
+        return !host.contains('.') || host.endsWith(".local") || host.endsWith(".lan") || host.endsWith(".ts.net")
+    }
+
     /** "192.168.1." for a phone on 192.168.1.x, or null when there is no IPv4 WiFi address. */
     fun subnetPrefix(context: Context): String? {
         val cm = context.getSystemService(ConnectivityManager::class.java) ?: return null
