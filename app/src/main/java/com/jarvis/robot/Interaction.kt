@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.sp
 
 /** One short vibration tick for a tap, a detent or a release; `strong` is the firmer one for presses that do something big (hold to drive, danger buttons). */
 @Composable
@@ -55,4 +57,18 @@ fun ConfirmDialog(title: String, text: String, confirmLabel: String, danger: Boo
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
+}
+
+/** The version of the app that is running, as the phone knows it ("2.15"), or "" when it cannot be read. */
+@Composable
+fun appVersionName(): String {
+    val context = LocalContext.current
+    return remember { runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty() }
+}
+
+/** A small "App v2.15" line, so it is always clear which build is on the phone. */
+@Composable
+fun AppVersionLabel(modifier: Modifier = Modifier) {
+    val version = appVersionName()
+    if (version.isNotEmpty()) Text("App v$version", color = LocalPalette.current.muted, fontSize = 11.sp, maxLines = 1, softWrap = false, modifier = modifier)
 }

@@ -173,6 +173,7 @@ private fun NavPane(state: MainUiState, actions: MainActions, sections: List<Str
             onPalette = actions.onPalette,
             onChange = actions.onTheme,
         )
+        AppVersionLabel(Modifier.padding(start = 20.dp, bottom = 10.dp))
     }
 }
 
