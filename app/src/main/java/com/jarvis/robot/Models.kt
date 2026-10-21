@@ -338,7 +338,7 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
     ),
     "Music: songs from your music folder" to listOf(
         VoiceCommand("Play", "“play something random”, “play a song by Queen”, “play Bohemian Rhapsody”, “speel een nummer van Abba” (30 seconds of the song)", music = true),
-        VoiceCommand("Control", "“next song”, “stop the music”, “what is this song?”, or the Stop button in this app", music = true),
+        VoiceCommand("Control", "“next song”, “stop the music”, “what is this song?”, or the Stop and Next buttons in this app", music = true),
     ),
     "Music: radio and podcasts" to listOf(
         VoiceCommand("Radio", "“play Radio 538”, “play jazz radio”, “put on NPO Radio 2”, “speel Q-music” (plays until you stop it)", music = true),
