@@ -318,6 +318,7 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
     "Instant: stop and drive" to listOf(
         VoiceCommand("Stop", "“stop”, “halt”, “freeze”", instant = true),
         VoiceCommand("Drive", "“go forward”, “go back”, “go forward for 3 seconds”", instant = true),
+        VoiceCommand("Come here", "“come here” / “kom hier”: one second straight ahead at full power", instant = true),
         VoiceCommand("Turn", "“turn left”, “turn right”, “turn around”", instant = true),
         VoiceCommand("Dance", "“dance”", instant = true),
     ),
