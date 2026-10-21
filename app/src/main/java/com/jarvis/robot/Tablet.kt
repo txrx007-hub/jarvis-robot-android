@@ -153,6 +153,13 @@ private fun NavPane(state: MainUiState, actions: MainActions, sections: List<Str
                 )
             }
         }
+        PageTabs(
+            advancedSelected = selected == SECTION_BACKEND,
+            advancedVisible = hasPanel(status),
+            onSettings = { onSelect(SECTION_OVERVIEW) },
+            onAdvanced = { onSelect(SECTION_BACKEND) },
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+        )
         TextButton(onClick = actions.onChangeAddress, modifier = Modifier.padding(start = 8.dp)) {
             Text("Change address", color = p.accent, fontSize = 13.sp)
         }
@@ -161,6 +168,7 @@ private fun NavPane(state: MainUiState, actions: MainActions, sections: List<Str
             val fixed = setOf(SECTION_OVERVIEW, SECTION_REMOTE, SECTION_CAMERA, SECTION_MUSIC, SECTION_BACKEND, SECTION_COMMANDS, SECTION_LOOK)
             val firstSetting = sections.firstOrNull { it !in fixed }   // the first of the robot's own settings groups
             for (name in sections) {
+                if (name == SECTION_BACKEND) continue   // the Advanced button at the top opens it
                 if (name == firstSetting) NavLabel("Robot settings")
                 if (name == SECTION_LOOK) NavLabel("App")
                 NavItem(name, name == selected) { onSelect(name) }
@@ -248,14 +256,14 @@ private fun Columns(count: Int, items: List<@Composable () -> Unit>) {
 private fun Backend(state: MainUiState, actions: MainActions) {
     val p = LocalPalette.current
     JCard {
-        Text("The backend page is there when Jarvis talks to your own server. Set it here:", color = p.muted, fontSize = 13.sp)
+        Text("The Advanced page (the backend control panel) is there when Jarvis talks to your own server.", color = p.muted, fontSize = 13.sp)
     }
-    ServerCard(state.status, state.serverFeedback, state.backendPin, actions.onSetServer, showOpen = false)
 }
 
 @Composable
 private fun Overview(state: MainUiState, actions: MainActions, columns: Int) {
-    JCard { InfoTable(state.status, state.pingText) }
+    val musicPlaying = !state.music?.title.isNullOrEmpty()
+    JCard { InfoTable(state.status, state.pingText, musicPlaying) }
     Columns(columns, listOf(
         {
             PowerCard(
@@ -264,10 +272,10 @@ private fun Overview(state: MainUiState, actions: MainActions, columns: Int) {
                 sleepingNow = state.sleepingNow,
                 onNap = actions.onNap,
                 onDeepSleep = actions.onDeepSleep,
+                musicPlaying = musicPlaying,
             )
         },
         { VolumeCard(state.status, actions.onSetVolume) },
-        { ServerCard(state.status, state.serverFeedback, state.backendPin, actions.onSetServer, showOpen = false) },
     ))
 }
 

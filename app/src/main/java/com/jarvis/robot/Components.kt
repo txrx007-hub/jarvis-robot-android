@@ -35,6 +35,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -118,6 +119,32 @@ fun JButton(text: String, modifier: Modifier = Modifier, danger: Boolean = false
     if (hint == null) button(modifier) else Hinted(hint, modifier) { button(Modifier.fillMaxWidth()) }   // a long press explains the button
 }
 
+/** The two pages side by side, the same size and look: "Jarvis settings" (the robot) and "Advanced" (the backend). The page you are on is filled. */
+@Composable
+fun PageTabs(advancedSelected: Boolean, advancedVisible: Boolean, onSettings: () -> Unit, onAdvanced: () -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        PageTab("Jarvis settings", !advancedSelected, Modifier.weight(1f), "The robot: status, power, volume and its settings", onSettings)
+        if (advancedVisible) PageTab("Advanced", advancedSelected, Modifier.weight(1f), "The backend control panel: servers, brains, voices and keys", onAdvanced)
+    }
+}
+
+@Composable
+private fun PageTab(text: String, selected: Boolean, modifier: Modifier, hint: String, onClick: () -> Unit) {
+    val p = LocalPalette.current
+    val tick = rememberTick()
+    Hinted(hint, modifier) {
+        OutlinedButton(
+            onClick = { tick(); onClick() },
+            modifier = Modifier.fillMaxWidth().height(44.dp).semantics { this.selected = selected; role = Role.Tab },
+            shape = RoundedCornerShape(10.dp),
+            border = BorderStroke(1.dp, p.accent),
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selected) p.accent.copy(alpha = 0.18f) else Color.Transparent),
+        ) {
+            Text(text, color = p.accent, fontSize = 15.sp, maxLines = 1)
+        }
+    }
+}
+
 /** The Motors / Audio / Screen section buttons: tap to expand the settings below. */
 @Composable
 fun GroupToggle(title: String, open: Boolean, onToggle: () -> Unit) {
@@ -149,7 +176,7 @@ fun SectionTitle(text: String) {
 // ------------------------------------------------------------------ device info table
 
 @Composable
-fun InfoTable(status: Status?, pingText: String) {
+fun InfoTable(status: Status?, pingText: String, musicPlaying: Boolean = false) {
     val s = status
     val left = listOf(
         "Board" to (s?.boardName.orEmpty().ifEmpty { "--" }),
@@ -165,7 +192,7 @@ fun InfoTable(status: Status?, pingText: String) {
             null, "" -> "--"
             else -> "Battery"
         },
-        "Status" to (s?.let { statusName(it) } ?: "--"),
+        "Status" to (s?.let { statusName(it, musicPlaying) } ?: "--"),
         "Uptime" to (s?.let { fmtUptime(it.uptimeS) } ?: "--"),
     )
     val right = listOf(
@@ -245,6 +272,7 @@ fun PowerCard(
     sleepingNow: Boolean,
     onNap: (currentlyNapping: Boolean) -> Unit,
     onDeepSleep: (minutes: Int) -> Unit,
+    musicPlaying: Boolean = false,
 ) {
     val p = LocalPalette.current
     var panelOpen by remember { mutableStateOf(false) }
@@ -258,7 +286,7 @@ fun PowerCard(
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Power", fontWeight = FontWeight.SemiBold, color = p.text)
             Text(
-                if (sleepingNow) "Going to sleep..." else "Status: " + (status?.let { statusName(it) } ?: "--"),
+                if (sleepingNow) "Going to sleep..." else "Status: " + (status?.let { statusName(it, musicPlaying) } ?: "--"),
                 color = p.accent,
                 fontSize = 13.sp,
             )

@@ -188,10 +188,15 @@ private val STATE_NAMES = listOf(
     "speaking", "notifying", "upgrading", "activating", "testing audio", "fatal error",
 )
 
-fun statusName(s: Status): String {
-    val name = if (s.napping) "napping" else STATE_NAMES.getOrElse(s.state) { "state ${s.state}" }
+/** The robot's state as text. While it speaks and a song, a radio station or a podcast is what it plays, that reads "Music mode" (musicPlaying). */
+fun statusName(s: Status, musicPlaying: Boolean = false): String {
+    val state = STATE_NAMES.getOrElse(s.state) { "state ${s.state}" }
+    val name = if (s.napping) "napping" else if (musicPlaying && state == "speaking") "music mode" else state
     return name.replaceFirstChar { it.uppercase() }
 }
+
+/** Does Jarvis talk to an own server that has a control panel (the Advanced page)? */
+fun hasPanel(s: Status?): Boolean = s?.serverCustom == true && s.panelUrl.isNotEmpty()
 
 fun fmtAudio(s: Status): String {
     if (s.audioInHz <= 0) return "--"

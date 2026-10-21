@@ -30,6 +30,9 @@ class ModelsTest {
         assertEquals(32, s.heapLargestKb)
         assertEquals(-87, s.rssi)
         assertEquals("Idle", statusName(s))
+        assertEquals("Idle", statusName(s, musicPlaying = true))   // music mode only replaces "Speaking"
+        assertEquals("Music mode", statusName(s.copy(state = 6), musicPlaying = true))
+        assertEquals("Speaking", statusName(s.copy(state = 6), musicPlaying = false))
         assertEquals("16 / 24 kHz", fmtAudio(s))
         assertEquals("399".toInt() - 69, s.ramTotalKb - s.ramFreeKb)
     }

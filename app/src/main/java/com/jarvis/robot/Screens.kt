@@ -193,20 +193,24 @@ fun PhoneContent(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(Modifier.size(10.dp).clip(CircleShape).background(if (state.online) p.success else p.danger))
                 Column(Modifier.weight(1f)) {
-                    Text("Jarvis settings", color = p.text, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                    val ssid = status?.ssid.orEmpty()
-                    val ip = status?.ip.orEmpty().ifEmpty { state.host }
-                    Text(
-                        if (state.online) (if (ssid.isNotEmpty()) "$ssid · $ip" else ip) else "Could not reach Jarvis",
-                        color = p.muted,
-                        fontSize = 13.sp,
-                    )
+                    PageTabs(advancedSelected = false, advancedVisible = hasPanel(status), onSettings = {}, onAdvanced = { showBackend = true })
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val ssid = status?.ssid.orEmpty()
+                        val ip = status?.ip.orEmpty().ifEmpty { state.host }
+                        Text(
+                            if (state.online) (if (ssid.isNotEmpty()) "$ssid · $ip" else ip) else "Could not reach Jarvis",
+                            color = p.muted,
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(onClick = actions.onChangeAddress) { Text("Address", color = p.accent) }
+                    }
                 }
-                TextButton(onClick = actions.onChangeAddress) { Text("Address", color = p.accent) }
             }
 
             // On a theme with a photo the table sits on a card, so the small text stays readable.
-            if (p.photo != null) JCard { InfoTable(status, state.pingText) } else InfoTable(status, state.pingText)
+            val musicPlaying = !state.music?.title.isNullOrEmpty()
+            if (p.photo != null) JCard { InfoTable(status, state.pingText, musicPlaying) } else InfoTable(status, state.pingText, musicPlaying)
 
             if (!state.online) {
                 JCard {
@@ -243,10 +247,10 @@ fun PhoneContent(
                 sleepingNow = state.sleepingNow,
                 onNap = actions.onNap,
                 onDeepSleep = actions.onDeepSleep,
+                musicPlaying = musicPlaying,
             )
 
             VolumeCard(status, actions.onSetVolume)
-            ServerCard(status, state.serverFeedback, state.backendPin, actions.onSetServer, onOpenBackend = { showBackend = true })
 
             if (showRemote) RemotePanel(state.held, actions.onHold)
 

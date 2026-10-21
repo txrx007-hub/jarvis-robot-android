@@ -100,14 +100,7 @@ fun BackendScreen(state: MainUiState, onClose: () -> Unit) {
     Box(Modifier.fillMaxSize()) {
         ThemeBackdrop()
         Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                TextButton(onClick = onClose) { Text("‹ Back", color = p.accent, fontSize = 15.sp) }
-                Text("Backend", color = p.text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-            }
+            PageTabs(advancedSelected = true, advancedVisible = true, onSettings = onClose, onAdvanced = {}, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             BackendWeb(state.status?.panelUrl.orEmpty(), state.host, state.palette, Modifier.fillMaxSize())
         }
     }
