@@ -51,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -234,34 +235,68 @@ private fun InfoColumn(rows: List<Pair<String, String>>, labelWidth: Int, highli
 
 // ------------------------------------------------------------------ voice commands
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VoiceCommandsPanel(columns: Int = 1, haOk: Boolean = false, musicOn: Boolean = false) {
     val p = LocalPalette.current
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Original commands (cyan): understood by the brain, work with any server.", color = p.accent, fontSize = 12.sp)
-        Text("Instant commands (orange): only with your own server. Done at once, no brain, no waiting; they keep working when the brain is down.", color = p.instant, fontSize = 12.sp)
-        if (musicOn) Text("Music commands (pink): only while the backend's music player is on (Music card in the backend).", color = p.music, fontSize = 12.sp)
-        if (haOk) Text("Home commands (purple): only while your Home Assistant answers (Home Assistant card in the backend).", color = p.ha, fontSize = 12.sp)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            for (c in 0 until columns) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    for ((group, items) in VOICE_COMMANDS.filter { (haOk || it.second.none { c -> c.ha }) && (musicOn || it.second.none { c -> c.music }) }.filterIndexed { i, _ -> i % columns == c }) {
-                        val instant = items.any { it.instant }
-                        val home = items.any { it.ha }
-                        val songs = items.any { it.music }
-                        JCard {
-                            Text(group, color = if (songs) p.music else if (home) p.ha else if (instant) p.instant else p.accent, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                            for (item in items) {
-                                Column {
-                                    Text(item.title, color = p.text, fontSize = 14.sp)
-                                    Text(item.example, color = p.muted, fontSize = 13.sp, fontStyle = FontStyle.Italic)
-                                }
-                            }
-                        }
+    val tick = rememberTick()
+    val groups = VOICE_COMMANDS.filter { (haOk || it.second.none { c -> c.ha }) && (musicOn || it.second.none { c -> c.music }) }
+    var selected by rememberSaveable { mutableStateOf<String?>(null) }   // the open group: it starts as a row of coloured tiles, a tap opens one group
+    if (selected != null && groups.none { it.first == selected }) selected = null
+    fun colorOf(items: List<VoiceCommand>): Color = when {
+        items.any { it.music } -> p.music
+        items.any { it.ha } -> p.ha
+        items.any { it.instant } -> p.instant
+        else -> p.accent
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            LegendDot("Original: any server", p.accent)
+            LegendDot("Instant: own server, done at once", p.instant)
+            if (musicOn) LegendDot("Music: while the music player is on", p.music)
+            if (haOk) LegendDot("Home: while Home Assistant answers", p.ha)
+        }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            for ((group, items) in groups) {
+                val color = colorOf(items)
+                val on = group == selected
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(if (on) color.copy(alpha = 0.2f) else Color.Transparent)
+                        .border(1.dp, color, RoundedCornerShape(10.dp))
+                        .semantics { this.selected = on; role = Role.Tab }
+                        .clickable { tick(); selected = if (on) null else group }
+                        .padding(horizontal = 12.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(group.removePrefix("Instant: "), color = color, fontSize = 14.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal, maxLines = 1)
+                    Text("${items.size}", color = color.copy(alpha = 0.7f), fontSize = 12.sp, modifier = Modifier.padding(start = 6.dp))
+                }
+            }
+        }
+        val open = groups.firstOrNull { it.first == selected }
+        if (open == null) {
+            Text("Tap a group to see what you can say.", color = p.muted, fontSize = 13.sp)
+        } else {
+            JCard {
+                Text(open.first, color = colorOf(open.second), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                for (item in open.second) {
+                    Column {
+                        Text(item.title, color = p.text, fontSize = 14.sp)
+                        Text(item.example, color = p.muted, fontSize = 13.sp, fontStyle = FontStyle.Italic)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LegendDot(text: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(color))
+        Text(text, color = LocalPalette.current.muted, fontSize = 12.sp)
     }
 }
 
