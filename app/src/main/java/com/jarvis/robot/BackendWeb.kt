@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -77,14 +78,25 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
 
                 override fun onPageFinished(view: WebView, url: String?) {
                     view.evaluateJavascript(latestJs, null)
+                    (view.parent as? androidx.swiperefreshlayout.widget.SwipeRefreshLayout)?.isRefreshing = false   // a pull-down reload has finished
                 }
             }
             if (demo) loadUrl(DemoWeb.START) else loadUrl(base + "auto", mapOf("Referer" to "http://$robotHost/"))
         }
     }
-    DisposableEffect(web) { onDispose { web.destroy() } }
+    // Pull down at the top of the page to reload it (Android's own pull-to-refresh; only when the page is scrolled to the top).
+    val accent = p.accent.toArgb()
+    val holder = remember(web) {
+        androidx.swiperefreshlayout.widget.SwipeRefreshLayout(context).apply {
+            addView(web)
+            setColorSchemeColors(accent)
+            setOnChildScrollUpCallback { _, _ -> web.canScrollVertically(-1) }
+            setOnRefreshListener { web.reload() }
+        }
+    }
+    DisposableEffect(web) { onDispose { holder.removeView(web); web.destroy() } }
     LaunchedEffect(themeJs) { web.evaluateJavascript(themeJs, null) }
-    AndroidView(factory = { web }, modifier = modifier)
+    AndroidView(factory = { holder }, modifier = modifier)
 }
 
 /** Puts the panel in the same day/night mode and colour theme as the app (the panel reads these from its page settings). */

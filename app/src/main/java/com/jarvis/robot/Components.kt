@@ -226,8 +226,8 @@ private fun NetRow(net: NetRate?) {
     val rx = if (p.isDark) Color(0xFF5EC8FF) else Color(0xFF0F6FA8)
     Row(Modifier.fillMaxWidth().padding(top = 2.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("TX / RX", color = p.muted, fontSize = 11.5.sp, modifier = Modifier.width(104.dp))
-        Text("Tx " + (net?.let { "%.1f p/s".format(Locale.US, it.txPps) } ?: "--"), color = tx, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
-        Text("Rx " + (net?.let { "%.1f p/s".format(Locale.US, it.rxPps) } ?: "--"), color = rx, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+        Text(net?.let { "%.1f p/s".format(Locale.US, it.txPps) } ?: "--", color = tx, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)   // sent (Tx)
+        Text(net?.let { "%.1f p/s".format(Locale.US, it.rxPps) } ?: "--", color = rx, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)   // received (Rx)
     }
 }
 

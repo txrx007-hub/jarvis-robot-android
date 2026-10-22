@@ -67,6 +67,7 @@ data class MainUiState(
     val photoBusy: Boolean = false,
     val photoError: String? = null,
     val netRate: NetRate? = null,
+    val refreshing: Boolean = false,
     val liveOn: Boolean = false,
     val liveImage: ImageBitmap? = null,
     val liveNote: String? = null,
@@ -88,6 +89,7 @@ class MainActions(
     val onPalette: (AppPalette) -> Unit = {},
     val onPhoto: () -> Unit = {},
     val onToggleLive: () -> Unit = {},
+    val onRefresh: () -> Unit = {},
     val onStopLive: () -> Unit = {},
     val onMusicStop: () -> Unit = {},
     val onMusicNext: () -> Unit = {},
@@ -117,6 +119,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         photoBusy = vm.photoBusy,
         photoError = vm.photoError,
         netRate = vm.netRate,
+        refreshing = vm.refreshing,
         liveOn = vm.liveOn,
         liveImage = vm.liveImage,
         liveNote = vm.liveNote,
@@ -137,6 +140,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onPalette = vm::choosePalette,
             onPhoto = vm::takePhoto,
             onToggleLive = vm::toggleLive,
+            onRefresh = vm::refresh,
             onStopLive = vm::stopLive,
             onMusicStop = vm::musicStop,
             onMusicNext = vm::musicNext,
@@ -162,11 +166,36 @@ fun MainContent(
     initialSection: String = SECTION_OVERVIEW,
     initialShowCamera: Boolean = false,
 ) {
-    if (LocalConfiguration.current.screenWidthDp >= TABLET_MIN_DP) {
-        TabletContent(state, actions, initialSection)
-    } else {
-        PhoneContent(state, actions, initialShowVoice, initialShowRemote, initialOpenGroups, initialScrollPx, initialShowCamera)
+    RefreshBox(state.refreshing, actions.onRefresh) {
+        if (LocalConfiguration.current.screenWidthDp >= TABLET_MIN_DP) {
+            TabletContent(state, actions, initialSection)
+        } else {
+            PhoneContent(state, actions, initialShowVoice, initialShowRemote, initialOpenGroups, initialScrollPx, initialShowCamera)
+        }
     }
+}
+
+/** Android's pull down to refresh: pulling down at the top of a page asks the robot again at once (the spinner shows below the status bar, in the app's colours). */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun RefreshBox(refreshing: Boolean, onRefresh: () -> Unit, content: @Composable () -> Unit) {
+    val p = LocalPalette.current
+    val pull = androidx.compose.material3.pulltorefresh.rememberPullToRefreshState()
+    androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+        isRefreshing = refreshing,
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize(),
+        state = pull,
+        indicator = {
+            androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator(
+                state = pull,
+                isRefreshing = refreshing,
+                containerColor = p.card,
+                color = p.accent,
+                modifier = Modifier.align(Alignment.TopCenter).statusBarsPadding(),
+            )
+        },
+    ) { content() }
 }
 
 @Composable

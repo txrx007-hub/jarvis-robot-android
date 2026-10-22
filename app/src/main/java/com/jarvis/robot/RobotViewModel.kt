@@ -92,6 +92,38 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     var music by mutableStateOf<MusicStatus?>(null)
         private set
 
+    /** True while a pull-down refresh is asking the robot (and the backend) again. */
+    var refreshing by mutableStateOf(false)
+        private set
+
+    /** Pull down to refresh: status, settings, music and Home Assistant are asked again at once instead of waiting for their next turn. */
+    fun refresh() {
+        if (refreshing || host.isEmpty()) return
+        refreshing = true
+        musicCheckedAt = 0L
+        haCheckedAt = 0L
+        val current = api
+        viewModelScope.launch {
+            runCatching { withContext(Dispatchers.IO) { current.status() } }.onSuccess { s ->
+                if (current === api) {
+                    status = s
+                    online = true
+                    failures = 0
+                    loadHaOk(current, s)
+                    loadMusic(current, s)
+                }
+            }
+            runCatching { withContext(Dispatchers.IO) { current.settings() } }.onSuccess {
+                if (current === api) {
+                    settings = it
+                    settingsError = null
+                }
+            }
+            delay(400)   // long enough to see that it happened
+            refreshing = false
+        }
+    }
+
     /** Live Wi-Fi traffic of the robot, asked once a second together with the status (null until two readings exist). */
     var netRate by mutableStateOf<NetRate?>(null)
         private set

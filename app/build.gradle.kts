@@ -13,8 +13,8 @@ android {
         applicationId = "com.jarvis.robot"
         minSdk = 26
         targetSdk = 35
-        versionCode = 26
-        versionName = "2.24"
+        versionCode = 27
+        versionName = "2.25"
         buildConfigField("boolean", "DEMO", "false")
     }
 
@@ -56,6 +56,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")   // pull down to reload the backend page (a WebView does not take part in Compose's pull-to-refresh)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
     testImplementation("junit:junit:4.13.2")
