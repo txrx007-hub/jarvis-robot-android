@@ -43,6 +43,10 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
             path.endsWith("/api/dcim") -> json("{\"ok\":true}")
             // ---- the robot
             path == "/api/status" -> json(status().toString())
+            path == "/api/net" -> {   // made-up traffic that grows like a robot talking now and then
+                val t = System.currentTimeMillis() - started
+                json("{\"tx_pkts\":${t / 120 + (t / 1000) % 3},\"rx_pkts\":${t / 70 + (t / 1000) % 5},\"tx_bytes\":${t * 2},\"rx_bytes\":${t * 4},\"t_ms\":$t}")
+            }
             path == "/api/settings" && !post -> json(settings.toString())
             path == "/api/settings" -> json(saveSetting(req))
             path == "/api/reset" -> { settings = defaultSettings(); json("{\"ok\":true,\"message\":\"All settings reset to defaults.\"}") }
@@ -73,7 +77,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
         .put("uptime_s", (System.currentTimeMillis() - started) / 1000 + 86_400 + 5_400).put("state", 3).put("napping", napping)
         .put("cpu_load", if (napping) 6 else 38).put("fps", 27).put("heap_largest_kb", 61).put("audio_in_hz", 16000).put("audio_out_hz", 24000)
         .put("power", "battery").put("cpu_mhz", if (napping) 160 else 240).put("ram_free_kb", 71).put("ram_total_kb", 399)
-        .put("psram_free_kb", 3300).put("psram_total_kb", 8192)
+        .put("psram_free_kb", 3300).put("psram_total_kb", 8192).put("chip_temp_c", 46.5 + (System.currentTimeMillis() / 7000 % 3))
         .put("server", "http://192.168.1.10:8003/xiaozhi/ota/").put("server_custom", true)
         .put("volume", volume).put("volume_requested", volume).put("volume_cap", 100).put("panel_url", "http://192.168.1.10:8090/")
 

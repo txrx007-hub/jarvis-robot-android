@@ -263,7 +263,7 @@ private fun Backend(state: MainUiState, actions: MainActions) {
 @Composable
 private fun Overview(state: MainUiState, actions: MainActions, columns: Int) {
     val musicPlaying = !state.music?.title.isNullOrEmpty()
-    JCard { InfoTable(state.status, state.pingText, musicPlaying) }
+    JCard { InfoTable(state.status, state.pingText, musicPlaying, state.netRate) }
     Columns(columns, listOf(
         {
             PowerCard(

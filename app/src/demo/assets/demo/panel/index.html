@@ -167,6 +167,14 @@
   .kpi.netk { cursor:pointer; user-select:none; } .kpi.netk:hover { border-color:var(--accent); }
   .kpi .nv { font-style:normal; } .kpi .gap { display:inline-block; width:22px; }
   .spark { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin:8px 0; }
+  .wave { display:grid; grid-template-columns:1fr; gap:12px; margin:10px 0; }
+  .wave svg { width:100%; height:auto; display:block; background:var(--field-bg); border-radius:8px; }
+  .wave .wtitle { font-size:15px; font-weight:600; fill:var(--text); } .wave .wlab { font-size:13px; fill:var(--muted); } .wave .wgrid { stroke:var(--card-border); stroke-width:1; }
+  .micm { margin:10px 0 4px; } .micm .cap { font-size:12px; color:var(--muted); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .mbar { position:relative; height:12px; border-radius:6px; overflow:hidden; display:flex; margin:5px 0 3px; background:var(--field-bg); }
+  .mbar .mz { height:100%; opacity:.35; } .mbar .g { background:var(--success); } .mbar .a { background:#e8b84a; } .mbar .r { background:var(--danger); opacity:.75; }
+  .mbar .mrms { position:absolute; left:0; top:4px; height:4px; background:var(--text); opacity:.45; border-radius:2px; }
+  .mbar .mpk { position:absolute; top:0; width:3px; height:100%; background:var(--text); margin-left:-1px; }
   .spark svg { width:100%; height:64px; display:block; background:var(--field-bg); border-radius:8px; } .spark .cap { font-size:12px; color:var(--muted); display:flex; justify-content:space-between; }
   .svc { display:flex; align-items:center; gap:10px; padding:6px 0; border-top:1px solid var(--card-border); font-size:14px; } .svc:first-of-type { border-top:0; }
   .svc .n { flex:1; } .svc .m { color:var(--muted); font-size:12px; }
@@ -238,6 +246,11 @@
   <div class="card" id="speedCard">
     <h2>Reply speed · how fast Jarvis answers</h2>
     <div id="speedBody" class="hint">loading…</div>
+  </div>
+
+  <div class="card" id="convCard">
+    <h2>Conversations &amp; fallbacks</h2>
+    <div id="convBody" class="hint">loading…</div>
   </div>
 
   <div class="card" id="robotCard">
@@ -619,6 +632,53 @@ const fmtMs = v => v == null ? '–' : (v >= 1000 ? (v / 1000).toFixed(1) + ' s'
 const totCls = v => v == null ? '' : v < 2500 ? 'okc' : v < 4500 ? 'warnc' : 'badc';
 const fmtDur = s => { s = Math.round(s); if (s < 90) return s + ' s'; const m = Math.round(s / 60); if (m < 90) return m + ' min'; const h = s / 3600; return h < 48 ? h.toFixed(1) + ' h' : Math.round(h / 24) + ' days'; };
 const clock = t => new Date(t * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+// A line chart in the style of a monitoring dashboard: title, grid, time axis, smooth line, legend (the robot's Wi-Fi and memory over 24 h).
+// series = [[minutes ago, value], ...]; the colour stays the one each graph always had.
+function niceTicks(lo, hi, n) {
+  const span = (hi - lo) || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
+  const step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag, out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.round(v * 100) / 100);
+  return out;
+}
+function waveChart(series, o) {
+  const W = 640, H = 230, L = 50, R = 628, Tp = 32, B = 174, title = `<text x="${W / 2}" y="18" text-anchor="middle" class="wtitle">${esc(o.title)}</text>`;
+  const legend = `<rect x="${L}" y="${H - 20}" width="18" height="4" rx="2" fill="${o.color}"/><text x="${L + 24}" y="${H - 14}" class="wlab">${esc(o.legend)}</text>` + (o.note ? `<text x="${R}" y="${H - 14}" text-anchor="end" class="wlab">${esc(o.note)}</text>` : '');
+  if (!series || series.length < 2) return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.title)}">${title}<text x="${W / 2}" y="${(Tp + B) / 2}" text-anchor="middle" class="wlab">collecting…</text>${legend}</svg>`;
+  const now = Date.now() / 1000, t0 = now - 24 * 3600;
+  const pts = series.map(p => [now - p[0] * 60, p[1]]).filter(p => p[0] >= t0).sort((a, b) => a[0] - b[0]);
+  const vals = pts.map(p => p[1]), lo0 = Math.min(o.lo, ...vals), hi0 = Math.max(o.hi, ...vals);
+  const ticks = niceTicks(lo0, hi0, 4), lo = Math.min(lo0, ticks[0]), hi = Math.max(hi0, ticks[ticks.length - 1]);
+  const X = t => L + (t - t0) / (now - t0) * (R - L), Y = v => B - (v - lo) / ((hi - lo) || 1) * (B - Tp);
+  let grid = ticks.map(v => `<line x1="${L}" x2="${R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="wgrid"/><text x="${L - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end" class="wlab">${v}</text>`).join('');
+  const first = new Date(t0 * 1000); first.setMinutes(0, 0, 0); first.setHours(first.getHours() + (3 - first.getHours() % 3) % 3);   // every 3 hours, on the hour
+  for (let t = first.getTime() / 1000; t <= now; t += 3 * 3600) {
+    if (t < t0) continue;
+    const x = X(t).toFixed(1), lab = new Date(t * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    grid += `<line x1="${x}" x2="${x}" y1="${Tp}" y2="${B}" class="wgrid"/><text x="${x}" y="${B + 18}" text-anchor="middle" class="wlab">${lab}</text>`;
+  }
+  // smooth line through the points (Catmull-Rom as cubic Bezier): the wave shape; a gap of more than 10 minutes (robot away) breaks the line
+  const P = pts.map(p => [X(p[0]), Y(p[1]), p[0]]);
+  let d = '';
+  for (let i = 0; i < P.length; i++) {
+    const p = P[i];
+    if (i === 0 || p[2] - P[i - 1][2] > 600) { d += `M${p[0].toFixed(1)},${p[1].toFixed(1)}`; continue; }
+    const p0 = P[Math.max(0, i - 2)], p1 = P[i - 1], p3 = P[Math.min(P.length - 1, i + 1)];
+    const c1 = [p1[0] + (p[0] - p0[0]) / 6, p1[1] + (p[1] - p0[1]) / 6], c2 = [p[0] - (p3[0] - p1[0]) / 6, p[1] - (p3[1] - p1[1]) / 6];
+    d += `C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.title)}">${title}${grid}<path d="${d}" fill="none" stroke="${o.color}" stroke-width="1.8" stroke-linejoin="round"/>${legend}</svg>`;
+}
+// The microphone over the last minute: a level bar from -60 to 0 dBFS, green while normal, amber when loud, red near full scale (too loud) where it clips.
+function micMeter(n, m) {
+  if (!n || typeof n.mic !== 'number') return '';
+  const pos = v => Math.max(0, Math.min(100, (v + 60) / 60 * 100)), peak = n.mic, clip = n.clip || 0;
+  const cls = clip > 0 || peak >= -3 ? 'badc' : peak >= -12 ? 'warnc' : 'okc';
+  const word = clip > 0 ? 'clipping' : peak >= -3 ? 'too loud' : peak >= -12 ? 'loud' : 'fine';
+  return `<div class="micm"><div class="cap"><span>Microphone, last minute: peak <b class="${cls}">${peak.toFixed(1)} dBFS</b> (${word}) · ${clip} sample${clip === 1 ? '' : 's'} clipped</span><span>24 h: ${m.clip_minutes} min clipping, ${m.loud_minutes} min too loud</span></div>
+    <div class="mbar"><div class="mz g" style="width:${pos(-12)}%"></div><div class="mz a" style="width:${pos(-3) - pos(-12)}%"></div><div class="mz r" style="width:${100 - pos(-3)}%"></div>
+      <div class="mpk" style="left:${pos(peak)}%"></div>${typeof n.mic_rms === 'number' ? `<div class="mrms" style="width:${pos(n.mic_rms)}%"></div>` : ''}</div>
+    <div class="cap"><span>-60</span><span>-12</span><span>-3 · too loud</span><span>0 dBFS</span></div></div>`;
+}
 function sparkSvg(series, lo, hi, color) {
   if (!series || series.length < 2) return '<svg viewBox="0 0 200 64"><text x="100" y="36" text-anchor="middle" fill="currentColor" font-size="10" opacity=".5">collecting…</text></svg>';
   const maxAge = Math.max(...series.map(p => p[0]), 60), min = Math.min(lo, ...series.map(p => p[1])), max = Math.max(hi, ...series.map(p => p[1]));
@@ -666,15 +726,36 @@ function paintRobot(r) {
       ${n ? kpi(hp != null ? hp + ' KB' : '–', `largest free block now · lowest in 24 h ${r.heap.min ?? '–'} KB`, hc) : ''}
       ${n ? kpi(`${n.psram != null ? (n.psram / 1024).toFixed(1) : '–'} MB`, `free PSRAM · free RAM ${n.ram ?? '–'} KB`) : ''}
       ${kpi(r.up_pct == null ? '–' : r.up_pct + '%', 'of the last 24 h it answered', r.up_pct == null ? '' : r.up_pct >= 90 ? 'okc' : r.up_pct >= 60 ? 'warnc' : 'badc')}
-      ${kpi(r.reboots_day, 'restarts in 24 h (sleep wake-ups count)', r.reboots_day ? 'warnc' : 'okc')}</div>
+      ${kpi(r.reboots_day, 'restarts in 24 h (sleep wake-ups count)', r.reboots_day ? 'warnc' : 'okc')}
+      ${n && typeof n.temp === 'number' ? kpi(n.temp.toFixed(1) + ' °C', `chip temperature now · 24 h ${r.temp.min != null ? r.temp.min.toFixed(1) : '–'} to ${r.temp.max != null ? r.temp.max.toFixed(1) : '–'} °C (the die runs warmer than the room)`, n.temp < 70 ? 'okc' : n.temp < 80 ? 'warnc' : 'badc') : ''}
+      ${n && typeof n.wdisc === 'number' ? kpi(r.wifi_drops_day, `Wi-Fi drops in 24 h · ${n.wdisc} since its last restart`, r.wifi_drops_day ? 'warnc' : 'okc') : ''}</div>
+    ${micMeter(n, r.mic)}
     <div id="netLive"></div>
-    <div class="spark"><div><div class="cap"><span>Wi-Fi signal, last 24 h</span><span>higher is better</span></div>${sparkSvg(r.rssi_series, -90, -40, 'var(--accent)')}</div>
-      <div><div class="cap"><span>Largest free memory block, last 24 h</span><span>below 20 KB is trouble</span></div>${sparkSvg(r.heap_series, 0, 80, '#e8b84a')}</div></div>
+    <div class="wave"><div>${waveChart(r.rssi_series, {title: 'Wi-Fi signal, last 24 h', legend: 'signal (dBm), higher is better', lo: -90, hi: -40, color: 'var(--accent)'})}</div>
+      <div>${waveChart(r.heap_series, {title: 'Largest free memory block, last 24 h', legend: 'free block (KB), below 20 is trouble', lo: 0, hi: 80, color: '#e8b84a'})}</div></div>
     ${latestRestart}`;
   const d = box.querySelector('#rbDetails'); if (d) d.ontoggle = () => { rbOpen = d.open; };   // the card repaints every 10 s: remember whether it was opened
   if (netLast) paintNet(netLast);   // the live traffic tiles sit inside this card: put them back at once
 }
 let rbOpen = false;
+
+// ---- conversations and fallbacks: wake-ups, conversations that heard nothing (false wakes), dropped connections, and every time a backup took over
+let convWin = 'day';
+function paintConv(c) {
+  const box = $('#convBody'); if (!box) return;
+  const w = c[convWin], other = c[convWin === 'day' ? 'week' : 'day'];
+  const kpi = (v, label, cls) => `<div class="kpi"><b class="${cls || ''}">${v}</b><span>${label}</span></div>`;
+  const pct = (a, b) => b ? Math.round(100 * a / b) + '%' : '–';
+  const seg = `<span class="seg"><button class="small ${convWin === 'day' ? 'on' : ''}" data-cw="day">24 hours</button><button class="small ${convWin === 'week' ? 'on' : ''}" data-cw="week">7 days</button></span>`;
+  const fb = Object.entries(c.names).map(([k, label]) => { const n = (w.fallbacks || {})[k] || 0; return `<div class="ev"${n ? '' : ' style="opacity:.55"'}>${esc(label)}: <b class="${n ? 'warnc' : ''}">${n}</b></div>`; }).join('');
+  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center">${seg}<span class="hint">${c.since ? 'counting since ' + new Date(c.since * 1000).toLocaleDateString() : 'nothing counted yet: it starts with the next conversation'}</span></div>
+    <div class="kpis">${kpi(w.wakes, 'wake-ups (wake word heard)')}${kpi(w.sessions, `conversations · ${w.heard} sentences heard`)}
+      ${kpi(w.false_wakes, `false wakes: woke but heard nothing (${pct(w.false_wakes, w.sessions)})`, w.sessions && w.false_wakes / w.sessions > 0.3 ? 'warnc' : 'okc')}
+      ${kpi(w.drops, 'conversations cut off (the connection broke)', w.drops ? 'warnc' : 'okc')}
+      ${kpi(w.robot_wifi_drops, 'Wi-Fi drops reported by the robot', w.robot_wifi_drops ? 'warnc' : 'okc')}</div>
+    <div class="hint" style="margin-top:8px">Fallbacks: a backup that took over</div>${fb}`;
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-cw]'); if (!b) return; convWin = b.dataset.cw; if (T.conv) paintConv(T.conv); });
 
 // ---- live traffic of the robot (Tx = what it sends, Rx = what it receives), three times a second; click a tile to switch between packets per second and Mbit/s
 let netUnit = 'pps'; try { if (localStorage.getItem('netUnit') === 'mbit') netUnit = 'mbit'; } catch (e) {}
@@ -716,7 +797,7 @@ async function loadTelemetry() {
   try {
     const r = await fetch('/api/telemetry'); if (r.status === 401) return;
     T = await r.json(); if (T.error) return;
-    paintSpeed(T.speed); paintRobot(T.robot); paintSystem(T.system);
+    paintSpeed(T.speed); paintRobot(T.robot); paintSystem(T.system); if (T.conv) paintConv(T.conv);
   } catch (e) {}
 }
 loadTelemetry(); setInterval(() => { if (!document.hidden) loadTelemetry(); }, 10000);

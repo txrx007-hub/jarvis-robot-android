@@ -135,6 +135,12 @@ class RobotApi(host: String, demo: DemoRobot? = if (BuildConfig.DEMO) DemoRobot.
 
     fun status(): Status = parseStatus(JSONObject(get("/api/status")))
 
+    /** The robot's traffic counters since it started (for the live Tx / Rx row). */
+    fun net(): NetCounters {
+        val o = JSONObject(get("/api/net", fast))
+        return NetCounters(o.optLong("tx_pkts"), o.optLong("rx_pkts"), o.optLong("t_ms"))
+    }
+
     fun settings(): List<SettingDef> = parseSettings(JSONArray(get("/api/settings")))
 
     fun save(key: String, value: String): SaveResult {

@@ -91,6 +91,11 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     /** The backend's music module (null = not on or not asked yet): the Music card shows while it is on. Asked every 4 seconds while the app is on screen. */
     var music by mutableStateOf<MusicStatus?>(null)
         private set
+
+    /** Live Wi-Fi traffic of the robot, asked once a second together with the status (null until two readings exist). */
+    var netRate by mutableStateOf<NetRate?>(null)
+        private set
+    private var netPrev: NetCounters? = null
     private var musicCheckedAt = 0L
     private var musicMisses = 0   // checks in a row that got no answer at all (a busy Wi-Fi moment); the Music card stays until several in a row fail
     private var haMisses = 0
@@ -174,6 +179,10 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
             if (current !== api) continue // the address changed while the request was in flight
             result.onSuccess {
                 status = it
+                runCatching { withContext(Dispatchers.IO) { current.net() } }.onSuccess { n ->   // firmware without /api/net just leaves the row empty
+                    netRate = netRate(netPrev, n) ?: netRate
+                    netPrev = n
+                }
                 loadBackendPin(current, it)
                 loadHaOk(current, it)
                 loadMusic(current, it)

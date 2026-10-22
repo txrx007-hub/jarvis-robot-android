@@ -112,6 +112,17 @@ class ModelsTest {
     }
 
     @Test
+    fun chipTemperatureAndTrafficRate() {
+        assertEquals(44.3, parseStatus(JSONObject("""{"chip_temp_c":44.3}""")).chipTempC!!, 0.001)
+        assertNull(parseStatus(JSONObject("{}")).chipTempC)   // older firmware: no row
+        val r = netRate(NetCounters(100, 200, 1000), NetCounters(110, 230, 3000))!!
+        assertEquals(5.0, r.txPps, 0.001)
+        assertEquals(15.0, r.rxPps, 0.001)
+        assertNull(netRate(null, NetCounters(1, 1, 1)))
+        assertNull(netRate(NetCounters(500, 500, 9000), NetCounters(3, 4, 200)))   // the robot restarted in between
+    }
+
+    @Test
     fun parsesVolumeAndServerFields() {
         val s = parseStatus(JSONObject("""{"volume":78,"volume_requested":90,"volume_cap":78,"server":"http://192.168.1.20:8003/xiaozhi/ota/",
             "server_custom":true,"panel_url":"http://192.168.1.20:8090/"}"""))

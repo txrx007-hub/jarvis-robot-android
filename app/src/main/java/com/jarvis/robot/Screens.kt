@@ -66,6 +66,7 @@ data class MainUiState(
     val photoTime: String? = null,
     val photoBusy: Boolean = false,
     val photoError: String? = null,
+    val netRate: NetRate? = null,
     val liveOn: Boolean = false,
     val liveImage: ImageBitmap? = null,
     val liveNote: String? = null,
@@ -115,6 +116,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         photoTime = vm.photoTime,
         photoBusy = vm.photoBusy,
         photoError = vm.photoError,
+        netRate = vm.netRate,
         liveOn = vm.liveOn,
         liveImage = vm.liveImage,
         liveNote = vm.liveNote,
@@ -220,7 +222,7 @@ fun PhoneContent(
 
             // On a theme with a photo the table sits on a card, so the small text stays readable.
             val musicPlaying = !state.music?.title.isNullOrEmpty()
-            if (p.photo != null) JCard { InfoTable(status, state.pingText, musicPlaying) } else InfoTable(status, state.pingText, musicPlaying)
+            if (p.photo != null) JCard { InfoTable(status, state.pingText, musicPlaying, state.netRate) } else InfoTable(status, state.pingText, musicPlaying, state.netRate)
 
             if (!state.online) {
                 JCard {

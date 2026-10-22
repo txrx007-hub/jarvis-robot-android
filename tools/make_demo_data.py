@@ -125,8 +125,16 @@ robot = {
     "reboots": [{"t": -90000, "gap_s": 4, "reason": "power on", "flags": [], "rssi": -52, "heap": 61, "napping": False}],
     "rssi_series": [[1440 - i * 10, -52 + ((i * 7) % 9) - 4] for i in range(144)],
 }
+robot["now"].update(temp=46.5, mic=-18.4, mic_rms=-41.0, clip=0, wdisc=0, wreason=0)
+robot.update(temp={"min": 41.3, "max": 49.8}, mic={"minutes": 1380, "clip_minutes": 2, "clipped": 37, "loud_minutes": 9, "peak_max": 0.0}, wifi_drops_day=1)
+conv_names = {"voice_edge_piper": "Voice: Edge failed, Piper spoke", "voice_piper_edge": "Voice: Piper failed, Edge spoke", "ears_cloud_local": "Ears: cloud failed, local Whisper",
+              "brain_backup": "Brain: backup brain answered", "vision_backup": "Camera: backup model answered", "vision_apology": "Camera: no answer in time"}
+conv = {"day": {"wakes": 23, "sessions": 21, "false_wakes": 3, "drops": 1, "heard": 58, "fallbacks": {"voice_edge_piper": 1, "brain_backup": 2}, "robot_wifi_drops": 1},
+        "week": {"wakes": 141, "sessions": 133, "false_wakes": 17, "drops": 4, "heard": 402, "fallbacks": {"voice_edge_piper": 3, "brain_backup": 9, "vision_backup": 2}, "robot_wifi_drops": 6},
+        "names": conv_names, "since": -6 * 86400}
 telemetry = scrub(telemetry)
 telemetry["robot"] = robot
+telemetry["conv"] = conv
 telemetry["system"]["pc"] = {"cpu": 7, "ram_pct": 41, "ram_free_gb": 18.9, "disk_free_gb": 311}
 for s in telemetry["system"]["services"]:
     s["mem_mb"] = s["mem_mb"] and 480

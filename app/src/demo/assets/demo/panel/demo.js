@@ -118,6 +118,7 @@
           t.speed.recent.forEach(function (r) { r.t = n + r.t; });
           t.robot.now.t = n; t.robot.last_seen = n; t.robot.now.uptime += Math.round((Date.now() - T0) / 1000);
           t.robot.reboots.forEach(function (r) { r.t = n + r.t; });
+          if (t.conv && t.conv.since < 0) t.conv.since = n + t.conv.since;
           return json(t);
         });
         case "log": return json({ lines: logLines(q.get("mode") || "all", (q.get("roles") || "").split(",").filter(Boolean)) });

@@ -33,7 +33,22 @@ data class Status(
     val server: String? = null,
     val serverCustom: Boolean = false,
     val panelUrl: String = "",
+    // the chip's own temperature sensor (firmware build 55 and newer; null before)
+    val chipTempC: Double? = null,
 )
+
+/** The robot's Wi-Fi traffic in packets per second (Tx = sent, Rx = received), worked out from two readings of its counters (/api/net). */
+data class NetRate(val txPps: Double, val rxPps: Double)
+
+/** One reading of the robot's traffic counters (GET /api/net). */
+data class NetCounters(val txPkts: Long, val rxPkts: Long, val tMs: Long)
+
+/** The rate between two readings; null when there is no earlier one, the robot restarted in between (counters went back) or no time passed. */
+fun netRate(prev: NetCounters?, now: NetCounters): NetRate? {
+    if (prev == null || now.tMs <= prev.tMs || now.txPkts < prev.txPkts || now.rxPkts < prev.rxPkts) return null
+    val s = (now.tMs - prev.tMs) / 1000.0
+    return NetRate((now.txPkts - prev.txPkts) / s, (now.rxPkts - prev.rxPkts) / s)
+}
 
 enum class Kind { INT, BOOL, HUNDREDTHS, TIME, ENUM, TEXT }
 
@@ -82,6 +97,7 @@ fun parseStatus(o: JSONObject): Status {
         rssi = intOrNull("rssi"),
         audioInHz = o.optInt("audio_in_hz", 0),
         audioOutHz = o.optInt("audio_out_hz", 0),
+        chipTempC = if (o.has("chip_temp_c") && !o.isNull("chip_temp_c")) o.optDouble("chip_temp_c") else null,
         volume = intOrNull("volume"),
         volumeRequested = intOrNull("volume_requested"),
         volumeCap = intOrNull("volume_cap"),
