@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="/demo.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis Backend</title>
+<style>
+  :root {
+    --bg:#0b1416; --card:#101f22; --card-border:#1c3236; --accent:#20e0e0; --text:#e8f6f5; --muted:#8fb9b6;
+    --danger:#ff8a8a; --success:#6be3ab; --field-bg:#0c1a1c; --accent-wash:rgba(32,224,224,.1);
+    --danger-wash:rgba(255,138,138,.1); --on-accent:#031416; color-scheme:dark;
+    --c-listen:#5ec8ff; --c-think:#c4a1ff; --c-speak:#6be3ab; --c-tool:#ffb86b;
+    --title:#4df0f0;   /* card titles: brighter than the muted grey-teal they had, readable on the dark cards */
+  }
+  :root[data-theme="light"] {
+    --bg:#eef5f5; --card:#ffffff; --card-border:#c9dcdc; --accent:#0a8f95; --text:#12292b; --muted:#55777a;
+    --danger:#c0392b; --success:#1b8f5a; --field-bg:#f3f8f8; --accent-wash:rgba(10,143,149,.1);
+    --danger-wash:rgba(192,57,43,.1); --on-accent:#ffffff; color-scheme:light;
+    --c-listen:#0f6fa8; --c-think:#7a45c8; --c-speak:#1b8f5a; --c-tool:#b3560a;
+    --title:#06656b;
+  }
+  /* ---- colour themes: Classic (above) plus Blueberry and Succulent, each in a dark and a light version (the day/night button keeps working) ---- */
+  body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:var(--bg-image, none) center/cover no-repeat; opacity:.4; }
+  .card { background:color-mix(in srgb, var(--card) 90%, transparent); backdrop-filter:blur(5px); }
+  :root[data-palette="blueberry"] { --bg:#12181d; --card:#112a40; --card-border:#1d4668; --accent:#7fb2e5; --text:#e8f2fc; --muted:#a7bdd6; --field-bg:#0e1d2c;
+    --accent-wash:rgba(127,178,229,.13); --on-accent:#0a1a2a; --title:#bfd4eb; --bg-image:url(/theme/blueberry.webp); }
+  :root[data-palette="blueberry"][data-theme="light"] { --bg:#e8f2fc; --card:#f7fafe; --card-border:#bfd4eb; --accent:#3273af; --text:#1c2227; --muted:#4d6580; --field-bg:#eef4fb;
+    --accent-wash:rgba(50,115,175,.11); --on-accent:#ffffff; --title:#0a385f; }
+  :root[data-palette="succulent"] { --bg:#11171b; --card:#11322f; --card-border:#1d5a4c; --accent:#7fc1a6; --text:#e6eee2; --muted:#a3b8aa; --field-bg:#0d2224;
+    --accent-wash:rgba(127,193,166,.13); --on-accent:#07140f; --title:#b7d8c8; --bg-image:url(/theme/succulent.webp); }
+  :root[data-palette="succulent"][data-theme="light"] { --bg:#e8ede4; --card:#f6f8f3; --card-border:#bbc5b4; --accent:#1b6b55; --text:#171d24; --muted:#556a5e; --field-bg:#edf1e9;
+    --accent-wash:rgba(27,107,85,.11); --on-accent:#ffffff; --title:#0f454c; }
+  header select { width:auto; padding:4px 8px; font-size:13px; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui,Segoe UI,Roboto,sans-serif; }
+  main { max-width:880px; margin:0 auto; padding:16px; }
+  header { display:flex; align-items:center; gap:12px; margin:8px 0 16px; }
+  header h1 { font-size:20px; margin:0; flex:1; letter-spacing:.3px; }
+  header h1 span { color:var(--accent); }
+  .card { background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px 16px; margin-bottom:14px; }
+  .card h2 { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--title); margin:0 0 10px; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px 14px; }
+  label { display:block; font-size:12px; color:var(--muted); margin-bottom:3px; }
+  input, select, textarea { width:100%; background:var(--field-bg); color:var(--text); border:1px solid var(--card-border);
+    border-radius:8px; padding:8px 10px; font:inherit; }
+  select { appearance:none; background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+    background-position:calc(100% - 17px) 55%,calc(100% - 12px) 55%; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:30px; }
+  input:disabled { opacity:.6; }
+  textarea { min-height:110px; resize:vertical; }
+  input:focus, select:focus, textarea:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+  button { background:var(--accent-wash); color:var(--accent); border:1px solid var(--accent); border-radius:9px;
+    padding:8px 14px; font:inherit; font-weight:600; cursor:pointer; }
+  button:hover { filter:brightness(1.15); }
+  button.primary { background:var(--accent); color:var(--on-accent); }
+  button.danger { color:var(--danger); border-color:var(--danger); background:var(--danger-wash); }
+  button.small { padding:3px 10px; font-size:12px; }
+  button:disabled { opacity:.5; cursor:wait; }
+  .pill { display:inline-block; padding:3px 10px; border-radius:99px; font-size:12px; border:1px solid var(--card-border); color:var(--muted); }
+  .pill.ok { color:var(--success); border-color:var(--success); }
+  .pill.bad { color:var(--danger); border-color:var(--danger); }
+  .pill.warn { color:#e8b84a; border-color:#e8b84a; }
+  #srvBox { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+  #srvBox, #srvBox .pill, #pingRows { white-space:nowrap; }
+  /* ---- search bar (Samsung settings style): type a function, pick it, the page scrolls there and the found item blinks twice ---- */
+  #confirmBox { border:1px solid var(--card-border); border-radius:16px; background:var(--card); color:var(--text); padding:18px; max-width:380px; width:calc(100% - 40px); }
+  #confirmBox::backdrop { background:rgba(0,0,0,.55); }
+  #confirmBox p { margin:0 0 16px; line-height:1.45; }
+  #confirmBox .crow { display:flex; gap:10px; justify-content:flex-end; }
+  #searchBar { position:sticky; top:0; z-index:7; margin:-4px -16px 12px; padding:8px 16px; background:color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter:blur(8px); }
+  #sWrap { position:relative; }
+  #sField { display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--card-border); border-radius:99px; padding:0 8px 0 14px; }
+  #sField:focus-within { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-wash); }
+  #sField svg { flex:none; width:18px; height:18px; stroke:var(--muted); fill:none; stroke-width:2; stroke-linecap:round; }
+  #sInput { border:0; background:transparent; padding:10px 4px; font-size:16px; outline:none; min-width:0; flex:1; }
+  #sInput:focus { outline:none; }
+  #sClear { display:none; border:0; background:transparent; color:var(--muted); padding:4px 10px; font-size:18px; line-height:1; border-radius:99px; }
+  #sList { position:absolute; left:0; right:0; top:calc(100% + 6px); max-height:min(60vh,460px); overflow:auto; background:var(--card); border:1px solid var(--card-border);
+    border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35); padding:6px; display:none; }
+  .sItem { display:block; width:100%; text-align:left; background:transparent; border:0; border-radius:10px; padding:9px 12px; color:var(--text); font-weight:500; cursor:pointer; }
+  .sItem small { display:block; color:var(--muted); font-weight:400; font-size:12px; margin-top:1px; }
+  .sItem.on, .sItem:hover { background:var(--accent-wash); filter:none; }
+  .sItem mark { background:transparent; color:var(--accent); font-weight:700; }
+  #sNone { padding:12px; color:var(--muted); font-size:14px; }
+  .card, .card > .cbody > div, .keyrow { scroll-margin-top:76px; }
+  /* the blink is switched on and off from the script (twice), not animated: it is a highlight, not movement, so it also shows when the system turns animations off */
+  .sblink { background:var(--accent-wash); box-shadow:0 0 0 2px var(--accent); border-radius:10px; }
+  #pingRows { display:grid; grid-template-columns:auto auto; gap:0 12px; font-size:11px; line-height:1.35; color:var(--muted); font-variant-numeric:tabular-nums; }
+  #pingRows b { font-weight:600; text-align:right; color:var(--success); }
+  #pingRows b.bad { color:var(--danger); }
+  #pingRows b.warn { color:#e8b84a; }
+  .hint { font-size:12px; color:var(--muted); margin-top:3px; }
+  .tag { font-size:11px; color:var(--accent); margin-left:6px; }
+  pre { background:var(--field-bg); border:1px solid var(--card-border); border-radius:8px; padding:8px 10px; margin:0;
+    font:12px/1.4 Consolas,monospace; max-height:220px; overflow:auto; white-space:pre-wrap; word-break:break-all; }
+  code { background:var(--field-bg); padding:1px 6px; border-radius:5px; }
+  a { color:var(--accent); }
+  .keyrow { display:grid; grid-template-columns:150px 1fr auto; gap:8px; align-items:center; margin-bottom:8px; }
+  @media (max-width:560px) { .keyrow { grid-template-columns:1fr; } }
+  #lan { margin-top:10px; padding-top:10px; border-top:1px solid var(--card-border); font-size:13px; }
+  #lan .pin { font:600 14px Consolas,monospace; letter-spacing:2px; color:var(--text); }
+  #console { background:var(--field-bg); border:1px solid var(--card-border); border-radius:8px; padding:8px 10px; margin:0;
+    font:12px/1.45 Consolas,monospace; height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word; }
+  #console .ln { display:block; }
+  #console .t { color:var(--muted); }
+  #console .a { color:var(--accent); display:inline-block; min-width:5.2em; }
+  #console .WARNING { color:#e8b84a; } #console .ERROR, #console .CRITICAL { color:var(--danger); }
+  #console .DEBUG { color:var(--muted); }
+  #console .ln[class*=" r-"] { border-left:3px solid; padding-left:6px; margin-left:-2px; }
+  #console .r-listen { color:var(--c-listen); border-color:var(--c-listen); } #console .r-think { color:var(--c-think); border-color:var(--c-think); }
+  #console .r-speak { color:var(--c-speak); border-color:var(--c-speak); } #console .r-tool { color:var(--c-tool); border-color:var(--c-tool); }
+  #console .ln.WARNING { color:#e8b84a; } #console .ln.ERROR, #console .ln.CRITICAL { color:var(--danger); }   /* problems keep their own colour */
+  .lgb { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; font-size:12px; font-weight:500; border:1px solid var(--c); color:var(--c); background:transparent; border-radius:999px; }
+  .lgb::before { content:''; width:9px; height:9px; border-radius:3px; background:var(--c); }
+  .lgb.on { background:var(--c); color:var(--bg); } .lgb.on::before { background:var(--bg); }
+  #logLegend.filtering .lgb:not(.on) { opacity:.45; }
+  .seg { display:inline-flex; border:1px solid var(--card-border); border-radius:9px; overflow:hidden; }
+  .seg button { border:0; border-radius:0; background:transparent; padding:6px 12px; font-weight:500; }
+  .seg button.on { background:var(--accent); color:var(--on-accent); }
+  .ugrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:12px; align-items:start; }   /* each card keeps its own height (a tall Groq card must not stretch Tavily) */
+  .ucol { display:flex; flex-direction:column; gap:12px; min-width:0; }
+  .ucard { border:1px solid var(--card-border); border-radius:12px; padding:12px 14px; background:var(--field-bg); }
+  .uhead { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:15px; }
+  .ubar { margin:9px 0; }
+  .ulabel { display:flex; justify-content:space-between; gap:8px; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .ulabel b { color:var(--text); }
+  .ulabel i { font-style:normal; opacity:.75; }
+  .utrack { height:8px; border-radius:99px; background:var(--card-border); overflow:hidden; }
+  .ufill { height:100%; border-radius:99px; transition:width .4s; }
+  .ufill.ok { background:var(--accent); } .ufill.warn { background:#e8b84a; } .ufill.bad { background:var(--danger); } .ufill.none { background:var(--muted); }
+  .ubig { font-size:28px; font-weight:600; margin:10px 0 2px; }
+  .ubig span { font-size:12px; font-weight:400; color:var(--muted); margin-left:8px; }
+  .umodel { margin-top:12px; padding-top:8px; border-top:1px solid var(--card-border); font-size:12px; font-weight:600; color:var(--accent); }
+  .uchart { width:100%; height:auto; margin-top:8px; }
+  .utx { font-size:9px; fill:var(--muted); }
+  .chead { cursor:pointer; user-select:none; display:flex; align-items:center; gap:8px; }
+  .chead::before { content:'▾'; color:var(--accent); font-size:13px; transition:transform .15s; }
+  .card.collapsed .chead::before { transform:rotate(-90deg); }
+  .card.collapsed .cbody { display:none; }
+  .card.collapsed > h2 { margin-bottom:0; }
+  .chead:hover { color:var(--text); }
+  #cfgBadge { position:fixed; top:10px; right:12px; z-index:6; display:none; background:#d93636; color:#fff; font-size:13px; font-weight:600;
+    padding:6px 12px; border-radius:999px; box-shadow:0 2px 10px rgba(0,0,0,.35); cursor:pointer; max-width:calc(100vw - 24px); }
+  #cfgBadge::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:#fff; margin-right:8px; animation:cfgPulse 1.4s infinite; }
+  @keyframes cfgPulse { 50% { opacity:.25; } }
+  #failBar { display:flex; flex-wrap:wrap; gap:8px; align-items:baseline; margin:0 0 10px; font-size:13px; }
+  #failBar .fchip { border:1px solid var(--card-border); border-radius:999px; padding:3px 10px; background:var(--field-bg); }
+  #failBar .fchip b { font-weight:700; } #failBar .ok b { color:var(--success); } #failBar .warn b { color:#e8b84a; } #failBar .bad b { color:var(--danger); }
+  /* ---- telemetry cards: reply speed, robot health, services ---- */
+  .tbar { display:flex; height:14px; border-radius:7px; overflow:hidden; background:var(--field-bg); margin:8px 0 4px; }
+  .tbar i { display:block; height:100%; }
+  .c-ears { background:var(--accent); } .c-brain { background:#e8b84a; } .c-voice { background:var(--success); }
+  .tleg { display:flex; flex-wrap:wrap; gap:4px 16px; font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .tleg span::before { content:""; display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:6px; background:currentColor; }
+  .tleg .c-ears { color:var(--accent); background:none; } .tleg .c-brain { color:#e8b84a; background:none; } .tleg .c-voice { color:var(--success); background:none; }
+  .big { font-size:26px; font-weight:700; letter-spacing:.2px; } .big small { font-size:13px; font-weight:400; color:var(--muted); margin-left:6px; }
+  .okc { color:var(--success); } .warnc { color:#e8b84a; } .badc { color:var(--danger); }
+  table.t { width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+  table.t th { text-align:right; font-weight:600; color:var(--muted); font-size:12px; padding:3px 6px; } table.t td { text-align:right; padding:4px 6px; border-top:1px solid var(--card-border); }
+  table.t th:first-child, table.t td:first-child { text-align:left; padding-left:0; }
+  .seg { display:inline-flex; gap:6px; margin-left:auto; } .seg button.on { background:var(--accent); color:var(--on-accent); }
+  .kpis { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+  .kpi { border:1px solid var(--card-border); border-radius:10px; padding:6px 12px; background:var(--field-bg); min-width:130px; }
+  .kpi b { display:block; font-size:17px; } .kpi span { font-size:12px; color:var(--muted); }
+  .kpi .sq { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:7px; vertical-align:baseline; }
+  .kpi.netk { cursor:pointer; user-select:none; } .kpi.netk:hover { border-color:var(--accent); }
+  .kpi .nv { font-style:normal; } .kpi .gap { display:inline-block; width:22px; }
+  .spark { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin:8px 0; }
+  .spark svg { width:100%; height:64px; display:block; background:var(--field-bg); border-radius:8px; } .spark .cap { font-size:12px; color:var(--muted); display:flex; justify-content:space-between; }
+  .svc { display:flex; align-items:center; gap:10px; padding:6px 0; border-top:1px solid var(--card-border); font-size:14px; } .svc:first-of-type { border-top:0; }
+  .svc .n { flex:1; } .svc .m { color:var(--muted); font-size:12px; }
+  .dot { width:10px; height:10px; border-radius:50%; flex:none; } .dot.ok { background:var(--success); } .dot.bad { background:var(--danger); } .dot.off { background:var(--muted); opacity:.5; }
+  .ev { font-size:13px; padding:5px 0; border-top:1px solid var(--card-border); } .ev .w { color:#e8b84a; }
+  a.dl { display:inline-block; text-decoration:none; background:var(--accent-wash); color:var(--accent); border:1px solid var(--accent); border-radius:9px; padding:6px 14px; font-weight:600; }
+  #quotaBar:empty { display:none; }
+  #quotaBar { margin:0 0 12px; display:flex; flex-direction:column; gap:6px; }
+  .qw { border-radius:10px; padding:8px 12px; font-size:13px; border:1px solid; display:flex; gap:8px; align-items:baseline; }
+  .qw b { font-weight:700; }
+  .qw.warn { background:rgba(232,184,74,.12); border-color:#e8b84a; color:var(--text); }
+  .qw.warn b { color:#e8b84a; }
+  .qw.bad { background:var(--danger-wash); border-color:var(--danger); color:var(--text); }
+  .qw.bad b { color:var(--danger); }
+  #toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:var(--card); border:1px solid var(--accent);
+    padding:10px 16px; border-radius:10px; display:none; max-width:90vw; z-index:5; }
+</style>
+<script>(function(){ try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; var p = localStorage.getItem('palette'); if (p && p !== 'classic') document.documentElement.dataset.palette = p; } catch(e){} })();</script>
+</head>
+<body>
+<div id="cfgBadge" title="These settings only take effect after Save &amp; restart. Click to jump to the save buttons."></div>
+<main>
+  <header>
+    <h1>Jarvis <span>backend</span></h1>
+    <div id="srvBox" title="Online check and ping time (ICMP, empty packet, every 0.5 s while this page is open)">
+      <span id="srvPill" class="pill">checking…</span>
+      <div id="pingRows"><span>server</span><b id="pgSrv">–</b><span>contr. panel</span><b id="pgPanel">–</b></div>
+    </div>
+    <select id="paletteSel" title="Colour theme (the ◐ button next to it still switches day and night)" aria-label="Colour theme"><option value="classic">Classic</option><option value="blueberry">Blueberry</option><option value="succulent">Succulent</option></select>
+    <button id="themeBtn" title="Dark / light">◐</button>
+  </header>
+  <div id="searchBar" role="search">
+    <div id="sWrap">
+      <div id="sField">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <input id="sInput" type="text" placeholder="Search settings and functions" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="sList" aria-label="Search settings and functions">
+        <button id="sClear" type="button" aria-label="Clear search">&times;</button>
+      </div>
+      <div id="sList" role="listbox"></div>
+    </div>
+  </div>
+  <div id="quotaBar" aria-live="polite"></div>
+
+  <div class="card">
+    <h2>Server</h2>
+    <div class="row">
+      <button id="bStart">Start</button>
+      <button id="bRestart">Restart</button>
+      <button id="bStop" class="danger">Stop</button>
+      <span class="hint" id="robotUrl"></span>
+    </div>
+    <div class="hint" style="margin-top:8px">Changes below are applied by <b>Save &amp; restart</b> (the server reads its settings at start, about 10 s). The robot reconnects by itself.</div>
+    <div id="lan"></div>
+  </div>
+
+  <div class="card" id="usageCard">
+    <h2>Usage · Tavily, Groq, Gemini</h2>
+    <div class="row" style="margin-bottom:10px">
+      <button id="bUsageRefresh" class="small">↻ Refresh</button>
+      <button id="bGroqCheck" class="small" title="Costs one of Groq's 1,000 free requests a day">Check Groq limits now</button>
+      <button id="bUsageDemo" class="small">Preview with sample data</button>
+      <span class="hint" id="usageInfo"></span>
+    </div>
+    <div id="failBar"></div>
+    <div class="ugrid" id="usageGrid"><div class="hint">loading…</div></div>
+    <div class="hint" style="margin-top:10px">Counts what goes through Jarvis. Tavily and Groq also show their own live numbers, which include everything on those keys. Gemini has no usage API, so its bars compare our counts with your AI Studio limits.</div>
+  </div>
+
+  <div class="card" id="speedCard">
+    <h2>Reply speed · how fast Jarvis answers</h2>
+    <div id="speedBody" class="hint">loading…</div>
+  </div>
+
+  <div class="card" id="robotCard">
+    <h2>Robot health</h2>
+    <div id="robotBody" class="hint">loading…</div>
+  </div>
+
+  <div class="card" id="sysCard">
+    <h2>Services &amp; this PC</h2>
+    <div id="sysBody" class="hint">loading…</div>
+  </div>
+
+  <div class="card" id="alertCard">
+    <h2>Watchdog &amp; phone alerts</h2>
+    <div id="alertBody" class="hint">loading…</div>
+  </div>
+
+  <div class="card">
+    <h2>Choose the modules</h2>
+    <div class="grid">
+      <div><label>Ears (speech → text)</label><select id="selEars"></select><div class="hint" id="hEars"></div></div>
+      <div><label>Brain (LLM)</label><select id="selBrain"></select><div class="hint" id="hBrain"></div></div>
+      <div><label>Voice (text → speech)</label><select id="selVoice"></select><div class="hint" id="hVoice"></div></div>
+    </div>
+    <div class="row" style="margin-top:10px"><span class="hint">Quick presets:</span><span id="presets"></span></div>
+  </div>
+
+  <div class="card"><h2>Ears · speech recognition</h2><div class="grid" id="gEars"></div></div>
+  <div class="card"><h2>Hearing · voice-activity detection (VAD)</h2><div class="grid" id="gVad"></div>
+    <div class="hint" style="margin-top:6px">The robot has no echo cancellation: if it hears itself, raise the speech threshold.</div></div>
+  <div class="card"><h2>Brain · language model and camera vision</h2><div class="grid" id="gBrain"></div>
+    <div class="row" style="margin-top:10px"><button id="bTestLlm">Test brain</button><button id="bRefresh" title="Ask the providers again which models your keys can use">↻ Refresh lists</button></div>
+    <pre id="outBrain" style="margin-top:8px;display:none"></pre></div>
+  <div class="card"><h2>Voice · speech synthesis</h2><div class="grid" id="gVoice"></div>
+    <div class="row" style="margin-top:10px"><button id="bTestTts">Play sample of the selected voice</button></div>
+    <pre id="outVoice" style="margin-top:8px;display:none"></pre><audio id="aud" style="display:none"></audio></div>
+  <div class="card"><h2>Web search (Tavily)</h2><div class="grid" id="gSearch"></div>
+    <div class="row" style="margin-top:10px"><button id="bTestSearch">Test web search</button><span class="hint" id="searchState"></span></div>
+    <pre id="outSearch" style="margin-top:8px;display:none"></pre>
+    <div class="hint" style="margin-top:6px">Jarvis can search the web for current facts once a Tavily key is saved below. Results with Chinese, Japanese or Korean text are dropped. Costs: each region is one Tavily search.</div></div>
+  <div class="card" id="musicCard"><h2>Music · songs from a folder</h2><div class="grid" id="gMusic"></div>
+    <div class="row" style="margin-top:10px"><button id="bMusicStop" class="danger">Stop</button><button id="bMusicNext">Next song</button><span class="hint" id="musicState"></span></div>
+    <div class="hint" style="margin-top:6px">Say "Jarvis, play something random", "play a song by &lt;artist&gt;" or "play &lt;song name&gt;"; "stop the music" or "next song" to end or change it. Internet radio and podcasts: "play Radio 538", "play jazz radio", "play the latest episode of &lt;podcast&gt;" (a live stream: plays until you stop it, or until the timer set here ends). Only a short clip of each song is played. While it plays, the robot shows the song title under its face and the same speaking visuals as for a voice. Set the folder above, then Save &amp; restart.</div></div>
+  <div class="card" id="haCard"><h2>Home Assistant · voice control of the house</h2><div class="grid" id="gHa"></div>
+    <div class="row" style="margin-top:10px"><button id="bTestHa">Test connection</button><span class="hint" id="haState"></span></div>
+    <pre id="outHa" style="margin-top:8px;display:none"></pre>
+    <div id="haLog"></div>
+    <div class="hint" style="margin-top:6px">Enter the address and a long-lived access token under API keys below (Home Assistant: your profile, Security, Long-lived access tokens), then Save &amp; restart. Spoken commands like "turn off the kitchen light" are then done instantly, without the brain. Kinds in the first box are done at once, kinds in the second only after you say yes, everything else (locks, alarms, garage doors) is refused. Every action is listed here.</div></div>
+  <div class="card"><h2>Personality &amp; conversation</h2><div class="grid" id="gConv"></div></div>
+
+  <div class="card">
+    <h2>API keys (stored only in <code>secrets.yaml</code> on this PC)</h2>
+    <div id="keys"></div>
+    <div class="hint">Keys are never shown again after saving; this page only tells you whether one is set.</div>
+  </div>
+
+  <div class="row" style="margin-bottom:14px"><button class="primary" id="bSave">Save &amp; restart</button><button id="bSaveOnly">Save without restart</button></div>
+
+  <div class="card" id="moodCard">
+    <h2>Mood: how Jarvis sounds</h2>
+    <div id="moodChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
+    <div class="hint" id="moodInfo"></div>
+    <div class="hint" style="margin-top:6px">Applies at once, no restart. You can also say "be cheerful", "be calm", "be serious", "be dry" or "back to normal". The mood is a short extra instruction in the prompt and a face on the robot's screen.</div>
+  </div>
+  <div class="card" id="memCard">
+    <h2>Memory: what Jarvis remembers</h2>
+    <div class="hint" id="memInfo" style="margin-bottom:8px"></div>
+    <div id="memList"></div>
+    <div class="row" style="margin-top:8px"><button id="memRefresh">Refresh</button><button id="memForgetAll">Forget everything</button></div>
+    <div class="hint" style="margin-top:6px">Short notes the memory module writes after each conversation, kept in the file data/.memory.yaml of the server folder on this PC. They are added to Jarvis's prompt whichever brain answers. Turn memory off under Conversation settings above.</div>
+  </div>
+  <div class="card">
+    <h2>Debug console</h2>
+    <div class="row" style="margin-bottom:8px">
+      <span class="seg" id="logMode"><button data-m="talk" class="on">Conversation</button><button data-m="problems">Problems</button><button data-m="all">Everything</button></span>
+      <label style="display:inline-flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="logLive" checked style="width:auto"> live</label>
+      <button id="logCopy">Copy</button>
+      <span class="hint" id="logInfo"></span>
+    </div>
+    <div id="logLegend" style="margin-bottom:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+      <button class="lgb" data-r="listen" style="--c:var(--c-listen)" title="Show only what was heard">listening (ears)</button>
+      <button class="lgb" data-r="think" style="--c:var(--c-think)" title="Show only the brain">thinking (brain)</button>
+      <button class="lgb" data-r="speak" style="--c:var(--c-speak)" title="Show only what was spoken">speaking (voice)</button>
+      <button class="lgb" data-r="tool" style="--c:var(--c-tool)" title="Show only tool calls and web search">tools / search</button>
+      <button class="lgb" data-r="other" style="--c:var(--muted)" title="Show only the other (uncoloured) lines">other</button>
+      <button id="logAll" style="display:none;padding:3px 10px;font-size:12px" title="Show every kind of line again">show all</button>
+      <span class="hint" id="logFilterInfo"></span>
+    </div>
+    <pre id="console"></pre>
+    <div class="hint" style="margin-top:6px">Conversation = what was heard, the brain's answers, voice and tool calls. For every internal message set <i>Log detail</i> to DEBUG above and Save &amp; restart. The files are in <code>logs\server-console.log</code>.</div>
+  </div>
+</main>
+<dialog id="confirmBox" aria-labelledby="confirmText">
+    <p id="confirmText"></p>
+    <div class="crow"><button type="button" id="confirmNo">Cancel</button><button type="button" id="confirmYes" class="danger">OK</button></div>
+</dialog>
+<div id="toast" role="status"></div>
+<script>
+const $ = s => document.querySelector(s);
+const H = {'Content-Type':'application/json','X-Panel':'1'};
+let S = null, OPT = {options:{}, notes:{}}, dirty = false, restartPending = false;
+// Red badge, top right: only for settings that need Save / a restart (anything on the fly, like the PIN checkbox, does not light it).
+function paintBadge(){ const b = document.getElementById('cfgBadge'); if (!b) return;
+  b.textContent = dirty ? 'Config changes made: needs save/reboot' : 'Config saved: needs reboot to apply';
+  b.style.display = (dirty || restartPending) ? 'block' : 'none'; }
+function setDirty(v){ dirty = v; paintBadge(); }
+window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+// theme (same behaviour as the Jarvis landing page)
+(function(){ try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t;
+  const p = localStorage.getItem('palette'); if (p && p !== 'classic') document.documentElement.dataset.palette = p; } catch(e){}
+  const sel = document.getElementById('paletteSel'); if (sel) sel.value = document.documentElement.dataset.palette || 'classic'; })();
+$('#paletteSel').onchange = e => { const v = e.target.value; if (v === 'classic') delete document.documentElement.dataset.palette; else document.documentElement.dataset.palette = v;
+  try { localStorage.setItem('palette', v); } catch(err){} };
+$('#themeBtn').onclick = () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  const n = cur === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = n;
+  try { localStorage.setItem('theme', n); } catch(e){}
+};
+// One confirm popup for everything that is hard to undo (the same as on the robot's page and in the app).
+function askConfirm(question, okLabel, danger){
+  return new Promise(resolve => {
+    const box = $('#confirmBox'), yes = $('#confirmYes'), no = $('#confirmNo');
+    if (!box.showModal) { resolve(window.confirm(question)); return; }
+    $('#confirmText').textContent = question; yes.textContent = okLabel || 'OK'; yes.className = danger ? 'danger' : 'primary';
+    const done = v => { yes.onclick = no.onclick = box.onclose = null; if (box.open) box.close(); resolve(v); };
+    yes.onclick = () => done(true); no.onclick = () => done(false); box.onclose = () => done(false);
+    box.showModal(); no.focus();
+  });
+}
+function toast(msg, ms=4000){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast.t); toast.t=setTimeout(()=>t.style.display='none', ms); }
+async function post(url, body){ return fetch(url,{method:'POST',headers:H,body:JSON.stringify(body||{})}); }
+async function postJson(url, body){ const r = await post(url, body); if (r.status === 401) { location.reload(); } return r.json(); }
+
+const GROUPS = { gEars:['asr_language','asr_model'], gVad:['vad_threshold','vad_threshold_low','vad_silence'],
+  gBrain:['llm_model','fallback_brain','llm_temperature','llm_max_tokens','vision_model'], gVoice:['tts_voice','tts_language','tts_rate','tts_pitch'], gSearch:['search_depth','search_regions','search_results'], gHa:['ha_allowed','ha_confirm'], gMusic:['music_dir','music_clip','music_start','music_radio','music_country'], gConv:['idle_close','instant_commands','briefing_topics','memory','log_level','prompt'] };
+const KEEP_WITH = { ears:['asr_language','asr_model'], brain:['llm_model','llm_temperature','llm_max_tokens','vision_model'], voice:['tts_voice','tts_language','tts_rate','tts_pitch'] };
+
+function fillSelect(sel, items, cur){
+  sel.innerHTML = '';
+  for (const it of items){ const o=document.createElement('option'); o.value=it.id; o.textContent=it.id; o.title=it.label; sel.appendChild(o); }
+  sel.value = cur;
+}
+function hintFor(items, id){ const it = items.find(x=>x.id===id); if(!it) return '';
+  const k = it.needs_key.length ? ' · needs key: ' + it.needs_key.join(', ') : ' · no key needed'; return it.label + k; }
+
+// one field: a dropdown when we know the choices (models, voices, languages ...), else a number / text box
+function fieldEl(p){
+  const o = (OPT.options || {})[p.id], note = (OPT.notes || {})[p.id] || '';
+  let el;
+  if (o && o.length) {
+    el = document.createElement('select'); let found = false;
+    const groups = {};   // options may come with a "group" (voices are grouped by language)
+    for (const x of o){ const op = document.createElement('option'); op.value = x.value; op.textContent = x.label;
+      if (x.group) { const gl = (LANG_NAMES[x.group] || x.group.toUpperCase()) + ' voices' + (x.engine ? ' · ' + x.engine : ''); let og = groups[gl];
+        if (!og) { og = document.createElement('optgroup'); og.label = gl; groups[gl] = og; el.appendChild(og); } og.appendChild(op); }
+      else el.appendChild(op);
+      if (String(x.value) === String(p.value)) found = true; }
+    if (!found) { const op = document.createElement('option'); op.value = p.value; op.textContent = p.value === '' ? '(default)' : p.value + '  (current)'; el.insertBefore(op, el.firstChild); }
+    el.value = p.value;
+  } else if (note.startsWith('local')) {
+    el = document.createElement('input'); el.value = '(local model)'; el.disabled = true;
+  } else if (p.type === 'text') { el = document.createElement('textarea'); el.value = p.value; }
+  else { el = document.createElement('input'); el.value = p.value;
+    if (p.type === 'int' || p.type === 'float') { el.type = 'number'; el.step = p.type === 'float' ? '0.05' : '1'; } }
+  el.id = 'p_' + p.id; el.dataset.type = p.type; el.oninput = el.onchange = () => setDirty(true);
+  return [el, note && !note.startsWith('local') ? note + ' - type the value instead' : (note.startsWith('local') ? note : p.hint)];
+}
+
+function render(first){
+  $('#srvPill').textContent = S.server.running ? (S.server.ready ? 'servers running' : 'server starting…') : 'server stopped';
+  $('#srvPill').className = 'pill ' + (S.server.ready ? 'ok' : (S.server.running ? '' : 'bad'));
+  $('#robotUrl').textContent = S.robot_url ? 'Robot connects to ' + S.robot_url : '';
+  // link to this panel on the network
+  const lan = $('#lan');
+  const lanSig = JSON.stringify([S.lan_url, S.pin, S.button_login]);
+  if (S.lan_url && lan.dataset.sig !== lanSig) {   // only when it changed, so a click on its checkbox is never interrupted
+    lan.dataset.sig = lanSig;
+    lan.innerHTML = `Control panel on your network: <a href="${S.lan_url}" target="_blank" rel="noopener">${S.lan_url}</a> <button class="small" id="bCopyLan">Copy</button>` +
+      (S.pin ? ` &nbsp;·&nbsp; PIN for other devices: <span class="pin">${S.pin}</span>` : ` &nbsp;·&nbsp; <span class="hint">signed in with the PIN</span>`) +
+      `<div class="hint">Open it on a phone or laptop on the same Wi-Fi and enter the PIN once. This PC itself needs no PIN.</div>` +
+      `<label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;color:var(--text);font-size:13px"><input type="checkbox" id="chkButton" style="width:auto;margin-top:3px" ${S.button_login ? 'checked' : ''}>` +
+      `<span>The <b>Open Jarvis backend</b> button on Jarvis's own page opens this panel without the PIN.<br><span class="hint">Anyone on your Wi-Fi who can open Jarvis's page can then reach this panel. Untick to always ask for the PIN.</span></span></label>`;
+    const cb = $('#chkButton'); if (cb) cb.onchange = async () => { const r = await postJson('/api/panel-option', {button_login: cb.checked}); toast(r.button_login ? 'The Jarvis page button now skips the PIN.' : 'The PIN is now always required.'); };
+    const b = $('#bCopyLan'); if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(S.lan_url); toast('Link copied.'); } catch(e){ toast(S.lan_url); } };
+  }
+  // keys
+  const kd = $('#keys'); if (!kd.dataset.built) {
+    for (const [name, label] of [['groq_api_key','Groq key'],['gemini_api_key','Gemini key'],['tavily_api_key','Tavily key (web search)'],['cerebras_api_key','Cerebras key (optional 3rd brain)'],['anthropic_api_key','Anthropic key (optional, Claude Haiku, paid)'],['ha_url','Home Assistant address (like http://100.x.x.x:8123)'],['ha_token','Home Assistant token (long-lived access token)']]) {
+      const d = document.createElement('div'); d.className='keyrow';
+      d.innerHTML = `<div><b>${label}</b> <span class="pill" id="p_${name}"></span></div><input type="password" autocomplete="off" placeholder="paste key here, then Save key" id="k_${name}" aria-label="${label}"><button data-k="${name}">Save key</button>`;
+      kd.appendChild(d);
+    }
+    kd.querySelectorAll('button').forEach(b => b.onclick = async () => {
+      const n = b.dataset.k, inp = $('#k_'+n); if (!inp.value.trim()) return toast('Nothing entered.');
+      const r = await postJson('/api/key',{name:n,value:inp.value}); inp.value=''; if (r.ok) { restartPending = true; paintBadge(); KC[n] = {state:'unset'}; loadKeyChecks(true); } toast(r.ok ? 'Key saved (needs a restart to apply). Refreshing the model lists...' : 'Failed: ' + r.error);
+      await refresh(false); loadOptions(true);
+    });
+    kd.dataset.built = 1;
+  }
+  paintKeys();
+  // The form below is only (re)built on load and after a save, never by the 5-second background refresh: rebuilding
+  // it would close any dropdown that is open and throw away a half-made choice.
+  const ss = $('#searchState'); if (ss) ss.textContent = S.keys.tavily_api_key ? 'key set: web search is on after Save & restart' : 'no key yet: web search is off';
+  if (!first) return;
+  fillSelect($('#selEars'), S.ears, S.choice.ears); fillSelect($('#selBrain'), S.brains, S.choice.brain); fillSelect($('#selVoice'), S.voices, S.choice.voice);
+  $('#hEars').textContent = hintFor(S.ears, S.choice.ears); $('#hBrain').textContent = hintFor(S.brains, S.choice.brain); $('#hVoice').textContent = hintFor(S.voices, S.choice.voice);
+  const pre = $('#presets'); if (!pre.dataset.built) { for (const p of S.presets){ const b=document.createElement('button'); b.textContent=p; b.style.marginRight='6px'; b.onclick=()=>applyPreset(p); pre.appendChild(b);} pre.dataset.built=1; }
+  for (const [gid, ids] of Object.entries(GROUPS)) {
+    const g = $('#'+gid); g.innerHTML = '';
+    for (const id of ids) { const p = S.params.find(x=>x.id===id); if(!p) continue;
+      const d = document.createElement('div'); if (p.type==='text') d.style.gridColumn='1/-1';
+      const [el, hint] = fieldEl(p);
+      d.innerHTML = `<label for="p_${p.id}">${p.label}${p.overridden ? '<span class="tag">tuned</span>' : ''}</label>`; d.appendChild(el);
+      const h = document.createElement('div'); h.className='hint'; h.textContent = hint; d.appendChild(h); g.appendChild(d); }
+  }
+  setDirty(false);
+}
+let formSig = '';   // which ears/brain/voice profiles the form below was built for
+async function refresh(first){ try { const r = await fetch('/api/state'); if (r.status === 401) return location.reload(); S = await r.json();
+    // The active profiles changed behind this page's back (switched in another window, or by the assistant): rebuild the form so it
+    // shows what the server really uses, unless a half-made choice is in progress.
+    const sig = JSON.stringify([S.choice.ears, S.choice.brain, S.choice.voice]);
+    const changed = !first && formSig !== '' && sig !== formSig && !dirty;
+    render(first || changed); if (first || changed) formSig = sig; if (changed) loadOptions(true);
+  } catch(e){ $('#srvPill').textContent='panel offline'; $('#srvPill').className = 'pill bad'; paintPing(null); } }
+async function loadOptions(force){
+  try { const r = await fetch('/api/options' + (force ? '?refresh=1' : '')); if (r.status === 401) return location.reload(); OPT = await r.json();
+    // do not rebuild the form while someone is in the middle of choosing something
+    const a = document.activeElement; const editing = a && /^(SELECT|INPUT|TEXTAREA)$/.test(a.tagName) && a.closest('main') && !a.id.startsWith('k_');
+    if (S && !dirty && !editing) render(true); } catch(e){}
+}
+
+for (const id of ['selEars','selBrain','selVoice']) $('#'+id).onchange = () => { setDirty(true);
+  $('#hEars').textContent = hintFor(S.ears, $('#selEars').value); $('#hBrain').textContent = hintFor(S.brains, $('#selBrain').value); $('#hVoice').textContent = hintFor(S.voices, $('#selVoice').value);
+  // brain and voice update their own fields right away (below); the ears fields still belong to the old module until Save
+  if (id === 'selEars') toast('Ears changed: the ears fields below belong to the old module until you press Save (they reset to the new module\'s defaults).', 6000); };
+
+// ---- voice profile <-> voice name <-> reply language are kept consistent ----
+const LANG_NAMES = {en:'English', nl:'Dutch', de:'German', fr:'French', es:'Spanish', it:'Italian', pt:'Portuguese', pl:'Polish', sv:'Swedish', tr:'Turkish', zh:'Chinese', ja:'Japanese', ko:'Korean'};
+const langOf = v => (v || '').split(/[-_]/)[0].toLowerCase();
+const isPiper = v => (v || '').includes('_');   // Piper voice names look like nl_NL-pim-medium, Edge names like nl-NL-MaartenNeural
+let voiceExplicit = false;   // the voice name was picked by hand, so it survives a change of voice profile on Save
+function setSelectValue(id, value) {
+  const el = document.getElementById(id); if (!el || el.disabled) return;
+  if (el.options && ![...el.options].some(o => o.value === value)) { const o = document.createElement('option'); o.value = value; o.textContent = value; el.insertBefore(o, el.firstChild); }
+  el.value = value;
+}
+async function fillVoiceList(lang, selected) {
+  let list = [];
+  try { const r = await (await fetch('/api/voices?lang=' + encodeURIComponent(lang))).json(); if (r.ok) list = r.voices.map(s => ({value: s.split(' ')[0], label: s})); } catch(e){}
+  if (!list.length) return;
+  OPT.options.tts_voice = list;
+  const el = $('#p_tts_voice'); if (!el) return;
+  const [fresh] = fieldEl({id:'tts_voice', type:'str', value: selected, hint:''});
+  el.replaceWith(fresh);
+}
+// 1) picking another voice PROFILE: the Voice dropdown below shows that profile's language and default voice at once
+$('#selVoice').addEventListener('change', async () => {
+  voiceExplicit = false;
+  const it = S.voices.find(x => x.id === $('#selVoice').value); if (!it || !it.voice) return;
+  setSelectValue('p_tts_voice', it.voice);
+  setSelectValue('p_tts_language', it.language || LANG_NAMES[langOf(it.voice)] || 'English');
+  $('#hVoice').textContent = hintFor(S.voices, it.id) + ' · starts with ' + it.voice;
+});
+// 2) picking a voice NAME in the Voice card: reply language follows, and so does the profile when one exists for that language
+document.addEventListener('change', e => {
+  if (!e.target || e.target.id !== 'p_tts_voice') return;
+  const lg = langOf(e.target.value), name = LANG_NAMES[lg];
+  voiceExplicit = true; setDirty(true);
+  if (name) setSelectValue('p_tts_language', name);
+  const match = S.voices.find(x => langOf(x.voice) === lg && isPiper(x.voice) === isPiper(e.target.value)) || S.voices.find(x => isPiper(x.voice) === isPiper(e.target.value));   // same language and engine, else any profile of that engine
+  if (match && $('#selVoice').value !== match.id) {
+    $('#selVoice').value = match.id; $('#hVoice').textContent = hintFor(S.voices, match.id) + ' · your voice choice is kept';
+    toast(`Voice profile switched to ${match.id} to match the language (${name}).`, 5000);
+  } else if (!match) {
+    toast(`There is no ready-made voice profile for ${name || lg}: the reply language is set to ${name || lg}, but the spoken "sorry" and goodbye lines stay in the profile's language.`, 8000);
+  }
+});
+
+// Picking another brain: show ITS models in the Model name dropdown right away (and preselect its default model),
+// instead of only after Save & restart.
+$('#selBrain').addEventListener('change', async () => {
+  const brain = $('#selBrain').value;
+  const el = $('#p_llm_model'); if (!el) return;
+  let r; try { r = await (await fetch('/api/brain-models?brain=' + encodeURIComponent(brain))).json(); } catch(e){ return; }
+  if (!r.ok) return;
+  const saved = S.params.find(x => x.id === 'llm_model');
+  const value = brain === S.choice.brain && saved ? saved.value : r.default;
+  OPT.options.llm_model = r.models; OPT.notes = Object.assign({}, OPT.notes, { llm_model: r.note || '' });
+  const [fresh, hint] = fieldEl({id:'llm_model', type:'str', value, hint:''});
+  const box = el.parentNode; el.replaceWith(fresh);
+  const h = box.querySelector('.hint'); if (h) h.textContent = r.models.length ? `models available for ${brain} (default ${r.default})` : hint;
+});
+
+function collect(restart){
+  const params = {}; document.querySelectorAll('[id^=p_]').forEach(e => { if (e.dataset.type && !e.disabled) params[e.id.slice(2)] = e.value; });
+  return { ears:$('#selEars').value, brain:$('#selBrain').value, voice:$('#selVoice').value, params, restart };
+}
+async function save(restart){
+  const body = collect(restart);
+  // if a module changed, its fields belong to the old module: send none for it so the new defaults apply
+  const keep = Object.assign({}, body.params);
+  for (const [mod, sel] of [['ears','ears'],['brain','brain'],['voice','voice']])
+    if (body[sel] !== S.choice[sel]) KEEP_WITH[mod].forEach(k => {
+      if (mod === 'voice' && voiceExplicit) return;   // a hand-picked voice keeps its language, speed and pitch
+      delete keep[k];
+    });
+  body.params = keep;
+  const r = await postJson('/api/apply', body);
+  if (!r.ok) return toast('Not saved: ' + r.error, 8000);
+  setDirty(false); restartPending = !restart; paintBadge(); toast(restart ? 'Saved. Restarting the server…' : 'Saved (restart the server to apply).', 6000);
+  setTimeout(() => { refresh(true); loadOptions(true); }, restart ? 4000 : 300);
+}
+async function applyPreset(name){
+  const pm = (S.preset_map || {})[name]; const map = pm && [pm.ears, pm.brain, pm.voice];   // what the preset file says, so every preset button works
+  if (!map) return; $('#selEars').value=map[0]; $('#selBrain').value=map[1]; $('#selVoice').value=map[2]; $('#selEars').onchange(); }
+$('#cfgBadge').onclick = () => $('#bSave').scrollIntoView({behavior:'smooth', block:'center'});
+$('#bSave').onclick = () => save(true);
+$('#bSaveOnly').onclick = () => save(false);
+for (const [id,act] of [['bStart','start'],['bRestart','restart'],['bStop','stop']]) $('#'+id).onclick = async () => {
+  if (act === 'stop' && !(await askConfirm('Stop the server? Jarvis cannot talk or listen until it is started again.', 'Stop server', true))) return;
+  await postJson('/api/server',{action:act}); if (act !== 'stop') { restartPending = false; paintBadge(); } toast(act+' requested…'); setTimeout(()=>refresh(false), 3000); };
+
+$('#bTestLlm').onclick = async (e) => { const o=$('#outBrain'); o.style.display='block'; o.textContent='asking the brain…'; e.target.disabled=true;
+  const r = await postJson('/api/test-llm'); e.target.disabled=false; o.textContent = r.ok ? `OK in ${r.ms} ms (${r.model}): ${r.text}` : 'FAILED: ' + r.error; };
+$('#bRefresh').onclick = async (e) => { e.target.disabled = true; await loadOptions(true); e.target.disabled = false; toast('Model and voice lists refreshed.'); };
+// Do the keys work? The panel asks each provider a free, read-only question (cached 5 minutes there) and shows OK, or the error in red.
+let KC = {};
+const KEY_IDS = ['groq_api_key','gemini_api_key','tavily_api_key','cerebras_api_key','anthropic_api_key','ha_url','ha_token'];
+function paintKeys() {
+  if (!S || !S.keys) return;
+  for (const n of KEY_IDS) { const p = $('#p_' + n); if (!p) continue; const c = KC[n];
+    if (!S.keys[n]) { p.textContent = 'not set'; p.className = 'pill'; p.title = ''; continue; }
+    if (!c || c.state === 'unset') { p.textContent = 'set · checking…'; p.className = 'pill'; p.title = ''; continue; }
+    p.title = c.msg || '';
+    if (c.state === 'ok') { p.textContent = 'OK'; p.className = 'pill ok'; }
+    else if (c.state === 'error') { p.textContent = 'error: ' + c.msg; p.className = 'pill bad'; }
+    else if (c.state === 'unreachable') { p.textContent = 'set · could not check'; p.className = 'pill warn'; }
+    else { p.textContent = 'set'; p.className = 'pill'; } }
+}
+async function loadKeyChecks(force) { try { const r = await fetch('/api/key-check' + (force ? '?force=1' : '')); if (r.status === 401) return; KC = await r.json(); paintKeys();
+    if (Object.values(KC).some(c => c.state === 'error' || c.state === 'unreachable')) setTimeout(() => loadKeyChecks(false), 15000); } catch (e) {} }   // a failed check is asked again after 15 s: a short network hiccup clears by itself
+loadKeyChecks(false); setInterval(() => { if (!document.hidden) loadKeyChecks(false); }, 120000);
+async function loadMusic() {
+  try { const r = await fetch('/api/music'); if (r.status === 401) return; const m = await r.json(), el = $('#musicState'); if (!el) return;
+    el.textContent = !m.dir ? 'No folder set yet: music is off.' : !m.exists ? 'That folder does not exist on this PC.' : `${m.tracks} songs in the folder` + (m.now ? ` · playing: ${m.now.title}${m.now.artist ? ' – ' + m.now.artist : ''}` : ' · nothing playing'); } catch (e) {}
+}
+loadMusic(); setInterval(() => { if (!document.hidden) loadMusic(); }, 4000);
+$('#bMusicStop').onclick = async () => { await postJson('/api/music/control', {action: 'stop'}); toast('Stop sent.'); setTimeout(loadMusic, 1500); };
+$('#bMusicNext').onclick = async () => { await postJson('/api/music/control', {action: 'next'}); toast('Next song asked.'); setTimeout(loadMusic, 2500); };
+async function loadHaLog() {
+  try { const r = await fetch('/api/ha-log'); if (r.status === 401) return; const rows = (await r.json()).rows || [], box = $('#haLog'); if (!box) return;
+    // Only the latest action shows; the list opens when the line is clicked (and stays open while the card refreshes).
+    const line = x => `${new Date(x.t * 1000).toLocaleString([], {weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit'})} · ${esc(x.service || '')} · ${esc(x.entity || '')} · ${x.ok ? 'done' : '<span class="badc">failed ' + esc(x.error || '') + '</span>'}`;
+    box.innerHTML = rows.length ? `<details id="haDetails" ${haLogOpen ? 'open' : ''} style="margin-top:10px"><summary class="hint" style="cursor:pointer">Latest action: ${line(rows[0])}${rows.length > 1 ? ` · ${rows.length - 1} more, click for the list` : ''}</summary>${rows.map(x => `<div class="ev">${line(x)}</div>`).join('')}</details>` : '';
+    const d = box.querySelector('#haDetails'); if (d) d.ontoggle = () => { haLogOpen = d.open; }; } catch (e) {}
+}
+let haLogOpen = false;
+loadHaLog(); setInterval(() => { if (!document.hidden) loadHaLog(); }, 10000);
+$('#bTestHa').onclick = async (e) => { const o = $('#outHa'); o.style.display = 'block'; o.textContent = 'asking Home Assistant…'; e.target.disabled = true;
+  const r = await postJson('/api/test-ha'); e.target.disabled = false;
+  o.textContent = r.ok ? `OK in ${r.ms} ms: ${r.entities} entities (` + Object.entries(r.domains).slice(0, 10).map(([k, v]) => k + ' ' + v).join(', ') + ')' : 'FAILED: ' + r.error; };
+$('#bTestSearch').onclick = async (e) => { const o=$('#outSearch'); o.style.display='block'; o.textContent='asking Tavily…'; e.target.disabled=true;
+  const r = await postJson('/api/test-search'); e.target.disabled=false; o.textContent = r.ok ? `OK in ${r.ms} ms: ${r.text}` : 'FAILED: ' + r.error; };
+$('#bTestTts').onclick = async (e) => { e.target.disabled=true; const o=$('#outVoice'); o.style.display='block'; o.textContent='synthesising…';
+  const val = id => { const el = document.getElementById('p_' + id); return el && !el.disabled ? el.value : ''; };
+  try { const r = await post('/api/test-tts',{text: ($('#p_tts_language') && $('#p_tts_language').value === 'Dutch') ? 'Goedenavond. Ik ben aan en klaar voor gebruik.' : 'Good evening. I am online and ready.',
+      voice: val('tts_voice'), rate: val('tts_rate'), pitch: val('tts_pitch')});
+    if(!r.ok) throw new Error((await r.json()).error);
+    const blob = await r.blob(); const a=$('#aud'); a.src = URL.createObjectURL(blob); await a.play(); o.textContent='playing sample of ' + (val('tts_voice') || 'the saved voice'); }
+  catch(err){ o.textContent = 'FAILED: ' + err.message; } e.target.disabled=false; };
+
+// ---- mood ----
+
+// ---- telemetry: reply speed, robot health, services (one call, /api/telemetry)
+let speedWin = 'day';
+const fmtMs = v => v == null ? '–' : (v >= 1000 ? (v / 1000).toFixed(1) + ' s' : Math.round(v) + ' ms');
+const totCls = v => v == null ? '' : v < 2500 ? 'okc' : v < 4500 ? 'warnc' : 'badc';
+const fmtDur = s => { s = Math.round(s); if (s < 90) return s + ' s'; const m = Math.round(s / 60); if (m < 90) return m + ' min'; const h = s / 3600; return h < 48 ? h.toFixed(1) + ' h' : Math.round(h / 24) + ' days'; };
+const clock = t => new Date(t * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+function sparkSvg(series, lo, hi, color) {
+  if (!series || series.length < 2) return '<svg viewBox="0 0 200 64"><text x="100" y="36" text-anchor="middle" fill="currentColor" font-size="10" opacity=".5">collecting…</text></svg>';
+  const maxAge = Math.max(...series.map(p => p[0]), 60), min = Math.min(lo, ...series.map(p => p[1])), max = Math.max(hi, ...series.map(p => p[1]));
+  const pts = series.map(p => `${(200 - p[0] / maxAge * 196 - 2).toFixed(1)},${(60 - (p[1] - min) / ((max - min) || 1) * 54).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 200 64" preserveAspectRatio="none"><polyline fill="none" stroke="${color}" stroke-width="1.6" vector-effect="non-scaling-stroke" points="${pts}"/></svg>`;
+}
+function paintSpeed(sp) {
+  const box = $('#speedBody'); if (!box) return;
+  const w = sp[speedWin], a = w.all;
+  const seg = `<span class="seg"><button class="small ${speedWin === 'day' ? 'on' : ''}" data-w="day">24 hours</button><button class="small ${speedWin === 'week' ? 'on' : ''}" data-w="week">7 days</button></span>`;
+  if (!a.n) { box.innerHTML = `<div class="row">${seg}</div><div class="hint">No spoken turns recorded in this period yet. Each time you talk to Jarvis, the time from the end of your sentence to the first sound shows up here.</div>`; bindSeg(); return; }
+  const b = w.brain, i = w.instant;
+  const stages = b.n ? b : a;
+  const sum = (stages.ears.p50 || 0) + (stages.brain.p50 || 0) + (stages.voice.p50 || 0) || 1;
+  const part = k => ((stages[k].p50 || 0) / sum * 100).toFixed(1);
+  const row = (name, s) => s.n ? `<tr><td>${name}</td><td>${s.n}</td><td>${fmtMs(s.ears.p50)}</td><td>${fmtMs(s.brain.p50)}</td><td>${fmtMs(s.voice.p50)}</td><td class="${totCls(s.total.p50)}"><b>${fmtMs(s.total.p50)}</b></td><td class="${totCls(s.total.p90)}">${fmtMs(s.total.p90)}</td></tr>` : '';
+  const recent = sp.recent.map(r => `<tr><td>${clock(r.t)}</td><td>${r.path === 'instant' ? 'instant' : 'brain'}</td><td>${fmtMs(r.ears)}</td><td>${fmtMs(r.brain)}</td><td>${fmtMs(r.voice)}</td><td class="${totCls(r.total)}"><b>${fmtMs(r.total)}</b></td></tr>`).join('');
+  box.innerHTML = `<div class="row" style="align-items:baseline"><span class="big ${totCls(stages.total.p50)}">${fmtMs(stages.total.p50)}<small>typical ${b.n ? 'answer from the brain' : 'reply'} (median of ${stages.n})</small></span>${i.n ? `<span class="big okc" style="font-size:20px">${fmtMs(i.total.p50)}<small>instant commands</small></span>` : ''}${seg}</div>
+    <div class="tbar" title="Where the time goes, for a typical answer from the brain"><i class="c-ears" style="width:${part('ears')}%"></i><i class="c-brain" style="width:${part('brain')}%"></i><i class="c-voice" style="width:${part('voice')}%"></i></div>
+    <div class="tleg"><span class="c-ears">hearing you: ${fmtMs(stages.ears.p50)}</span><span class="c-brain">thinking, first word: ${fmtMs(stages.brain.p50)}</span><span class="c-voice">voice, first sound: ${fmtMs(stages.voice.p50)}</span></div>
+    <table class="t"><tr><th></th><th>turns</th><th>hearing</th><th>thinking</th><th>voice</th><th>typical total</th><th>slowest 10%</th></tr>${row('Brain answers', b)}${row('Instant commands', i)}${row('All', a)}</table>
+    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Latest turns</summary><table class="t"><tr><th>time</th><th>kind</th><th>hearing</th><th>thinking</th><th>voice</th><th>total</th></tr>${recent}</table></details>
+    <div class="hint" style="margin-top:8px">Measured on this PC from the moment the end of your sentence is detected to the first sound leaving for the robot. The short wait for the end of speech and the trip over the Wi-Fi are not included. Green under 2.5 s, amber under 4.5 s.</div>`;
+  bindSeg();
+}
+function bindSeg() { document.querySelectorAll('#speedBody .seg button').forEach(b => b.onclick = () => { speedWin = b.dataset.w; paintSpeed(T.speed); }); }
+function paintRobot(r) {
+  const box = $('#robotBody'); if (!box) return;
+  if (!r.samples) { box.innerHTML = '<div class="hint">No readings yet. This panel looks at the robot once a minute while it runs.</div>'; return; }
+  const n = r.now, head = r.online
+    ? `<span class="dot ok" style="display:inline-block"></span> <b>Online</b> · up ${fmtDur(n.uptime)} · ${esc(n.ip || '')}${n.napping ? ' · napping' : ''}${n.power ? ' · on ' + esc(n.power === 'console' ? 'USB' : 'battery') : ''}`
+    : `<span class="dot bad" style="display:inline-block"></span> <b>Not answering</b> ${r.last_seen ? 'since ' + clock(r.last_seen) + ' (' + fmtDur(Date.now() / 1000 - r.last_seen) + ')' : ''} · asleep, napping off Wi-Fi, or out of range`;
+  const rs = n && n.rssi, rc = rs == null ? '' : rs > -67 ? 'okc' : rs > -80 ? 'warnc' : 'badc';
+  const hp = n && n.heap, hc = hp == null ? '' : hp >= 40 ? 'okc' : hp >= 20 ? 'warnc' : 'badc';
+  const kpi = (v, label, cls) => `<div class="kpi"><b class="${cls || ''}">${v}</b><span>${label}</span></div>`;
+  const ev = r.reboots.map(b => `<div class="ev">${new Date(b.t * 1000).toLocaleString([], {weekday: 'short', hour: '2-digit', minute: '2-digit'})} · restarted after ${fmtDur(b.gap_s)} away · ${b.reason ? 'reason: ' + esc(b.reason) : 'reason not reported by this firmware'}${b.napping ? ' · it was napping' : ''}${b.flags.length ? ' · <span class="w">' + esc(b.flags.join(', ')) + '</span>' : ''}</div>`).join('');
+  // Only the latest restart reason shows; the list of restarts opens when the line is clicked (the robot's own reason for this boot: crash, software restart, woke from deep sleep ...).
+  const bootAt = n && n.uptime != null ? new Date((Date.now() / 1000 - n.uptime) * 1000) : (r.reboots[0] ? new Date(r.reboots[0].t * 1000) : null);
+  const lastReason = (n && n.reset) || (r.reboots[0] && r.reboots[0].reason) || 'not reported';
+  const latestRestart = bootAt || r.reboots.length
+    ? `<details id="rbDetails" ${rbOpen ? 'open' : ''} style="margin-top:8px"><summary class="hint" style="cursor:pointer">Latest restart: ${bootAt ? bootAt.toLocaleString([], {weekday: 'short', hour: '2-digit', minute: '2-digit'}) + ' · ' : ''}<b>${esc(String(lastReason))}</b>${r.reboots.length ? ` · ${r.reboots.length} seen in the last days, click for the list` : ''}</summary>${ev || '<div class="hint">No other restarts seen.</div>'}</details>`
+    : '';
+  box.innerHTML = `<div>${head}</div>
+    <div class="kpis">${n ? kpi(rs != null ? rs + ' dBm' : '–', `Wi-Fi now · 24 h average ${r.rssi.avg ?? '–'}, worst ${r.rssi.min ?? '–'}`, rc) : ''}
+      ${n ? kpi(hp != null ? hp + ' KB' : '–', `largest free block now · lowest in 24 h ${r.heap.min ?? '–'} KB`, hc) : ''}
+      ${n ? kpi(`${n.psram != null ? (n.psram / 1024).toFixed(1) : '–'} MB`, `free PSRAM · free RAM ${n.ram ?? '–'} KB`) : ''}
+      ${kpi(r.up_pct == null ? '–' : r.up_pct + '%', 'of the last 24 h it answered', r.up_pct == null ? '' : r.up_pct >= 90 ? 'okc' : r.up_pct >= 60 ? 'warnc' : 'badc')}
+      ${kpi(r.reboots_day, 'restarts in 24 h (sleep wake-ups count)', r.reboots_day ? 'warnc' : 'okc')}</div>
+    <div id="netLive"></div>
+    <div class="spark"><div><div class="cap"><span>Wi-Fi signal, last 24 h</span><span>higher is better</span></div>${sparkSvg(r.rssi_series, -90, -40, 'var(--accent)')}</div>
+      <div><div class="cap"><span>Largest free memory block, last 24 h</span><span>below 20 KB is trouble</span></div>${sparkSvg(r.heap_series, 0, 80, '#e8b84a')}</div></div>
+    ${latestRestart}`;
+  const d = box.querySelector('#rbDetails'); if (d) d.ontoggle = () => { rbOpen = d.open; };   // the card repaints every 10 s: remember whether it was opened
+  if (netLast) paintNet(netLast);   // the live traffic tiles sit inside this card: put them back at once
+}
+let rbOpen = false;
+
+// ---- live traffic of the robot (Tx = what it sends, Rx = what it receives), three times a second; click a tile to switch between packets per second and Mbit/s
+let netUnit = 'pps'; try { if (localStorage.getItem('netUnit') === 'mbit') netUnit = 'mbit'; } catch (e) {}
+let netBusy = false, netLast = null;
+function fmtRate(v, unit) { return unit === 'mbit' ? v.toFixed(3) + ' Mbit/s' : Math.round(v).toLocaleString('en-US') + ' p/s'; }
+function paintNet(n) {
+  netLast = n; const box = $('#netLive'); if (!box) return;
+  const u = netUnit, ok = n && n.online;
+  const tx = n ? (u === 'mbit' ? n.tx_mbps : n.tx_pps) : 0, rx = n ? (u === 'mbit' ? n.rx_mbps : n.rx_pps) : 0;
+  const part = (name, color, v) => `<i class="sq" style="background:${color}"></i><em class="nv" style="color:${color}">${name} ${ok ? fmtRate(v, u) : '–'}</em>`;
+  const since = ok ? ` · since start: sent ${n.tx_pkts.toLocaleString('en-US')} packets, ${n.tx_mb} MB · received ${n.rx_pkts.toLocaleString('en-US')} packets, ${n.rx_mb} MB` : ' · the robot does not answer';
+  box.innerHTML = `<div class="kpis"><div class="kpi netk" tabindex="0" role="button" data-net="1" title="Click to switch between packets per second and Mbit/s">
+      <b>${part('Tx', 'var(--c-tool)', tx)}<span class="gap"></span>${part('Rx', 'var(--c-listen)', rx)}</b>
+      <span>Wi-Fi traffic of the robot (Tx sent, Rx received)${since}</span></div></div>`;
+}
+function switchNetUnit() { netUnit = netUnit === 'pps' ? 'mbit' : 'pps'; try { localStorage.setItem('netUnit', netUnit); } catch (e) {} paintNet(netLast); }
+document.addEventListener('click', e => { if (e.target.closest('[data-net]')) switchNetUnit(); });
+document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('[data-net]')) { e.preventDefault(); switchNetUnit(); } });
+async function pollNet() {
+  const card = $('#robotCard'); if (netBusy || document.hidden || !card || card.classList.contains('collapsed')) return;   // not looking: the panel stops asking the robot
+  netBusy = true;
+  try { const r = await fetch('/api/robot-net', { cache: 'no-store' }); if (r.status === 401) return; paintNet(await r.json()); } catch (e) { paintNet(null); } finally { netBusy = false; }
+}
+setInterval(pollNet, 333);
+function paintSystem(s) {
+  const box = $('#sysBody'); if (!box) return;
+  const rows = s.services.map(x => {
+    const cls = x.up ? 'ok' : (x.expected ? 'bad' : 'off');
+    const state = x.up ? 'running' : (x.expected ? '<span class="badc">DOWN</span>' : 'not running (not needed now)');
+    return `<div class="svc"><span class="dot ${cls}"></span><span class="n">${x.name}<div class="m">port ${x.port}${x.note ? ' · ' + x.note : ''}</div></span><span class="m">${state}${x.mem_mb ? ' · ' + x.mem_mb + ' MB' : ''}</span></div>`;
+  }).join('');
+  const pc = s.pc, pcl = (v, bad, warn) => v == null ? '' : v >= bad ? 'badc' : v >= warn ? 'warnc' : 'okc';
+  const kpi = (v, label, cls) => `<div class="kpi"><b class="${cls || ''}">${v}</b><span>${label}</span></div>`;
+  box.innerHTML = rows + `<div class="kpis">${kpi(pc.cpu == null ? '–' : pc.cpu + '%', 'this PC: processor', pcl(pc.cpu, 90, 70))}${kpi(pc.ram_pct == null ? '–' : pc.ram_pct + '%', `memory in use (${pc.ram_free_gb ?? '–'} GB free)`, pcl(pc.ram_pct, 90, 75))}${kpi((pc.disk_free_gb ?? '–') + ' GB', 'free on this drive', pc.disk_free_gb != null && pc.disk_free_gb < 10 ? 'badc' : '')}</div>`
+    + (s.app ? `<div class="svc"><span class="n">Phone app ${esc(s.app.version || '')}<div class="m">${s.app.mb} MB · open this panel on the phone (PIN is in the app's Backend card), then tap Download and install</div></span><a class="dl" href="/download/app">Download</a></div>` : '');
+}
+let T = {speed: null};
+async function loadTelemetry() {
+  try {
+    const r = await fetch('/api/telemetry'); if (r.status === 401) return;
+    T = await r.json(); if (T.error) return;
+    paintSpeed(T.speed); paintRobot(T.robot); paintSystem(T.system);
+  } catch (e) {}
+}
+loadTelemetry(); setInterval(() => { if (!document.hidden) loadTelemetry(); }, 10000);
+
+// ---- watchdog (restarts the server when it crashes) and phone alerts (ntfy)
+let ALERT_TOPIC = null;
+async function loadAlerts() {
+  try {
+    const rw = await fetch('/api/watchdog'); if (rw.status === 401) return;
+    paintAlerts(await rw.json(), await (await fetch('/api/notify')).json());
+  } catch (e) {}
+}
+function paintAlerts(w, n) {
+  const box = $('#alertBody'); if (!box) return;
+  const evs = (w.events || []).map(e => `<div class="ev">${new Date(e.t * 1000).toLocaleString([], {weekday: 'short', hour: '2-digit', minute: '2-digit'})} · ${esc(e.text)}</div>`).join('');
+  const wd = `<div class="svc"><span class="dot ${w.gave_up ? 'bad' : w.watching ? 'ok' : 'off'}"></span><span class="n">Server watchdog<div class="m">looks every 15 s; restarts the server when it is down or stops answering (at most 3 times in 15 minutes)</div></span><span class="m">${w.gave_up ? '<span class="badc">gave up</span>' : w.watching ? 'watching' : 'server stopped on purpose'}${w.restarts_24h ? ' · ' + w.restarts_24h + ' restart' + (w.restarts_24h > 1 ? 's' : '') + ' in 24 h' : ''}</span></div>`;
+  const on = n.configured;
+  const phone = `<div class="svc"><span class="dot ${on ? 'ok' : 'off'}"></span><span class="n">Phone alerts<div class="m">${on ? 'through ntfy (' + esc(n.server) + ')' : 'not set up: events are only written to the list below'}</div></span><span class="m">${on ? 'on' : 'off'}</span></div>`;
+  const btns = on ? '<button data-act="show">Show topic</button><button data-act="test">Send a test</button><button data-act="off" class="danger">Turn off</button>' : '<button data-act="create" class="primary">Set up phone alerts</button>';
+  const opts = on ? `<div class="row" style="margin-top:8px;gap:14px;flex-wrap:wrap"><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="alServer" style="width:auto" ${n.events.server ? 'checked' : ''}> server crashed / restarted</label><label style="display:flex;gap:6px;align-items:center">robot offline for <input id="alRobot" type="number" min="0" max="1440" value="${n.events.robot_offline_min}" style="width:70px"> min (0 = off)</label><button data-act="save">Save</button></div>` : '';
+  const topic = ALERT_TOPIC ? `<div class="hint" style="margin-top:8px;word-break:break-all">Topic: <b>${esc(ALERT_TOPIC)}</b> on ${esc(n.server)}. On the phone: install the ntfy app, tap +, choose "Subscribe to topic", enter this topic. Anyone who knows the topic can read the alerts, so keep it private.</div>` : '';
+  box.innerHTML = wd + phone + `<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">${btns}</div>` + opts + topic + (evs ? `<div style="margin-top:10px">${evs}</div>` : '');
+}
+$('#alertBody').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return; const act = b.dataset.act;
+  if (act === 'off' && !(await askConfirm('Turn phone alerts off? The topic is forgotten; setting up again makes a new one.', 'Turn off', true))) return;
+  const body = {action: act};
+  if (act === 'save') { body.server = $('#alServer').checked; body.robot_offline_min = parseInt($('#alRobot').value || '0', 10) || 0; }
+  const r = await postJson('/api/notify', body);
+  if (act === 'create' || act === 'show') ALERT_TOPIC = r.topic || null;
+  if (act === 'off') ALERT_TOPIC = null;
+  if (act === 'test') toast(r.ok ? 'Test sent: it should arrive on the phone in a few seconds.' : 'The test could not be sent (check the internet connection).', 6000);
+  if (act === 'save') toast('Saved.');
+  loadAlerts();
+});
+loadAlerts(); setInterval(() => { if (!document.hidden) loadAlerts(); }, 15000);
+async function loadMood(){
+  try { const r = await fetch('/api/mood'); if (r.status === 401) return; const d = await r.json();
+    $('#moodChips').innerHTML = d.moods.map(m => `<button class="lgb${m.id === d.current ? ' on' : ''}" data-mood="${esc(m.id)}" style="--c:var(--accent)" title="${esc(m.prompt || 'the normal Jarvis')}">${esc(m.label)}</button>`).join('');
+    const cur = d.moods.find(m => m.id === d.current); $('#moodInfo').textContent = cur && cur.prompt ? cur.prompt : 'Normal: no extra mood instruction.';
+  } catch(e){}
+}
+$('#moodChips').addEventListener('click', async e => { const b = e.target.closest('[data-mood]'); if (!b) return; await postJson('/api/mood', {mood: b.dataset.mood}); loadMood(); toast('Mood changed: ' + b.textContent); });
+loadMood(); setInterval(() => { if (!document.hidden) loadMood(); }, 15000);
+
+// ---- memory ----
+async function loadMemory(){
+  try { const r = await fetch('/api/memory'); if (r.status === 401) return; const d = await r.json();
+    $('#memInfo').textContent = d.on ? (d.memory.length ? 'Memory is on. Notes per robot:' : 'Memory is on. Nothing remembered yet; notes appear after a conversation ends.') : 'Memory is off (nothing is added to the prompt, nothing new is saved).';
+    $('#memList').innerHTML = d.memory.map(m => { const n = m.notes && typeof m.notes === 'object' ? m.notes : {}; const lines = [];
+      for (const [who, facts] of Object.entries(n.people || {})) lines.push(`<b>${esc(who)}</b>: ${esc((facts || []).join('; '))}`);
+      if ((n.preferences || []).length) lines.push('<b>Preferences</b>: ' + esc(n.preferences.join('; ')));
+      if ((n.open_items || []).length) lines.push('<b>Open items</b>: ' + esc(n.open_items.join('; ')));
+      if (!lines.length) lines.push(esc(typeof m.notes === 'string' ? m.notes : '(empty)'));
+      return `<div style="border:1px solid var(--card-border);border-radius:8px;padding:8px 10px;margin-bottom:8px"><div class="hint">robot ${esc(m.device)}</div>${lines.map(l => '<div>' + l + '</div>').join('')}<button data-forget="${esc(m.device)}" style="margin-top:6px">Forget this robot</button></div>`; }).join('');
+  } catch(e){}
+}
+$('#memRefresh').onclick = loadMemory;
+$('#memForgetAll').onclick = async () => { if (!(await askConfirm('Forget everything Jarvis remembers?', 'Forget all', true))) return; await postJson('/api/memory/forget', {}); toast('Memory cleared.'); loadMemory(); };
+$('#memList').addEventListener('click', async e => { const b = e.target.closest('[data-forget]'); if (!b) return; if (!(await askConfirm('Forget what Jarvis remembers for this robot?', 'Forget', true))) return;
+  await postJson('/api/memory/forget', {device: b.dataset.forget}); toast('Forgotten.'); loadMemory(); });
+loadMemory(); setInterval(() => { if (!document.hidden) loadMemory(); }, 15000);
+
+// ---- debug console ----
+let logMode = 'talk', logLines = [];
+function esc(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function drawConsole(){
+  const el = $('#console'); const stick = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
+  el.innerHTML = logLines.length ? logLines.map(l => `<span class="ln ${l.level}${l.role ? ' r-' + l.role : ''}"><span class="t">${esc(l.time)}</span> <span class="a">${esc(l.area)}</span>${l.level==='WARNING'||l.level==='ERROR'?esc(l.level)+' ':''}${esc(l.text)}</span>`).join('')
+    : '<span class="t">(nothing here yet)</span>';
+  if (stick) el.scrollTop = el.scrollHeight;
+  $('#logInfo').textContent = logLines.length + ' lines';
+}
+// Clicking a colour in the legend shows only that kind of line (several can be combined; none selected = everything).
+// It applies to Conversation, Problems and Everything alike, and to the history, because the server filters before it cuts the list to the last 400 lines.
+let logRoles = new Set();
+try { logRoles = new Set(JSON.parse(localStorage.getItem('logRoles') || '[]')); } catch(e){}
+function saveRoles(){ try { localStorage.setItem('logRoles', JSON.stringify([...logRoles])); } catch(e){} }
+function paintLegend(){
+  document.querySelectorAll('#logLegend .lgb').forEach(b => b.classList.toggle('on', logRoles.has(b.dataset.r)));
+  $('#logLegend').classList.toggle('filtering', logRoles.size > 0);
+  $('#logAll').style.display = logRoles.size ? '' : 'none';
+  $('#logFilterInfo').textContent = logRoles.size ? 'showing only the selected kinds' : 'click a colour to show only that kind';
+}
+$('#logLegend').addEventListener('click', e => { const b = e.target.closest('.lgb'); if (!b) return;
+  logRoles.has(b.dataset.r) ? logRoles.delete(b.dataset.r) : logRoles.add(b.dataset.r); saveRoles(); paintLegend(); loadLog(); });
+$('#logAll').onclick = () => { logRoles.clear(); saveRoles(); paintLegend(); loadLog(); };
+paintLegend();
+async function loadLog(){ try { const r = await fetch('/api/log?mode=' + logMode + '&n=400&roles=' + [...logRoles].join(',')); if (r.status === 401) return; logLines = (await r.json()).lines; drawConsole(); } catch(e){} }
+$('#logMode').onclick = e => { const b = e.target.closest('button'); if(!b) return; logMode = b.dataset.m;
+  document.querySelectorAll('#logMode button').forEach(x => x.classList.toggle('on', x === b)); loadLog(); };
+$('#logCopy').onclick = async () => { const txt = logLines.map(l => `${l.time} ${l.level} ${l.area} ${l.text}`).join('\n');
+  try { await navigator.clipboard.writeText(txt); toast('Log copied.'); } catch(e){ toast('Copy failed - select the text by hand.'); } };
+
+// ---- usage dashboard ----
+let usageDemo = false, usageBusy = false;
+const uFmt = n => { n = Math.round(n || 0); return n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e4 ? Math.round(n / 1e3) + 'K' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(n); };
+function uBar(label, used, limit, note) {
+  const pct = limit ? Math.min(100, used / limit * 100) : 0;
+  const cls = !limit ? 'none' : pct >= 90 ? 'bad' : pct >= 70 ? 'warn' : 'ok';
+  const width = limit ? (used ? Math.max(pct, 2) : 0) : 0;
+  return `<div class="ubar"><div class="ulabel"><span>${label}</span><span><b>${uFmt(used)}</b>${limit ? ' / ' + uFmt(limit) : ''}${note ? ' <i>' + note + '</i>' : ''}</span></div>` +
+         `<div class="utrack"><div class="ufill ${cls}" style="width:${width}%"></div></div></div>`;
+}
+function uChart(series, key, color) {
+  const W = 280, H = 64, n = series.length, gap = 3, bw = (W - gap * (n - 1)) / n, base = H - 14;
+  const max = Math.max(1, ...series.map(s => s[key]));
+  const bars = series.map((s, i) => {
+    const h = s[key] ? Math.max(2, s[key] / max * (base - 4)) : 0, x = i * (bw + gap);
+    return `<g><title>${s.day}: ${uFmt(s[key])}</title><rect x="${x.toFixed(1)}" y="${(base - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${color}" opacity="${i === n - 1 ? 1 : 0.55}"/></g>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="uchart" role="img" aria-label="last 14 days"><line x1="0" y1="${base}" x2="${W}" y2="${base}" stroke="var(--card-border)"/>${bars}` +
+         `<text x="0" y="${H - 2}" class="utx">${series[0].day.slice(5)}</text><text x="${W}" y="${H - 2}" text-anchor="end" class="utx">${series[n - 1].day.slice(5)} (today)</text></svg>`;
+}
+const uHead = (name, pill, cls) => `<div class="uhead"><b>${name}</b><span class="pill ${cls || ''}">${pill}</span></div>`;
+const uBig = (value, text) => `<div class="ubig">${value}<span>${text}</span></div>`;
+
+function uTavily(u) {
+  const p = u.providers.tavily, lv = (u.live || {}).tavily || {};
+  let h = '<div class="ucard">' + uHead('Tavily · web search', lv.ok ? esc(lv.plan || 'plan') : 'no data', lv.ok ? 'ok' : 'bad');
+  h += lv.ok ? uBar('Credits this billing cycle <i>(Tavily live)</i>', lv.plan_usage || 0, lv.plan_limit, '')
+             : `<div class="hint">${esc(lv.error || 'no data')}</div>`;
+  h += uBig(p.today.credits, `credits used by Jarvis today · ${p.today.requests} search${p.today.requests === 1 ? '' : 'es'}`);
+  h += uChart(p.series, 'credits', 'var(--accent)') + '<div class="hint">Credits per day, last 14 days (Jarvis searches; basic = 1 credit, advanced = 2, per region)</div>';
+  return h + '</div>';
+}
+function uGroq(u) {
+  const p = u.providers.groq, g = (u.live || {}).groq, age = u.groq_age;
+  const ageTxt = age == null ? '' : age < 90 ? 'just now' : Math.round(age / 60) + ' min ago';
+  let h = '<div class="ucard">' + uHead('Groq · brain', g && g.ok ? 'live ' + ageTxt : 'not checked yet', g && g.ok ? 'ok' : '');
+  if (g && g.ok) {
+    h += uBar('Requests today <i>(Groq live)</i>', g.limit_requests - g.remaining_requests, g.limit_requests, '');
+    h += uBar('Tokens this minute <i>(Groq live)</i>', g.limit_tokens - g.remaining_tokens, g.limit_tokens, '');
+  } else {
+    h += '<div class="hint">Press <b>Check Groq limits now</b> to read Groq\'s live numbers (costs 1 of the 1,000 free requests a day).</div>';
+  }
+  h += uBig(uFmt(p.today.tokens), `tokens in the last 24 h · ${p.today.requests} requests`);
+  for (const m of p.models) {
+    h += `<div class="umodel">${esc(m.model)}</div>`;
+    if (m.est) {
+      h += uBar('tokens, estimated in use', m.est.tokens, m.est.limit, '');
+      h += `<div class="hint" title="Groq's daily token allowance refills gradually, so a plain 24-hour sum overstates it. This estimate removes what has refilled since each call, and is reset to Groq's own figure whenever Groq refuses a call.">sent in the last 24 h: ${uFmt(m.today.tokens)} · refills about ${uFmt(m.est.per_hour)} an hour${m.est.calibrated ? ' · checked against Groq at ' + new Date(m.est.calibrated * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : ' · estimate, not yet checked against a Groq refusal'}</div>`;
+    } else h += uBar('tokens, last 24 h', m.today.tokens, m.limits.tpd, m.limits.tpd ? '' : 'limit unknown');
+    h += uBar('requests, last 24 h', m.today.requests, m.limits.rpd, '');
+  }
+  h += uChart(p.series, 'tokens', 'var(--accent)') + '<div class="hint">Tokens per day, last 14 days (through Jarvis)</div>';
+  return h + '</div>';
+}
+// Cerebras / Claude: same card, shown only once used or selected (the server decides, u.show). Paid brains show an estimated cost.
+const U_EXTRA = {cerebras: ['Cerebras · brain', 'Free tier. The daily limit is what guides report; check it in the Cerebras console (cloud.cerebras.ai).'],
+                 anthropic: ['Claude · brain (paid)', 'Paid per use. The cost is an estimate: tokens counted by Jarvis x the price in profiles\\limits.yaml (section prices); your Anthropic console is the real bill.']};
+function uExtra(u, prov) {
+  const p = u.providers[prov], [title, note] = U_EXTRA[prov];
+  let h = '<div class="ucard">' + uHead(title, `${p.today.requests} requests in 24 h`, '');
+  h += uBig(uFmt(p.today.tokens), `tokens in the last 24 h · ${p.today.requests} requests`);
+  if (!p.models.length) h += '<div class="hint">Selected, but nothing recorded yet. Talk to Jarvis and it shows up here.</div>';
+  for (const m of p.models) {
+    h += `<div class="umodel">${esc(m.model)}</div>`;
+    h += uBar('tokens, last 24 h', m.today.tokens, m.limits.tpd, m.limits.tpd ? '' : 'no limit set');
+    if (m.limits.rpd) h += uBar('requests, last 24 h', m.today.requests, m.limits.rpd, '');
+    if (m.cost) h += `<div class="hint">Estimated cost: <b>$${m.cost.today.toFixed(4)}</b> last 24 h · $${m.cost.d28.toFixed(4)} last 28 days</div>`;
+  }
+  h += uChart(p.series, 'tokens', 'var(--accent)') + `<div class="hint">Tokens per day, last 14 days. ${note}</div>`;
+  return h + '</div>';
+}
+function uGemini(u) {
+  const p = u.providers.gemini;
+  let h = '<div class="ucard">' + uHead('Gemini · brain and camera', `${p.today.requests} requests today`, '');
+  h += uBig(uFmt(p.today.tokens), `tokens today · ${p.today.requests} requests (day = midnight Pacific)`);
+  if (!p.models.length) h += '<div class="hint">Nothing recorded yet. Talk to Jarvis and it shows up here.</div>';
+  for (const m of p.models) {
+    h += `<div class="umodel">${esc(m.model)}${m.kind === 'vision' ? ' <i>(camera)</i>' : ''}</div>`;
+    h += uBar('requests today', m.today.requests, m.limits.rpd, '');
+    h += uBar('requests this minute', m.rpm, m.limits.rpm, '');
+    h += uBar('tokens this minute', m.tpm, m.limits.tpm, '');
+  }
+  h += uChart(p.series, 'requests', 'var(--accent)') + '<div class="hint">Requests per day, last 14 days (through Jarvis). Limits are from your AI Studio Rate limit page (profiles\\limits.yaml).</div>';
+  h += '<div style="margin-top:8px"><a href="https://aistudio.google.com/usage" target="_blank" rel="noopener">Open AI Studio usage ↗</a></div>';
+  return h + '</div>';
+}
+// Warns when a free-tier limit is nearly used up: 80% = amber, 95% and over = red. Only real numbers count, never the sample-data preview.
+const QUOTA_LABEL = {rpd: 'requests today', tpd: 'tokens today'};
+function paintQuota(u) {
+  const out = [], bar = $('#quotaBar'); if (!bar) return;
+  if (u && !u.demo && u.providers) {
+    const active = (S && S.choice && S.choice.brain) || '';
+    for (const [prov, pd] of Object.entries(u.providers)) for (const m of (pd.models || [])) for (const [lim, key] of [['rpd', 'requests'], ['tpd', 'tokens']]) {
+      let cap = (m.limits || {})[lim], used = (m.today || {})[key]; if (lim === 'tpd' && m.est) { cap = m.est.limit; used = m.est.tokens; }
+      if (!cap || used == null) continue;
+      const pct = Math.round(used / cap * 100); if (pct < 80) continue;
+      const bad = pct >= 95, mine = prov === active;
+      out.push(`<div class="qw ${bad ? 'bad' : 'warn'}"><b>${bad ? (pct >= 100 ? 'Used up' : 'Almost used up') : 'Getting full'}</b><span>${prov} ${esc(m.model)}: ${pct}% of the free ${QUOTA_LABEL[lim]} (${uFmt(used)} / ${uFmt(cap)})${mine ? ' - this is the active brain; the fallback brain answers when it runs out' : ''}</span></div>`);
+    }
+    const t = u.live && u.live.tavily;
+    if (t && t.ok && t.plan_limit) { const pct = Math.round(t.plan_usage / t.plan_limit * 100);
+      if (pct >= 80) out.push(`<div class="qw ${pct >= 95 ? 'bad' : 'warn'}"><b>${pct >= 100 ? 'Used up' : 'Getting full'}</b><span>Tavily web search: ${pct}% of this month's credits (${t.plan_usage} / ${t.plan_limit})</span></div>`); }
+  }
+  bar.innerHTML = out.join('');
+}
+// Failover counter: how often a brain failed and a backup brain answered (last 24 h, hover for 28 days, the reasons and the memory-notes chain).
+function paintFail(u) {
+  const bar = $('#failBar'); if (!bar) return;
+  const f = (u && u.failover) || null; if (!f || !f.answer) { bar.innerHTML = ''; return; }
+  const a = f.answer.day, a28 = f.answer.d28, m = f.memory.day;
+  const pct = a.requests ? Math.round(a.backups / a.requests * 100) : 0, cls = !a.requests || pct < 5 ? 'ok' : pct < 20 ? 'warn' : 'bad';
+  const why = a.reasons.length ? a.reasons.map(r => `${r.model}: ${r.reason} x${r.n}`).join('; ') : 'no failures';
+  const last = a.last ? ` · last failure ${new Date(a.last.t * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})} ${esc(a.last.model)} (${esc(a.last.reason)})` : '';
+  const tip = `Last 24 h: ${a.requests} requests, ${a.failovers} failed attempts, ${a.backups} answered by a backup brain. Reasons: ${why}.\nLast 28 days: ${a28.requests} requests, ${a28.failovers} failed attempts, ${a28.backups} answered by a backup.\nMemory notes (24 h): ${m.requests} writes, ${m.failovers} failed attempts.`;
+  bar.innerHTML = `<span class="fchip ${cls}" title="${esc(tip)}">Brain failovers, 24 h: <b>${a.failovers} failed</b> · <b>${a.backups} of ${a.requests}</b> answers from a backup brain (<b>${pct}%</b>)${last}</span>`;
+}
+function renderUsage(u) {
+  paintQuota(u);
+  paintFail(u);
+  if (!u || !u.providers || !u.providers.gemini) { $('#usageInfo').textContent = (u && u.error) || 'no data'; return; }
+  // two columns: Tavily with Gemini right under it, Groq (and Cerebras / Claude once they are used) in the other; on a narrow screen they stack in that order
+  $('#usageGrid').innerHTML = '<div class="ucol">' + uTavily(u) + uGemini(u) + '</div><div class="ucol">' + uGroq(u) + (u.show || []).map(p => uExtra(u, p)).join('') + '</div>';
+  const t = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+  $('#usageInfo').textContent = (u.demo ? 'SAMPLE DATA - ' : '') + 'updated ' + t;
+}
+async function loadUsage(probe) {
+  if (usageBusy) return; usageBusy = true;
+  try {
+    const q = [probe ? 'probe=' + probe : '', usageDemo ? 'demo=1' : ''].filter(Boolean).join('&');
+    const r = await fetch('/api/usage' + (q ? '?' + q : '')); if (r.status === 401) return location.reload();
+    renderUsage(await r.json());
+  } catch (e) { $('#usageInfo').textContent = 'could not load usage'; }
+  usageBusy = false;
+}
+$('#bUsageRefresh').onclick = () => loadUsage();
+$('#bGroqCheck').onclick = async (e) => { e.target.disabled = true; await loadUsage('force'); e.target.disabled = false; };
+$('#bUsageDemo').onclick = (e) => { usageDemo = !usageDemo; e.target.textContent = usageDemo ? 'Show real data' : 'Preview with sample data'; loadUsage(); };
+// refresh every 5 s while this page is visible (a local file read, and Tavily's numbers are cached for 55 s); nothing while it is hidden
+setInterval(() => { if (!document.hidden) loadUsage(); }, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) loadUsage(); });
+
+// ---- collapsible cards: click a card's title to fold it away; the choice is remembered in this browser ----
+(function () {
+  let saved = {}; try { saved = JSON.parse(localStorage.getItem('panelCollapsed') || '{}'); } catch (e) {}
+  document.querySelectorAll('main > .card').forEach(card => {
+    const h = card.querySelector(':scope > h2'); if (!h) return;
+    const body = document.createElement('div'); body.className = 'cbody';
+    while (h.nextSibling) body.appendChild(h.nextSibling);   // moves the nodes (ids and listeners stay intact)
+    card.appendChild(body);
+    h.classList.add('chead'); h.tabIndex = 0; h.setAttribute('role', 'button');
+    const key = h.textContent.trim();
+    const set = c => { card.classList.toggle('collapsed', c); h.setAttribute('aria-expanded', String(!c)); };
+    set(!!saved[key]);
+    const toggle = () => { const c = !card.classList.contains('collapsed'); set(c); saved[key] = c;
+      try { localStorage.setItem('panelCollapsed', JSON.stringify(saved)); } catch (e) {} };
+    h.onclick = toggle;
+    h.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
+  });
+})();
+
+// ---- search: finds a section, a setting, a key or a button by what it says (and by its hint text), opens the card it is in, scrolls there and blinks it twice ----
+(function searchBar(){
+  const box = $('#sInput'), list = $('#sList'), clear = $('#sClear');
+  let results = [], active = -1;
+  const norm = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const esc2 = t => t.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function collect(){
+    const out = [], seen = new Set();
+    document.querySelectorAll('main > .card').forEach(card => {
+      const h = card.querySelector(':scope > h2'); const section = h ? h.textContent.replace(/\s+/g, ' ').trim() : '';
+      if (section) out.push({ label: section, section: '', el: card, text: norm(section), rank: 2 });
+      card.querySelectorAll('label, button, summary, .keyrow b, h3').forEach(e => {
+        if (e.closest('#searchBar')) return;
+        const label = (e.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!label || label.length > 64 || /^[×+\-↻◐]$/.test(label)) return;
+        const wrap = e.matches('label') ? (e.parentElement && e.parentElement !== card.querySelector('.cbody') ? e.parentElement : e) : (e.matches('.keyrow b') ? e.closest('.keyrow') : e);
+        const key = label + '|' + section; if (seen.has(key)) return; seen.add(key);
+        out.push({ label, section, el: wrap, text: norm(label + ' ' + section + ' ' + (wrap.textContent || '').replace(/\s+/g, ' ').slice(0, 260)), rank: e.matches('button') ? 0 : 1 });
+      });
+    });
+    return out;
+  }
+  function find(q){
+    const toks = norm(q).split(/\s+/).filter(Boolean); if (!toks.length) return [];
+    return collect().map((it, i) => {
+      if (!toks.every(t => it.text.includes(t))) return null;
+      const lab = norm(it.label); let score = 0;
+      toks.forEach(t => { score += lab.startsWith(t) ? 6 : (lab.includes(' ' + t) ? 4 : (lab.includes(t) ? 3 : 1)); });
+      return { it, score: score + it.rank * 0.5 - i / 10000 };
+    }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 9).map(x => x.it);
+  }
+  function mark(label, q){
+    const toks = norm(q).split(/\s+/).filter(Boolean); const n = norm(label); const hit = new Array(label.length).fill(false);
+    toks.forEach(t => { let i = n.indexOf(t); while (i >= 0) { for (let k = i; k < i + t.length && k < hit.length; k++) hit[k] = true; i = n.indexOf(t, i + 1); } });
+    let out = '', on = false;
+    for (let k = 0; k < label.length; k++) { if (hit[k] !== on) { out += on ? '</mark>' : '<mark>'; on = hit[k]; } out += esc2(label[k]); }
+    return out + (on ? '</mark>' : '');
+  }
+  function paint(){
+    const q = box.value.trim(); clear.style.display = q ? 'block' : 'none';
+    if (!q) { list.style.display = 'none'; box.setAttribute('aria-expanded', 'false'); results = []; return; }
+    results = find(q); active = results.length ? 0 : -1;
+    list.innerHTML = results.length ? results.map((r, i) => `<button type="button" class="sItem${i === 0 ? ' on' : ''}" role="option" data-i="${i}">${mark(r.label, q)}${r.section ? `<small>${esc2(r.section)}</small>` : '<small>Section</small>'}</button>`).join('')
+      : '<div id="sNone">Nothing found for "' + esc2(q) + '". Try another word.</div>';
+    list.style.display = 'block'; box.setAttribute('aria-expanded', 'true');
+  }
+  function blink(el){ let n = 0; const step = () => { el.classList.toggle('sblink', n % 2 === 0); if (++n < 4) setTimeout(step, 350); else setTimeout(() => el.classList.remove('sblink'), 350); }; step(); }   // on, off, on, off
+  function goTo(it){
+    const card = it.el.closest('.card');
+    if (card && card.classList.contains('collapsed')) { const h = card.querySelector(':scope > .chead'); if (h) h.click(); }   // opens it (and remembers that)
+    let d = it.el.closest('details'); while (d) { d.open = true; d = d.parentElement ? d.parentElement.closest('details') : null; }
+    list.style.display = 'none'; box.setAttribute('aria-expanded', 'false'); box.blur();
+    it.el.scrollIntoView({ block: it.el === card ? 'start' : 'center', behavior: 'smooth' });
+    setTimeout(() => blink(it.el), 480);
+  }
+  function move(d){ if (!results.length) return; active = (active + d + results.length) % results.length;
+    list.querySelectorAll('.sItem').forEach((b, i) => { b.classList.toggle('on', i === active); if (i === active) b.scrollIntoView({ block: 'nearest' }); }); }
+  box.addEventListener('input', paint);
+  box.addEventListener('focus', () => { if (box.value.trim()) paint(); });
+  box.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); move(1); } else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (results[active]) goTo(results[active]); }
+    else if (e.key === 'Escape') { box.value = ''; paint(); box.blur(); }
+  });
+  list.addEventListener('mousedown', e => e.preventDefault());   // keeps the field focused until the pick is made
+  list.addEventListener('click', e => { const b = e.target.closest('.sItem'); if (b) goTo(results[+b.dataset.i]); });
+  clear.onclick = () => { box.value = ''; paint(); box.focus(); };
+  document.addEventListener('click', e => { if (!e.target.closest('#sWrap')) { list.style.display = 'none'; box.setAttribute('aria-expanded', 'false'); } });
+  document.addEventListener('keydown', e => {   // "/" or Ctrl+K jumps to the search from anywhere
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '');
+    if ((e.key === '/' && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); box.focus(); box.select(); }
+  });
+  window.__panelSearch = { find, goTo };   // for testing
+})();
+
+(async function init(){ await refresh(true); loadOptions(false); loadLog(); loadUsage('1'); })();
+setInterval(() => refresh(false), 5000);
+// ping of each part, every 0.5 s (only while this page is in view; one tiny request, the panel answers with an empty ICMP echo to each)
+function paintPing(d){
+  const one = (id, x) => { const el = $('#' + id);
+    if (!x) { el.textContent = 'offline'; el.className = 'bad'; return; }
+    if (!x.online) { el.textContent = 'offline'; el.className = 'bad'; return; }
+    if (x.ms == null) { el.textContent = 'no reply'; el.className = 'warn'; return; }
+    el.textContent = (x.ms < 1 ? '<1' : x.ms.toFixed(x.ms < 10 ? 1 : 0)) + ' ms'; el.className = x.ms > 100 ? 'warn' : ''; };
+  one('pgSrv', d && d.server); one('pgPanel', d && d.panel);
+}
+let pingBusy = false;
+setInterval(async () => { if (document.hidden || pingBusy) return; pingBusy = true;
+  try { const r = await fetch('/api/ping', { cache: 'no-store' }); if (r.status === 401) return; paintPing(await r.json()); } catch (e) { paintPing(null); } finally { pingBusy = false; } }, 500);
+setInterval(() => { if ($('#logLive').checked) loadLog(); }, 2000);
+</script>
+</body>
+</html>

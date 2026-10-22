@@ -21,10 +21,11 @@ fun normalizeHost(input: String): String =
  * from a background dispatcher. Timeouts are short on purpose: the robot's WiFi is weak, and the
  * page's drive keep-alive and ping must fail fast instead of piling up.
  */
-class RobotApi(host: String) {
+class RobotApi(host: String, demo: DemoRobot? = if (BuildConfig.DEMO) DemoRobot.shared else null) {
     var host: String = normalizeHost(host)
 
     private val normal: OkHttpClient = OkHttpClient.Builder()
+        .apply { if (demo != null) addInterceptor(demo.interceptor) }   // the demo build answers everything itself (DemoRobot)
         .connectTimeout(2500, TimeUnit.MILLISECONDS)
         .readTimeout(4000, TimeUnit.MILLISECONDS)
         .callTimeout(6000, TimeUnit.MILLISECONDS)
@@ -123,8 +124,8 @@ class RobotApi(host: String) {
         call(client, Request.Builder().url(url(path)).post(body ?: ByteArray(0).toRequestBody(null)).build())
 
     /** One picture from the robot's camera as JPEG bytes (the landing page's Camera button). Nothing is analysed; the app hands the picture to an own backend (uploadPhoto). */
-    fun photo(): ByteArray =
-        slow.newCall(Request.Builder().url(url("/api/photo")).post(ByteArray(0).toRequestBody(null)).build()).execute().use { r ->
+    fun photo(live: Boolean = false): ByteArray =
+        slow.newCall(Request.Builder().url(url(if (live) "/api/photo?live=1" else "/api/photo")).post(ByteArray(0).toRequestBody(null)).build()).execute().use { r ->
             if (!r.isSuccessful) {
                 val why = r.body?.string().orEmpty().trim()
                 throw java.io.IOException(if (why.isNotEmpty() && why.length < 120) why else "HTTP ${r.code}")

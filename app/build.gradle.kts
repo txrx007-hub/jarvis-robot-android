@@ -1,4 +1,4 @@
-﻿plugins {
+plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -13,13 +13,23 @@ android {
         applicationId = "com.jarvis.robot"
         minSdk = 26
         targetSdk = 35
-        versionCode = 22
-        versionName = "2.20"
+        versionCode = 25
+        versionName = "2.23"
+        buildConfigField("boolean", "DEMO", "false")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+        }
+        // The demo ("Jarvis Demo Mel"): a pretend robot and backend inside the app, for showing it to people who have no robot. Installs next to the real app.
+        // .uild.ps1 assembleDemo  ->  app/build/outputs/apk/demo/app-demo.apk
+        create("demo") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
+            buildConfigField("boolean", "DEMO", "true")
+            matchingFallbacks += listOf("debug")
         }
     }
     compileOptions {
@@ -31,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

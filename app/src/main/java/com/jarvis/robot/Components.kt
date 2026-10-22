@@ -14,6 +14,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -558,16 +560,32 @@ fun MusicCard(music: MusicStatus, onStop: () -> Unit, onNext: () -> Unit) {
 // ------------------------------------------------------------------ remote control
 
 @Composable
-fun RemotePanel(held: List<Dir>, onHold: (Dir, Boolean) -> Unit) {
+fun RemotePanel(
+    held: List<Dir>,
+    onHold: (Dir, Boolean) -> Unit,
+    liveOn: Boolean = false,
+    liveImage: ImageBitmap? = null,
+    liveNote: String? = null,
+    onToggleLive: () -> Unit = {},
+    onStopLive: () -> Unit = {},
+) {
     val p = LocalPalette.current
-    // Keep the screen awake while the pad is open, so the phone doesn't lock mid-drive.
+    // Keep the screen awake while the pad is open, so the phone doesn't lock mid-drive; closing the pad also ends the live view.
     val view = LocalView.current
     DisposableEffect(Unit) {
         view.keepScreenOn = true
-        onDispose { view.keepScreenOn = false }
+        onDispose { view.keepScreenOn = false; onStopLive() }
     }
     JCard {
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (liveImage != null) {
+                androidx.compose.foundation.Image(
+                    bitmap = liveImage,
+                    contentDescription = "Live view from Jarvis's camera",
+                    contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                    modifier = Modifier.widthIn(max = 360.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.dp, p.border, RoundedCornerShape(10.dp)),
+                )
+            }
             PadButton("▲", "Drive forward", Dir.UP in held) { onHold(Dir.UP, it) }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 PadButton("◀", "Turn left", Dir.LEFT in held) { onHold(Dir.LEFT, it) }
@@ -580,6 +598,11 @@ fun RemotePanel(held: List<Dir>, onHold: (Dir, Boolean) -> Unit) {
                 color = p.muted,
                 fontSize = 13.sp,
             )
+            JButton(
+                if (liveOn) "Stop live view" else "Live view", Modifier.fillMaxWidth(), onClick = onToggleLive,
+                hint = "Shows what the robot sees while you drive: a new picture about once a second, only while this screen is open (stops after 3 minutes)",
+            )
+            liveNote?.let { Text(it, color = p.danger, fontSize = 13.sp) }
         }
     }
 }

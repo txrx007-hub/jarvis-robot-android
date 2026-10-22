@@ -66,6 +66,9 @@ data class MainUiState(
     val photoTime: String? = null,
     val photoBusy: Boolean = false,
     val photoError: String? = null,
+    val liveOn: Boolean = false,
+    val liveImage: ImageBitmap? = null,
+    val liveNote: String? = null,
     val palette: AppPalette = AppPalette.CLASSIC,
     val haOk: Boolean = false,
     val music: MusicStatus? = null,
@@ -83,6 +86,8 @@ class MainActions(
     val onTheme: (ThemeMode) -> Unit = {},
     val onPalette: (AppPalette) -> Unit = {},
     val onPhoto: () -> Unit = {},
+    val onToggleLive: () -> Unit = {},
+    val onStopLive: () -> Unit = {},
     val onMusicStop: () -> Unit = {},
     val onMusicNext: () -> Unit = {},
     val onSetVolume: (Int) -> Unit = {},
@@ -110,6 +115,9 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         photoTime = vm.photoTime,
         photoBusy = vm.photoBusy,
         photoError = vm.photoError,
+        liveOn = vm.liveOn,
+        liveImage = vm.liveImage,
+        liveNote = vm.liveNote,
         haOk = vm.haOk,
         music = vm.music,
         palette = vm.palette,
@@ -126,6 +134,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onTheme = vm::setTheme,
             onPalette = vm::choosePalette,
             onPhoto = vm::takePhoto,
+            onToggleLive = vm::toggleLive,
+            onStopLive = vm::stopLive,
             onMusicStop = vm::musicStop,
             onMusicNext = vm::musicNext,
             onSetVolume = vm::setVolume,
@@ -252,7 +262,7 @@ fun PhoneContent(
 
             VolumeCard(status, actions.onSetVolume)
 
-            if (showRemote) RemotePanel(state.held, actions.onHold)
+            if (showRemote) RemotePanel(state.held, actions.onHold, state.liveOn, state.liveImage, state.liveNote, actions.onToggleLive, actions.onStopLive)
 
             // ---- settings
             if (state.settings.isEmpty()) {
@@ -382,6 +392,13 @@ fun ConnectScreen(vm: RobotViewModel, canCancel: Boolean, onDone: () -> Unit) {
                 }
                 JButton(if (scanning) "Scanning..." else "Scan network", Modifier.weight(1f), hint = "Looks for the robot on your Wi-Fi") {
                     if (scanning) return@JButton
+                    if (BuildConfig.DEMO) {   // the demo pretends to find its robot (no network is used)
+                        scanning = true
+                        scanNote = null
+                        found.clear()
+                        scope.launch { kotlinx.coroutines.delay(1400); found.add("192.168.1.50"); scanning = false }
+                        return@JButton
+                    }
                     val prefix = NetworkUtil.subnetPrefix(context)
                     if (prefix == null) {
                         scanNote = "This phone isn't on a WiFi network."

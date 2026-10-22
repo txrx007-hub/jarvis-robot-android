@@ -72,5 +72,5 @@ fun appVersionName(): String {
 @Composable
 fun AppVersionLabel(modifier: Modifier = Modifier) {
     val version = appVersionName()
-    if (version.isNotEmpty()) Text("App v$version", color = LocalPalette.current.muted, fontSize = 11.sp, maxLines = 1, softWrap = false, modifier = modifier)
+    if (version.isNotEmpty()) Text(if (BuildConfig.DEMO) "Demo app v${version.removeSuffix("-demo")}" else "App v$version", color = LocalPalette.current.muted, fontSize = 11.sp, maxLines = 1, softWrap = false, modifier = modifier)
 }

@@ -1,0 +1,1 @@
+{"ok":true,"models":[{"value":"allam-2-7b","label":"allam-2-7b"},{"value":"openai/gpt-oss-120b","label":"openai/gpt-oss-120b"},{"value":"openai/gpt-oss-20b","label":"openai/gpt-oss-20b"},{"value":"qwen/qwen3.8-27b","label":"qwen/qwen3.8-27b"}],"default":"openai/gpt-oss-120b","note":null}

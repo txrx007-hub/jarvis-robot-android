@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        NetworkUtil.bindToWifi(applicationContext)
+        if (!BuildConfig.DEMO) NetworkUtil.bindToWifi(applicationContext)   // the demo needs no network at all
         setContent {
             JarvisTheme(vm.themeMode, vm.palette) { Root(vm) }
         }

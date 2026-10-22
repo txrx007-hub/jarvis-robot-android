@@ -31,7 +31,7 @@ data class Feedback(val ok: Boolean, val text: String)
 class RobotViewModel(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("jarvis", Context.MODE_PRIVATE)
 
-    var host by mutableStateOf(prefs.getString("host", "") ?: "")
+    var host by mutableStateOf(if (BuildConfig.DEMO) "192.168.1.50" else prefs.getString("host", "") ?: "")   // the demo starts "connected" to its pretend robot
         private set
     var themeMode by mutableStateOf(
         runCatching { ThemeMode.valueOf(prefs.getString("theme", "SYSTEM") ?: "SYSTEM") }
@@ -95,6 +95,10 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     private var musicMisses = 0   // checks in a row that got no answer at all (a busy Wi-Fi moment); the Music card stays until several in a row fail
     private var haMisses = 0
 
+    init {
+        if (BuildConfig.DEMO) DemoRobot.sharedPhoto = { app.resources.openRawResource(R.drawable.splash).use { it.readBytes() } }   // what the pretend camera "sees"
+    }
+
     private var api = RobotApi(host)
     private var pollJob: Job? = null
     private var driveJob: Job? = null
@@ -155,6 +159,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     fun stopPolling() {
         pollJob?.cancel()
         pollJob = null
+        stopLive()
         releaseAll()
     }
 
@@ -267,6 +272,62 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
             }.onFailure { photoError = it.message?.takeIf { m -> m.isNotBlank() } ?: "no answer from Jarvis" }
             photoBusy = false
         }
+    }
+
+    // ------------------------------------------------------------------ live view (next to the drive pad)
+
+    /** A new small picture right after the last one (about one a second on a good Wi-Fi); stops by itself after 3 minutes, after 3 failures in a row, or when the app leaves the screen. Not kept anywhere. */
+    var liveOn by mutableStateOf(false)
+        private set
+    var liveImage by mutableStateOf<ImageBitmap?>(null)
+        private set
+    var liveNote by mutableStateOf<String?>(null)
+        private set
+    private var liveJob: Job? = null
+
+    fun toggleLive() {
+        if (liveOn) stopLive() else startLive()
+    }
+
+    fun startLive() {
+        if (liveOn) return
+        liveOn = true
+        liveNote = null
+        val current = api
+        val started = System.currentTimeMillis()
+        liveJob = viewModelScope.launch {
+            var fails = 0
+            while (isActive) {
+                if (System.currentTimeMillis() - started > 180_000) {
+                    liveNote = "Live view stopped after 3 minutes."
+                    break
+                }
+                val began = System.currentTimeMillis()
+                val r = runCatching { withContext(Dispatchers.IO) { current.photo(live = true) } }
+                r.onSuccess { bytes ->
+                    val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+                    if (bmp != null) {
+                        liveImage = bmp
+                        fails = 0
+                    } else {
+                        fails++
+                    }
+                }.onFailure { e ->
+                    if (e.message?.contains("busy") != true) fails++   // "busy" = the camera was still with the last picture: just ask again
+                    if (fails >= 3) liveNote = "Live view stopped: " + (e.message?.takeIf { it.isNotBlank() } ?: "no answer from Jarvis")
+                }
+                if (fails >= 3) break
+                delay((700 - (System.currentTimeMillis() - began)).coerceAtLeast(150))
+            }
+            liveOn = false
+            liveJob = null
+        }
+    }
+
+    fun stopLive() {
+        liveJob?.cancel()
+        liveJob = null
+        liveOn = false
     }
 
     // ------------------------------------------------------------------ remote control

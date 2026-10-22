@@ -142,6 +142,7 @@ private val LABELS = mapOf(
     "mic_gain_db" to "Microphone gain",
     "wake_threshold" to "Wake sensitivity",
     "shutter_sound" to "Camera shutter sound",
+    "camera_brightness" to "Camera brightness",
     "wake_chirp" to "Wake chirp",
     "idle_clock_min" to "Idle clock after",
     "quiet_start" to "Quiet hours start",
@@ -237,6 +238,7 @@ val SETTINGS_GROUPS = listOf(
     SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
+    SettingsGroup("Camera", listOf("camera_brightness"), false),
     SettingsGroup("Visualizer", listOf("visualizer_mode", "music_icon"), false),
     SettingsGroup("System", listOf("log_level"), false),
 )
@@ -331,6 +333,10 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("Time and date", "“what time is it?”, “what day is it?”", instant = true),
         VoiceCommand("Timer", "“set a timer for 5 minutes”, “cancel all timers”", instant = true),
     ),
+    "Instant: notes and macros" to listOf(
+        VoiceCommand("Notes", "“make a note: buy filament”, “read my notes”, “what do my notes say about the dishwasher?” (the folder notes/ on the backend)", instant = true),
+        VoiceCommand("Macros", "“party time”, “greet the room”, “good night mode”: one phrase runs a list of steps you write in profiles/macros.yaml (say stop to end it)", instant = true),
+    ),
     "Instant: moods" to listOf(
         VoiceCommand("Mood", "“be cheerful”, “be calm”, “be serious”, “be dry”, “back to normal”", instant = true),
     ),
@@ -348,6 +354,11 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("Scenes and scripts", "“start the netflix scene”, “run the goodnight script”, “zet de disco scene aan”", ha = true),
         VoiceCommand("Heating", "“set the AC livingroom to 21”, “zet de airco kantoor op 20”, “make it warmer” (with two thermostats it asks which one)", ha = true),
         VoiceCommand("Blinds", "“close the blinds” (asks for a yes first)", ha = true),
+    ),
+    "Home: shopping list" to listOf(
+        VoiceCommand("Add", "“add milk and eggs to the shopping list”, “zet melk op de boodschappenlijst”", ha = true),
+        VoiceCommand("Read", "“what is on the shopping list?”, “wat staat er op de boodschappenlijst?”", ha = true),
+        VoiceCommand("Remove", "“remove milk from the shopping list”, “haal melk van de boodschappenlijst”", ha = true),
     ),
     "Home: questions" to listOf(
         VoiceCommand("State", "“is the living room light on?”, “which lights are on?”, “what is the temperature in the living room?”", ha = true),

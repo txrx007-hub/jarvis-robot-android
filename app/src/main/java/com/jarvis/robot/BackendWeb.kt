@@ -3,6 +3,7 @@ package com.jarvis.robot
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -54,7 +55,8 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
         return
     }
     val context = LocalContext.current
-    val base = if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
+    val demo = BuildConfig.DEMO   // the demo serves the panel's page from the app itself (DemoWeb)
+    val base = if (demo) "https://${DemoWeb.HOST}/" else if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
     val panelHost = remember(base) { Uri.parse(base).host.orEmpty() }
     val themeJs = themeScript(p.isDark, palette)
     var latestJs by remember { mutableStateOf(themeJs) }
@@ -70,11 +72,14 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
                     request.url.host != panelHost
 
+                override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
+                    if (demo) DemoWeb.serve(context, request) else null
+
                 override fun onPageFinished(view: WebView, url: String?) {
                     view.evaluateJavascript(latestJs, null)
                 }
             }
-            loadUrl(base + "auto", mapOf("Referer" to "http://$robotHost/"))
+            if (demo) loadUrl(DemoWeb.START) else loadUrl(base + "auto", mapOf("Referer" to "http://$robotHost/"))
         }
     }
     DisposableEffect(web) { onDispose { web.destroy() } }

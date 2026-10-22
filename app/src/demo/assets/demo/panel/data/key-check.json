@@ -1,0 +1,1 @@
+{"groq_api_key":{"state":"ok","msg":"works"},"gemini_api_key":{"state":"ok","msg":"works"},"tavily_api_key":{"state":"ok","msg":"works"},"cerebras_api_key":{"state":"unset","msg":"not set"},"anthropic_api_key":{"state":"unset","msg":"not set"},"ha_url":{"state":"ok","msg":"Home Assistant found at this address"},"ha_token":{"state":"ok","msg":"works"}}

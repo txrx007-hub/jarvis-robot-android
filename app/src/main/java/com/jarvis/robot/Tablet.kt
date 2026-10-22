@@ -102,7 +102,7 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
                 when (selected) {
                     SECTION_OVERVIEW -> Overview(state, actions, columns)
                     SECTION_REMOTE -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-                        Column(Modifier.widthIn(max = 460.dp)) { RemotePanel(state.held, actions.onHold) }
+                        Column(Modifier.widthIn(max = 460.dp)) { RemotePanel(state.held, actions.onHold, state.liveOn, state.liveImage, state.liveNote, actions.onToggleLive, actions.onStopLive) }
                     }
                     SECTION_CAMERA -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Column(Modifier.widthIn(max = 720.dp)) { CameraPanel(state, onTake = actions.onPhoto) }
