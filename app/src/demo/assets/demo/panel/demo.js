@@ -123,6 +123,8 @@
         });
         case "log": return json({ lines: logLines(q.get("mode") || "all", (q.get("roles") || "").split(",").filter(Boolean)) });
         case "key-check": return get("key-check").then(json);
+        case "brain": return Promise.resolve(json({ main: "gemini-3-flash-preview", last: "gemini-3-flash-preview", last_t: now(), backup: false, failed: null }));
+        case "key-reveal": return Promise.resolve(json({ value: "demo-key-not-a-real-key" }));   // the key boxes show *** and reveal this made-up text on a click
         case "mood": return get("mood").then(json);
         case "memory": return get("memory").then(json);
         case "ha-log": return data("ha-log").then(function (d) { var r = clone(d), n = now(); r.rows.forEach(function (x) { x.t = n + x.t; }); return json(r); });
@@ -174,7 +176,7 @@
         if (b.action === "save") mem.notifyEvents = { server: !!b.server, robot_offline_min: b.robot_offline_min || 0 };
         return Promise.resolve(json({ ok: true }));
       case "panel-option": return Promise.resolve(json({ ok: true, button_login: !!b.button_login }));
-      case "test-llm": return wait(rnd(400, 900)).then(function () { return json({ ok: true, ms: Math.round(rnd(420, 760)), model: "gemini-3.5-flash-lite", text: "Jarvis online." }); });
+      case "test-llm": return wait(rnd(400, 900)).then(function () { return json({ ok: true, ms: Math.round(rnd(420, 760)), model: "gemini-3-flash-preview", text: "Jarvis online." }); });
       case "test-search": return wait(rnd(500, 1100)).then(function () { return json({ ok: true, ms: Math.round(rnd(600, 1000)), text: "3 results found (demo)" }); });
       case "test-ha": return wait(rnd(300, 700)).then(function () {
         return json({ ok: true, ms: Math.round(rnd(120, 260)), entities: 61, domains: { light: 14, switch: 9, sensor: 22, scene: 6, climate: 3, fan: 2, script: 5 } });

@@ -45,6 +45,11 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     )
         private set
 
+    init {
+        I18n.restore(prefs.getString("lang", "en"))
+        I18n.onChange = { prefs.edit().putString("lang", it.code).apply() }
+    }
+
     var status by mutableStateOf<Status?>(null)
         private set
 

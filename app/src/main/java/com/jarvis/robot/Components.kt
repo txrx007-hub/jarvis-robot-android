@@ -45,7 +45,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -561,7 +560,7 @@ fun CameraPanel(state: MainUiState, onHide: (() -> Unit)? = null, onTake: (() ->
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 androidx.compose.foundation.Image(
                     bitmap = photo,
-                    contentDescription = "Photo from Jarvis's camera",
+                    contentDescription = tr("Photo from Jarvis's camera"),
                     contentScale = androidx.compose.ui.layout.ContentScale.Fit,
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.dp, p.border, RoundedCornerShape(10.dp)),
                 )
@@ -624,7 +623,7 @@ fun RemotePanel(
             if (liveImage != null) {
                 androidx.compose.foundation.Image(
                     bitmap = liveImage,
-                    contentDescription = "Live view from Jarvis's camera",
+                    contentDescription = tr("Live view from Jarvis's camera"),
                     contentScale = androidx.compose.ui.layout.ContentScale.Fit,
                     modifier = Modifier.widthIn(max = 360.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.dp, p.border, RoundedCornerShape(10.dp)),
                 )
@@ -664,8 +663,8 @@ private fun PadButton(glyph: String, description: String, pressed: Boolean, onHo
             .border(1.dp, p.accent, shape)
             .clearAndSetSemantics {   // TalkBack reads "Drive forward, button, hold to drive" instead of the arrow glyph
                 role = Role.Button
-                contentDescription = description
-                stateDescription = if (pressed) "Driving" else "Hold to drive"
+                contentDescription = tr(description)
+                stateDescription = tr(if (pressed) "Driving" else "Hold to drive")
             }
             .pointerInput(Unit) {
                 detectTapGestures(onPress = {
@@ -716,7 +715,7 @@ fun SettingCard(def: SettingDef, feedback: Feedback?, onSave: (String) -> Unit) 
                     onValueChangeFinished = { onSave(sliderValueText(def, live)) },
                     valueRange = def.min.toFloat()..def.max.toFloat(),
                     steps = steps,
-                    modifier = Modifier.semantics { contentDescription = labelFor(def.key) },
+                    modifier = Modifier.semantics { contentDescription = tr(labelFor(def.key)) },
                     colors = SliderDefaults.colors(
                         thumbColor = p.accent,
                         activeTrackColor = p.accent,
@@ -729,7 +728,7 @@ fun SettingCard(def: SettingDef, feedback: Feedback?, onSave: (String) -> Unit) 
             Kind.BOOL -> Switch(
                 checked = def.value == "1",
                 onCheckedChange = { tick(); onSave(if (it) "1" else "0") },
-                modifier = Modifier.semantics { contentDescription = labelFor(def.key) },
+                modifier = Modifier.semantics { contentDescription = tr(labelFor(def.key)) },
                 colors = jSwitchColors(),
             )
             Kind.ENUM -> EnumPicker(def.value, def.options, onSave)
@@ -820,29 +819,58 @@ fun ThemeSwitch(
     onChange: (ThemeMode) -> Unit,
 ) {
     val p = LocalPalette.current
-    val shape = RoundedCornerShape(50)
-    Row(
-        modifier = modifier
-            .clip(shape)
-            .background(p.card)
-            .border(1.dp, p.border, shape)
-            .padding(horizontal = if (compact) 8.dp else 12.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 8.dp),
-    ) {
-        if (palette != null) {
-            for (option in AppPalette.entries) PaletteDot(option, selected = option == palette) { onPalette(option) }
-            Spacer(Modifier.width(2.dp))
-        }
+    val shape = RoundedCornerShape(if (compact) 22.dp else 50.dp)
+    val tick = rememberTick()
+    val dots: @Composable () -> Unit = {
+        if (palette != null) for (option in AppPalette.entries) PaletteDot(option, selected = option == palette) { onPalette(option) }
+    }
+    val dayNight: @Composable () -> Unit = {
         Text("Dark", color = p.muted, fontSize = 12.sp, maxLines = 1, softWrap = false)
-        val tick = rememberTick()
         Switch(
             checked = !p.isDark,
             onCheckedChange = { tick(); onChange(if (it) ThemeMode.LIGHT else ThemeMode.DARK) },
-            modifier = Modifier.semantics { contentDescription = "Light mode" },
+            modifier = Modifier.semantics { contentDescription = tr("Light mode") },
             colors = jSwitchColors(),
         )
         Text("Light", color = p.muted, fontSize = 12.sp, maxLines = 1, softWrap = false)
+    }
+    val frame = modifier.clip(shape).background(p.card).border(1.dp, p.border, shape).padding(horizontal = if (compact) 10.dp else 12.dp, vertical = 4.dp)
+    if (compact) {   // the menu is narrow: the colour dots on one row, dark / light under them
+        Column(frame, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            if (palette != null) Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { dots() }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { dayNight() }
+        }
+    } else {
+        Row(frame, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            dots()
+            if (palette != null) Spacer(Modifier.width(2.dp))
+            dayNight()
+        }
+    }
+}
+
+/** A small English | Dutch switch. It only changes what the app shows: nothing the robot or the backend uses (settings, values, the spoken language) is touched. */
+@Composable
+fun LangSwitch(modifier: Modifier = Modifier, compact: Boolean = false) {
+    val p = LocalPalette.current
+    val shape = RoundedCornerShape(50)
+    val tick = rememberTick()
+    Row(
+        modifier = modifier.clip(shape).background(p.card).border(1.dp, p.border, shape),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        for (l in Lang.entries) {
+            val on = I18n.lang == l
+            val name = if (l == Lang.EN) "English" else "Nederlands"
+            Box(
+                modifier = Modifier
+                    .background(if (on) p.accent.copy(alpha = 0.18f) else androidx.compose.ui.graphics.Color.Transparent)
+                    .semantics { this.selected = on; role = Role.RadioButton; contentDescription = name }
+                    .clickable { tick(); I18n.choose(l) }
+                    .padding(horizontal = if (compact) 10.dp else 12.dp, vertical = 6.dp),
+                contentAlignment = Alignment.Center,
+            ) { Text(l.code.uppercase(), color = if (on) p.accent else p.muted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
+        }
     }
 }
 
@@ -861,7 +889,7 @@ fun PaletteDot(option: AppPalette, selected: Boolean, onClick: () -> Unit) {
             .padding(4.dp)
             .clip(CircleShape)
             .background(accent)
-            .semantics { contentDescription = "Colour theme ${option.label}"; this.selected = chosen }
-            .clickable(role = Role.RadioButton, onClickLabel = "Use the ${option.label} colours") { tick(); onClick() },
+            .semantics { contentDescription = tr("Colour theme ${option.label}"); this.selected = chosen }
+            .clickable(role = Role.RadioButton, onClickLabel = tr("Use the ${option.label} colours")) { tick(); onClick() },
     )
 }

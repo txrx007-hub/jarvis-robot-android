@@ -36,8 +36,8 @@ data class Palette(
     val photo: Int? = null, // drawable shown at 40% behind the screen
 )
 
-/** The colour themes (same three as the backend panel); each has a dark and a light version. */
-enum class AppPalette(val label: String) { CLASSIC("Classic"), BLUEBERRY("Blueberry"), SUCCULENT("Succulent") }
+/** The colour themes (same four as the backend panel and the landing page); each has a dark and a light version. */
+enum class AppPalette(val label: String) { CLASSIC("Classic"), BLUEBERRY("Blueberry"), SUCCULENT("Succulent"), PEACH("Peach") }
 
 val DarkPalette = Palette(
     bg = Color(0xFF0B1416), card = Color(0xFF101F22), border = Color(0xFF1C3236),
@@ -68,10 +68,21 @@ private val SucculentLight = LightPalette.copy(
     text = Color(0xFF171D24), muted = Color(0xFF556A5E), field = Color(0xFFEDF1E9), photo = R.drawable.theme_succulent,
 )
 
+// Peach: amber, cream, blush, sage and coral, no photo. Dark mode shines in amber; light mode uses a deep sage so the accent never looks like the red of "danger".
+private val PeachDark = DarkPalette.copy(
+    bg = Color(0xFF1F1815), card = Color(0xFF2D221E), border = Color(0xFF4D3A33), accent = Color(0xFFF6BD60),
+    text = Color(0xFFF7EDE2), muted = Color(0xFFCDB5AA), field = Color(0xFF251B18),
+)
+private val PeachLight = LightPalette.copy(
+    bg = Color(0xFFF7EDE2), card = Color(0xFFFFF9F3), border = Color(0xFFEFC9C0), accent = Color(0xFF3F7F73),
+    text = Color(0xFF3A2E2B), muted = Color(0xFF7A6258), field = Color(0xFFFBF2E8),
+)
+
 fun paletteFor(palette: AppPalette, dark: Boolean): Palette = when (palette) {
     AppPalette.CLASSIC -> if (dark) DarkPalette else LightPalette
     AppPalette.BLUEBERRY -> if (dark) BlueberryDark else BlueberryLight
     AppPalette.SUCCULENT -> if (dark) SucculentDark else SucculentLight
+    AppPalette.PEACH -> if (dark) PeachDark else PeachLight
 }
 
 val LocalPalette = staticCompositionLocalOf { DarkPalette }

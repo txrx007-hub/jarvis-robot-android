@@ -55,6 +55,19 @@ class FoldScreenshotTest {
     @Test fun coverSucculentLight() = coverRule.snapshot {
         JarvisTheme(ThemeMode.LIGHT, AppPalette.SUCCULENT) { MainContent(online.copy(palette = AppPalette.SUCCULENT), MainActions()) }
     }
+
+    @Test fun coverPeachDark() = coverRule.snapshot {
+        JarvisTheme(ThemeMode.DARK, AppPalette.PEACH) { MainContent(online.copy(palette = AppPalette.PEACH), MainActions()) }
+    }
+
+    // The same screens in Dutch (the language is a global: put it back afterwards so no other test sees it).
+    @Test fun coverPeachLightDutch() { I18n.restore("nl"); try { coverRule.snapshot {
+        JarvisTheme(ThemeMode.LIGHT, AppPalette.PEACH) { MainContent(online.copy(palette = AppPalette.PEACH, themeMode = ThemeMode.LIGHT), MainActions()) }
+    } } finally { I18n.restore("en") } }
+
+    @Test fun coverClassicDarkDutch() { I18n.restore("nl"); try { coverRule.snapshot {
+        JarvisTheme(ThemeMode.DARK) { MainContent(online.copy(palette = AppPalette.CLASSIC), MainActions()) }
+    } } finally { I18n.restore("en") } }
 }
 
 class FoldInnerScreenshotTest {
@@ -82,6 +95,8 @@ class FoldInnerScreenshotTest {
     }
     @Test fun innerRemote() = shot("Remote control")
     @Test fun innerBackend() = shot("Backend")
+    @Test fun innerCommandsPeachDutch() { I18n.restore("nl"); try { shot("Voice commands", ThemeMode.DARK, AppPalette.PEACH) } finally { I18n.restore("en") } }
+    @Test fun innerOverviewPeachDutchLight() { I18n.restore("nl"); try { shot(SECTION_OVERVIEW, ThemeMode.LIGHT, AppPalette.PEACH) } finally { I18n.restore("en") } }
     @Test fun innerSplash() = rule.snapshot { JarvisTheme(ThemeMode.DARK, AppPalette.BLUEBERRY) { SplashScreen() } }
     @Test fun innerCommands() = shot("Voice commands", palette = AppPalette.CLASSIC)
     @Test fun innerCommandsHome() = rule.snapshot {

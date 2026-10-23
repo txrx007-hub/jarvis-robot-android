@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.background
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -59,7 +58,7 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
     val demo = BuildConfig.DEMO   // the demo serves the panel's page from the app itself (DemoWeb)
     val base = if (demo) "https://${DemoWeb.HOST}/" else if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
     val panelHost = remember(base) { Uri.parse(base).host.orEmpty() }
-    val themeJs = themeScript(p.isDark, palette)
+    val themeJs = themeScript(p.isDark, palette, I18n.lang)
     var latestJs by remember { mutableStateOf(themeJs) }
     latestJs = themeJs
 
@@ -100,13 +99,16 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
 }
 
 /** Puts the panel in the same day/night mode and colour theme as the app (the panel reads these from its page settings). */
-private fun themeScript(dark: Boolean, palette: AppPalette): String {
+private fun themeScript(dark: Boolean, palette: AppPalette, lang: Lang): String {
     val theme = if (dark) "dark" else "light"
     val pal = palette.name.lowercase()
+    val lg = lang.code
     return "(function(){var d=document.documentElement;d.dataset.theme='$theme';" +
         "try{localStorage.setItem('theme','$theme');localStorage.setItem('palette','$pal');}catch(e){}" +
         (if (palette == AppPalette.CLASSIC) "delete d.dataset.palette;" else "d.dataset.palette='$pal';") +
-        "var s=document.getElementById('paletteSel');if(s)s.value='$pal';})();"
+        "var s=document.getElementById('paletteSel');if(s)s.value='$pal';" +
+        "try{localStorage.setItem('lang','$lg');}catch(e){}if(window.setPanelLang)window.setPanelLang('$lg');" +
+        "var l=document.getElementById('langSw');if(l)l.style.display='none';})();"
 }
 
 /** The phone's full-screen backend page: a bar with a back button on top, the panel below. */

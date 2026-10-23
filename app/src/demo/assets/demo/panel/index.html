@@ -10,17 +10,17 @@
     --bg:#0b1416; --card:#101f22; --card-border:#1c3236; --accent:#20e0e0; --text:#e8f6f5; --muted:#8fb9b6;
     --danger:#ff8a8a; --success:#6be3ab; --field-bg:#0c1a1c; --accent-wash:rgba(32,224,224,.1);
     --danger-wash:rgba(255,138,138,.1); --on-accent:#031416; color-scheme:dark;
-    --c-listen:#5ec8ff; --c-think:#c4a1ff; --c-speak:#6be3ab; --c-tool:#ffb86b;
+    --c-listen:#5ec8ff; --c-think:#c4a1ff; --c-speak:#6be3ab; --c-tool:#ffb86b; --ping:#33ff33;
     --title:#4df0f0;   /* card titles: brighter than the muted grey-teal they had, readable on the dark cards */
   }
   :root[data-theme="light"] {
     --bg:#eef5f5; --card:#ffffff; --card-border:#c9dcdc; --accent:#0a8f95; --text:#12292b; --muted:#55777a;
     --danger:#c0392b; --success:#1b8f5a; --field-bg:#f3f8f8; --accent-wash:rgba(10,143,149,.1);
     --danger-wash:rgba(192,57,43,.1); --on-accent:#ffffff; color-scheme:light;
-    --c-listen:#0f6fa8; --c-think:#7a45c8; --c-speak:#1b8f5a; --c-tool:#b3560a;
+    --c-listen:#0f6fa8; --c-think:#7a45c8; --c-speak:#1b8f5a; --c-tool:#b3560a; --ping:#118811;
     --title:#06656b;
   }
-  /* ---- colour themes: Classic (above) plus Blueberry and Succulent, each in a dark and a light version (the day/night button keeps working) ---- */
+  /* ---- colour themes: Classic (above) plus Blueberry, Succulent and Peach, each in a dark and a light version (the day/night button keeps working) ---- */
   body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:var(--bg-image, none) center/cover no-repeat; opacity:.4; }
   .card { background:color-mix(in srgb, var(--card) 90%, transparent); backdrop-filter:blur(5px); }
   :root[data-palette="blueberry"] { --bg:#12181d; --card:#112a40; --card-border:#1d4668; --accent:#7fb2e5; --text:#e8f2fc; --muted:#a7bdd6; --field-bg:#0e1d2c;
@@ -31,7 +31,14 @@
     --accent-wash:rgba(127,193,166,.13); --on-accent:#07140f; --title:#b7d8c8; --bg-image:url(/theme/succulent.webp); }
   :root[data-palette="succulent"][data-theme="light"] { --bg:#e8ede4; --card:#f6f8f3; --card-border:#bbc5b4; --accent:#1b6b55; --text:#171d24; --muted:#556a5e; --field-bg:#edf1e9;
     --accent-wash:rgba(27,107,85,.11); --on-accent:#ffffff; --title:#0f454c; }
+  :root[data-palette="peach"] { --bg:#1f1815; --card:#2d221e; --card-border:#4d3a33; --accent:#f6bd60; --text:#f7ede2; --muted:#cdb5aa; --field-bg:#251b18;
+    --accent-wash:rgba(246,189,96,.13); --on-accent:#2a1c08; --title:#f5cac3; }
+  :root[data-palette="peach"][data-theme="light"] { --bg:#f7ede2; --card:#fff9f3; --card-border:#efc9c0; --accent:#3f7f73; --text:#3a2e2b; --muted:#7a6258; --field-bg:#fbf2e8;
+    --accent-wash:rgba(63,127,115,.11); --on-accent:#ffffff; --title:#a94442; }
   header select { width:auto; padding:4px 8px; font-size:13px; }
+  .lang-sw { position:fixed; right:14px; bottom:14px; z-index:6; display:flex; background:var(--card); border:1px solid var(--card-border); border-radius:999px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  .lang-sw button { margin:0; padding:5px 11px; border:0; border-radius:0; background:transparent; color:var(--muted); font-size:12px; font-weight:700; }
+  .lang-sw button.on { background:var(--accent-wash); color:var(--accent); }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui,Segoe UI,Roboto,sans-serif; }
   main { max-width:880px; margin:0 auto; padding:16px; }
@@ -167,9 +174,9 @@
   .kpi.netk { cursor:pointer; user-select:none; } .kpi.netk:hover { border-color:var(--accent); }
   .kpi .nv { font-style:normal; } .kpi .gap { display:inline-block; width:22px; }
   .spark { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin:8px 0; }
-  .wave { display:grid; grid-template-columns:1fr; gap:12px; margin:10px 0; }
+  .wave { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin:10px 0; }
   .wave svg { width:100%; height:auto; display:block; background:var(--field-bg); border-radius:8px; }
-  .wave .wtitle { font-size:15px; font-weight:600; fill:var(--text); } .wave .wlab { font-size:13px; fill:var(--muted); } .wave .wgrid { stroke:var(--card-border); stroke-width:1; }
+  .wave .wtitle { font-size:13px; font-weight:600; fill:var(--text); } .wave .wlab { font-size:11px; fill:var(--muted); } .wave .wgrid { stroke:var(--card-border); stroke-width:1; }
   .micm { margin:10px 0 4px; } .micm .cap { font-size:12px; color:var(--muted); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
   .mbar { position:relative; height:12px; border-radius:6px; overflow:hidden; display:flex; margin:5px 0 3px; background:var(--field-bg); }
   .mbar .mz { height:100%; opacity:.35; } .mbar .g { background:var(--success); } .mbar .a { background:#e8b84a; } .mbar .r { background:var(--danger); opacity:.75; }
@@ -203,7 +210,8 @@
       <span id="srvPill" class="pill">checking…</span>
       <div id="pingRows"><span>server</span><b id="pgSrv">–</b><span>contr. panel</span><b id="pgPanel">–</b></div>
     </div>
-    <select id="paletteSel" title="Colour theme (the ◐ button next to it still switches day and night)" aria-label="Colour theme"><option value="classic">Classic</option><option value="blueberry">Blueberry</option><option value="succulent">Succulent</option></select>
+    <span id="brainPill" class="pill" title="The brain that answered the last question">brain…</span>
+    <select id="paletteSel" title="Colour theme (the ◐ button next to it still switches day and night)" aria-label="Colour theme"><option value="classic">Classic</option><option value="blueberry">Blueberry</option><option value="succulent">Succulent</option><option value="peach">Peach</option></select>
     <button id="themeBtn" title="Dark / light">◐</button>
   </header>
   <div id="searchBar" role="search">
@@ -444,9 +452,23 @@ function render(first){
       d.innerHTML = `<div><b>${label}</b> <span class="pill" id="p_${name}"></span></div><input type="password" autocomplete="off" placeholder="paste key here, then Save key" id="k_${name}" aria-label="${label}"><button data-k="${name}">Save key</button>`;
       kd.appendChild(d);
     }
+    // A key that is set shows as *** in its box; clicking the box fetches and shows the real key, leaving the box hides it again (unless you changed it).
+    kd.querySelectorAll('input').forEach(inp => {
+      const n = inp.id.slice(2);
+      inp.dataset.shown = '';
+      inp.addEventListener('focus', async () => {
+        if (!S.keys[n] || inp.dataset.shown || inp.value) return;
+        try { const r = await fetch('/api/key-reveal?name=' + n, {headers: H}); if (!r.ok) return; const v = (await r.json()).value || '';
+          inp.value = v; inp.dataset.shown = v; inp.type = 'text'; inp.select(); } catch (e) {}
+      });
+      inp.addEventListener('blur', () => {
+        if (inp.dataset.shown && inp.value === inp.dataset.shown) { inp.value = ''; inp.dataset.shown = ''; inp.type = 'password'; paintKeyBoxes(); }
+      });
+    });
     kd.querySelectorAll('button').forEach(b => b.onclick = async () => {
       const n = b.dataset.k, inp = $('#k_'+n); if (!inp.value.trim()) return toast('Nothing entered.');
-      const r = await postJson('/api/key',{name:n,value:inp.value}); inp.value=''; if (r.ok) { restartPending = true; paintBadge(); KC[n] = {state:'unset'}; loadKeyChecks(true); } toast(r.ok ? 'Key saved (needs a restart to apply). Refreshing the model lists...' : 'Failed: ' + r.error);
+      if (inp.dataset.shown && inp.value === inp.dataset.shown) return toast('That is the key already saved.');
+      const r = await postJson('/api/key',{name:n,value:inp.value}); inp.value=''; inp.dataset.shown=''; inp.type='password'; if (r.ok) { restartPending = true; paintBadge(); KC[n] = {state:'unset'}; loadKeyChecks(true); } toast(r.ok ? 'Key saved (needs a restart to apply). Refreshing the model lists...' : 'Failed: ' + r.error);
       await refresh(false); loadOptions(true);
     });
     kd.dataset.built = 1;
@@ -581,8 +603,14 @@ $('#bRefresh').onclick = async (e) => { e.target.disabled = true; await loadOpti
 // Do the keys work? The panel asks each provider a free, read-only question (cached 5 minutes there) and shows OK, or the error in red.
 let KC = {};
 const KEY_IDS = ['groq_api_key','gemini_api_key','tavily_api_key','cerebras_api_key','anthropic_api_key','ha_url','ha_token'];
+function paintKeyBoxes() {   // a saved key is shown as *** (empty box with a placeholder, so the key never sits in the page until you click)
+  if (!S || !S.keys) return;
+  for (const n of KEY_IDS) { const i = $('#k_' + n); if (!i || i.dataset.shown || i.value) continue;
+    i.placeholder = S.keys[n] ? '***   (click to show the saved key)' : 'paste key here, then Save key'; }
+}
 function paintKeys() {
   if (!S || !S.keys) return;
+  paintKeyBoxes();
   for (const n of KEY_IDS) { const p = $('#p_' + n); if (!p) continue; const c = KC[n];
     if (!S.keys[n]) { p.textContent = 'not set'; p.className = 'pill'; p.title = ''; continue; }
     if (!c || c.state === 'unset') { p.textContent = 'set · checking…'; p.className = 'pill'; p.title = ''; continue; }
@@ -600,6 +628,14 @@ async function loadMusic() {
     el.textContent = !m.dir ? 'No folder set yet: music is off.' : !m.exists ? 'That folder does not exist on this PC.' : `${m.tracks} songs in the folder` + (m.now ? ` · playing: ${m.now.title}${m.now.artist ? ' – ' + m.now.artist : ''}` : ' · nothing playing'); } catch (e) {}
 }
 loadMusic(); setInterval(() => { if (!document.hidden) loadMusic(); }, 4000);
+// Which brain answered last: green when it is the main brain, amber when a backup stepped in (the header pill).
+async function loadBrain() { try { const r = await fetch('/api/brain'); if (!r.ok) return; const b = await r.json(), p = $('#brainPill'); if (!p) return;
+    const short = m => String(m || '').split('/').pop();
+    p.textContent = 'brain: ' + (short(b.last || b.main) || '–') + (b.backup ? ' (backup)' : '');
+    p.className = 'pill ' + (b.backup ? 'warn' : (b.last ? 'ok' : ''));
+    p.title = b.backup ? 'The main brain (' + short(b.main) + ') failed' + (b.failed ? ' (' + b.failed + ')' : '') + ', so a backup answered the last question'
+      : (b.last ? 'The brain that answered the last question' : 'No question answered since the server started: this is the main brain'); } catch (e) {} }
+loadBrain(); setInterval(() => { if (!document.hidden) loadBrain(); }, 5000);
 $('#bMusicStop').onclick = async () => { await postJson('/api/music/control', {action: 'stop'}); toast('Stop sent.'); setTimeout(loadMusic, 1500); };
 $('#bMusicNext').onclick = async () => { await postJson('/api/music/control', {action: 'next'}); toast('Next song asked.'); setTimeout(loadMusic, 2500); };
 async function loadHaLog() {
@@ -641,8 +677,10 @@ function niceTicks(lo, hi, n) {
   return out;
 }
 function waveChart(series, o) {
-  const W = 640, H = 230, L = 50, R = 628, Tp = 32, B = 174, title = `<text x="${W / 2}" y="18" text-anchor="middle" class="wtitle">${esc(o.title)}</text>`;
-  const legend = `<rect x="${L}" y="${H - 20}" width="18" height="4" rx="2" fill="${o.color}"/><text x="${L + 24}" y="${H - 14}" class="wlab">${esc(o.legend)}</text>` + (o.note ? `<text x="${R}" y="${H - 14}" text-anchor="end" class="wlab">${esc(o.note)}</text>` : '');
+  const two = !!(o.second && o.second.series && o.second.series.length > 1);   // a second line with its own scale on the right (Wi-Fi: the ping times)
+  const W = 600, H = 220, L = 46, R = two ? 552 : 590, Tp = 30, B = 168, title = `<text x="${W / 2}" y="18" text-anchor="middle" class="wtitle">${esc(o.title)}</text>`;
+  const legend2 = two ? `<rect x="${W - 12 - o.second.legend.length * 4.7 - 22}" y="${H - 22}" width="16" height="4" rx="2" fill="${o.second.color}"/><text x="${W - 12}" y="${H - 17}" text-anchor="end" class="wlab">${esc(o.second.legend)}</text>` : '';
+  const legend = `<rect x="${L}" y="${H - 22}" width="16" height="4" rx="2" fill="${o.color}"/><text x="${L + 22}" y="${H - 17}" class="wlab">${esc(o.legend)}</text>` + (o.note ? `<text x="${R}" y="${H - 17}" text-anchor="end" class="wlab">${esc(o.note)}</text>` : '') + legend2;
   if (!series || series.length < 2) return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.title)}">${title}<text x="${W / 2}" y="${(Tp + B) / 2}" text-anchor="middle" class="wlab">collecting…</text>${legend}</svg>`;
   const now = Date.now() / 1000, t0 = now - 24 * 3600;
   const pts = series.map(p => [now - p[0] * 60, p[1]]).filter(p => p[0] >= t0).sort((a, b) => a[0] - b[0]);
@@ -654,19 +692,30 @@ function waveChart(series, o) {
   for (let t = first.getTime() / 1000; t <= now; t += 3 * 3600) {
     if (t < t0) continue;
     const x = X(t).toFixed(1), lab = new Date(t * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    grid += `<line x1="${x}" x2="${x}" y1="${Tp}" y2="${B}" class="wgrid"/><text x="${x}" y="${B + 18}" text-anchor="middle" class="wlab">${lab}</text>`;
+    grid += `<line x1="${x}" x2="${x}" y1="${Tp}" y2="${B}" class="wgrid"/><text x="${x}" y="${B + 16}" text-anchor="middle" class="wlab">${lab}</text>`;
   }
   // smooth line through the points (Catmull-Rom as cubic Bezier): the wave shape; a gap of more than 10 minutes (robot away) breaks the line
-  const P = pts.map(p => [X(p[0]), Y(p[1]), p[0]]);
-  let d = '';
-  for (let i = 0; i < P.length; i++) {
-    const p = P[i];
-    if (i === 0 || p[2] - P[i - 1][2] > 600) { d += `M${p[0].toFixed(1)},${p[1].toFixed(1)}`; continue; }
-    const p0 = P[Math.max(0, i - 2)], p1 = P[i - 1], p3 = P[Math.min(P.length - 1, i + 1)];
-    const c1 = [p1[0] + (p[0] - p0[0]) / 6, p1[1] + (p[1] - p0[1]) / 6], c2 = [p[0] - (p3[0] - p1[0]) / 6, p[1] - (p3[1] - p1[1]) / 6];
-    d += `C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+  const smooth = (P) => {
+    let d = '';
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i];
+      if (i === 0 || p[2] - P[i - 1][2] > 600) { d += `M${p[0].toFixed(1)},${p[1].toFixed(1)}`; continue; }
+      const p0 = P[Math.max(0, i - 2)], p1 = P[i - 1], p3 = P[Math.min(P.length - 1, i + 1)];
+      const c1 = [p1[0] + (p[0] - p0[0]) / 6, p1[1] + (p[1] - p0[1]) / 6], c2 = [p[0] - (p3[0] - p1[0]) / 6, p[1] - (p3[1] - p1[1]) / 6];
+      d += `C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+    }
+    return d;
+  };
+  const d = smooth(pts.map(p => [X(p[0]), Y(p[1]), p[0]]));
+  let second = '';
+  if (two) {   // its own scale, labelled on the right
+    const q = o.second.series.map(p => [now - p[0] * 60, p[1]]).filter(p => p[0] >= t0).sort((a, b) => a[0] - b[0]);
+    const v2 = q.map(p => p[1]), t2 = niceTicks(Math.min(o.second.lo, ...v2), Math.max(o.second.hi, ...v2), 4), lo2 = t2[0], hi2 = t2[t2.length - 1];
+    const Y2 = v => B - (v - lo2) / ((hi2 - lo2) || 1) * (B - Tp);
+    second = t2.map(v => `<text x="${R + 6}" y="${(Y2(v) + 4).toFixed(1)}" class="wlab">${v}</text>`).join('') +
+      `<path d="${smooth(q.map(p => [X(p[0]), Y2(p[1]), p[0]]))}" fill="none" stroke="${o.second.color}" stroke-width="1.4" stroke-linejoin="round" opacity=".9"/>`;
   }
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.title)}">${title}${grid}<path d="${d}" fill="none" stroke="${o.color}" stroke-width="1.8" stroke-linejoin="round"/>${legend}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.title)}">${title}${grid}${second}<path d="${d}" fill="none" stroke="${o.color}" stroke-width="1.8" stroke-linejoin="round"/>${legend}</svg>`;
 }
 // The microphone over the last minute: a level bar from -60 to 0 dBFS, green while normal, amber when loud, red near full scale (too loud) where it clips.
 function micMeter(n, m) {
@@ -731,7 +780,8 @@ function paintRobot(r) {
       ${n && typeof n.wdisc === 'number' ? kpi(r.wifi_drops_day, `Wi-Fi drops in 24 h · ${n.wdisc} since its last restart`, r.wifi_drops_day ? 'warnc' : 'okc') : ''}</div>
     ${micMeter(n, r.mic)}
     <div id="netLive"></div>
-    <div class="wave"><div>${waveChart(r.rssi_series, {title: 'Wi-Fi signal, last 24 h', legend: 'signal (dBm), higher is better', lo: -90, hi: -40, color: 'var(--accent)'})}</div>
+    <div class="wave"><div>${waveChart(r.rssi_series, {title: 'Wi-Fi signal and ping, last 24 h', legend: 'signal (dBm), higher is better', lo: -90, hi: -40, color: 'var(--accent)',
+        second: {series: (r.ping_series || []).map(p => [p[0], p[1] / 1000]), legend: 'ping server ↔ robot (s, right)', lo: 0, hi: 1, color: 'var(--ping)'}})}</div>
       <div>${waveChart(r.heap_series, {title: 'Largest free memory block, last 24 h', legend: 'free block (KB), below 20 is trouble', lo: 0, hi: 80, color: '#e8b84a'})}</div></div>
     ${latestRestart}`;
   const d = box.querySelector('#rbDetails'); if (d) d.ontoggle = () => { rbOpen = d.open; };   // the card repaints every 10 s: remember whether it was opened
@@ -1143,5 +1193,373 @@ setInterval(async () => { if (document.hidden || pingBusy) return; pingBusy = tr
   try { const r = await fetch('/api/ping', { cache: 'no-store' }); if (r.status === 401) return; paintPing(await r.json()); } catch (e) { paintPing(null); } finally { pingBusy = false; } }, 500);
 setInterval(() => { if ($('#logLive').checked) loadLog(); }, 2000);
 </script>
+<!-- i18n:begin -->
+<div class="lang-sw" id="langSw" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="nl" aria-pressed="false">NL</button></div>
+<script>
+// English / Dutch. The panel's own texts are English; Dutch is a DISPLAY-ONLY layer on top: it changes what is shown, never a value. Option values, field contents (the prompt,
+// keys, addresses), settings and everything sent to the server stay exactly as they are. The log (debug console) and test outputs are shown as they come.
+// The chosen language is kept in this browser only (localStorage "lang"); the phone app sets it the same way it sets the colour theme.
+(function () {
+  var NL = {
+  // header, pills, search
+  "checking\u2026": "controleren\u2026", "contr. panel": "paneel", "brain\u2026": "brein\u2026",
+  "Online check and ping time (ICMP, empty packet, every 0.5 s while this page is open)": "Online-controle en pingtijd (ICMP, leeg pakketje, elke 0,5 s zolang deze pagina open is)",
+  "The brain that answered the last question": "Het brein dat de laatste vraag beantwoordde",
+  "No question answered since the server started: this is the main brain": "Nog geen vraag beantwoord sinds de server startte: dit is het hoofdbrein",
+  "Dark / light": "Donker / licht", "Colour theme": "Kleurthema", "Language": "Taal",
+  "Colour theme (the \u25d0 button next to it still switches day and night)": "Kleurthema (de knop \u25d0 ernaast wisselt nog steeds tussen dag en nacht)",
+  "Classic": "Klassiek", "Blueberry": "Blauwe bes", "Succulent": "Vetplant", "Peach": "Perzik",
+  "These settings only take effect after Save & restart. Click to jump to the save buttons.": "Deze instellingen werken pas na Opslaan & herstarten. Klik om naar de opslaanknoppen te springen.",
+  "Search settings and functions": "Zoek instellingen en functies", "Clear search": "Zoekopdracht wissen",
+  // card titles
+  "Server": "Server", "Usage \u00b7 Tavily, Groq, Gemini": "Gebruik \u00b7 Tavily, Groq, Gemini", "Reply speed \u00b7 how fast Jarvis answers": "Antwoordsnelheid \u00b7 hoe snel Jarvis antwoordt",
+  "Conversations & fallbacks": "Gesprekken & terugvalopties", "Robot health": "Gezondheid van de robot", "Services & this PC": "Services & deze pc",
+  "Watchdog & phone alerts": "Waakhond & telefoonmeldingen", "Choose the modules": "Kies de modules", "Ears \u00b7 speech recognition": "Oren \u00b7 spraakherkenning",
+  "Hearing \u00b7 voice-activity detection (VAD)": "Gehoor \u00b7 spraakdetectie (VAD)", "Brain \u00b7 language model and camera vision": "Brein \u00b7 taalmodel en camerabeeld",
+  "Voice \u00b7 speech synthesis": "Stem \u00b7 spraaksynthese", "Web search (Tavily)": "Webzoeken (Tavily)", "Music \u00b7 songs from a folder": "Muziek \u00b7 nummers uit een map",
+  "Home Assistant \u00b7 voice control of the house": "Home Assistant \u00b7 spraakbesturing van het huis", "Personality & conversation": "Persoonlijkheid & gesprek",
+  "API keys (stored only in": "API-sleutels (alleen opgeslagen in", "on this PC)": "op deze pc)",
+  "Mood: how Jarvis sounds": "Stemming: hoe Jarvis klinkt", "Memory: what Jarvis remembers": "Geheugen: wat Jarvis onthoudt", "Debug console": "Debugconsole",
+  // server card
+  "Restart": "Herstart", "Changes below are applied by": "Wijzigingen hieronder worden toegepast met", "Save & restart": "Opslaan & herstarten",
+  "(the server reads its settings at start, about 10 s). The robot reconnects by itself.": "(de server leest zijn instellingen bij het starten, ongeveer 10 s). De robot verbindt zelf opnieuw.",
+  "Control panel on your network:": "Bedieningspaneel op je netwerk:", "Copy": "Kopi\u00ebren", "PIN for other devices:": "Pincode voor andere apparaten:", "signed in with the PIN": "aangemeld met de pincode",
+  "Open it on a phone or laptop on the same Wi-Fi and enter the PIN once. This PC itself needs no PIN.": "Open het op een telefoon of laptop op hetzelfde wifi en voer de pincode eenmalig in. Deze pc zelf heeft geen pincode nodig.",
+  "The": "De", "Open Jarvis backend": "Open Jarvis-backend", "button on Jarvis's own page opens this panel without the PIN.": "knop op Jarvis\u2019 eigen pagina opent dit paneel zonder pincode.",
+  "Anyone on your Wi-Fi who can open Jarvis's page can then reach this panel. Untick to always ask for the PIN.": "Iedereen op je wifi die Jarvis\u2019 pagina kan openen, kan dan bij dit paneel. Haal het vinkje weg om altijd om de pincode te vragen.",
+  // usage
+  "\u21bb Refresh": "\u21bb Vernieuwen", "Check Groq limits now": "Groq-limieten nu controleren", "Costs one of Groq's 1,000 free requests a day": "Kost \u00e9\u00e9n van Groqs 1.000 gratis verzoeken per dag",
+  "Preview with sample data": "Voorbeeld met voorbeeldgegevens", "Show real data": "Toon echte gegevens", "SAMPLE DATA - ": "VOORBEELDGEGEVENS - ",
+  "Counts what goes through Jarvis. Tavily and Groq also show their own live numbers, which include everything on those keys. Gemini has no usage API, so its bars compare our counts with your AI Studio limits.": "Telt wat er via Jarvis gaat. Tavily en Groq tonen ook hun eigen live cijfers, waarin alles op die sleutels zit. Gemini heeft geen gebruiks-API, dus de balken vergelijken onze tellingen met je AI Studio-limieten.",
+  "loading\u2026": "laden\u2026", "Press": "Druk op", "Check Groq limits now ": "Groq-limieten nu controleren ",
+  // modules and fields
+  "Ears (speech \u2192 text)": "Oren (spraak \u2192 tekst)", "Brain (LLM)": "Brein (LLM)", "Voice (text \u2192 speech)": "Stem (tekst \u2192 spraak)", "Quick presets:": "Snelle voorinstellingen:",
+  "The robot has no echo cancellation: if it hears itself, raise the speech threshold.": "De robot heeft geen echo-onderdrukking: als hij zichzelf hoort, verhoog dan de spraakdrempel.",
+  "Test brain": "Test brein", "\u21bb Refresh lists": "\u21bb Lijsten vernieuwen", "Ask the providers again which models your keys can use": "Vraag de aanbieders opnieuw welke modellen je sleutels kunnen gebruiken",
+  "Play sample of the selected voice": "Speel een voorbeeld van de gekozen stem af", "Test web search": "Test webzoeken",
+  "Jarvis can search the web for current facts once a Tavily key is saved below. Results with Chinese, Japanese or Korean text are dropped. Costs: each region is one Tavily search.": "Jarvis kan op het web zoeken naar actuele feiten zodra hieronder een Tavily-sleutel is opgeslagen. Resultaten met Chinese, Japanse of Koreaanse tekst worden weggelaten. Kosten: elke regio is \u00e9\u00e9n Tavily-zoekopdracht.",
+  "Next song": "Volgend nummer",
+  "Say \"Jarvis, play something random\", \"play a song by <artist>\" or \"play <song name>\"; \"stop the music\" or \"next song\" to end or change it. Internet radio and podcasts: \"play Radio 538\", \"play jazz radio\", \"play the latest episode of <podcast>\" (a live stream: plays until you stop it, or until the timer set here ends). Only a short clip of each song is played. While it plays, the robot shows the song title under its face and the same speaking visuals as for a voice. Set the folder above, then Save & restart.": "Zeg \"Jarvis, play something random\", \"play a song by <artiest>\" of \"play <titel>\"; \"stop the music\" of \"next song\" om te stoppen of te wisselen. Internetradio en podcasts: \"play Radio 538\", \"play jazz radio\", \"play the latest episode of <podcast>\" (een livestream: speelt tot je stopt, of tot de hier ingestelde timer afloopt). Van elk nummer wordt maar een kort fragment gespeeld. Tijdens het spelen toont de robot de titel onder zijn gezicht en dezelfde visuals als bij spraak. Stel hierboven de map in en kies dan Opslaan & herstarten.",
+  "Test connection": "Test verbinding",
+  "Enter the address and a long-lived access token under API keys below (Home Assistant: your profile, Security, Long-lived access tokens), then Save & restart. Spoken commands like \"turn off the kitchen light\" are then done instantly, without the brain. Kinds in the first box are done at once, kinds in the second only after you say yes, everything else (locks, alarms, garage doors) is refused. Every action is listed here.": "Vul onder API-sleutels hieronder het adres en een langdurige toegangstoken in (Home Assistant: je profiel, Beveiliging, Langdurige toegangstokens) en kies dan Opslaan & herstarten. Gesproken opdrachten zoals \"turn off the kitchen light\" worden dan direct uitgevoerd, zonder het brein. Soorten in het eerste vak gebeuren meteen, soorten in het tweede pas nadat je ja zegt, al het andere (sloten, alarmen, garagedeuren) wordt geweigerd. Elke actie staat hier in de lijst.",
+  "Keys are never shown again after saving; this page only tells you whether one is set.": "Sleutels worden na het opslaan niet meer getoond; deze pagina zegt alleen of er een is ingesteld.",
+  "***   (click to show the saved key)": "***   (klik om de opgeslagen sleutel te tonen)", "paste key here, then Save key": "plak hier de sleutel en kies dan Sleutel opslaan", "Save key": "Sleutel opslaan",
+  "Save without restart": "Opslaan zonder herstart",
+  // mood and memory
+  "Applies at once, no restart. You can also say \"be cheerful\", \"be calm\", \"be serious\", \"be dry\" or \"back to normal\". The mood is a short extra instruction in the prompt and a face on the robot's screen.": "Werkt direct, geen herstart. Je kunt ook zeggen \"be cheerful\", \"be calm\", \"be serious\", \"be dry\" of \"back to normal\". De stemming is een korte extra instructie in de prompt en een gezicht op het scherm van de robot.",
+  "Refresh": "Vernieuwen", "Forget everything": "Alles vergeten",
+  "Short notes the memory module writes after each conversation, kept in the file data/.memory.yaml of the server folder on this PC. They are added to Jarvis's prompt whichever brain answers. Turn memory off under Conversation settings above.": "Korte notities die de geheugenmodule na elk gesprek schrijft, bewaard in het bestand data/.memory.yaml in de servermap op deze pc. Ze worden aan Jarvis\u2019 prompt toegevoegd, welk brein ook antwoordt. Zet het geheugen uit onder de gespreksinstellingen hierboven.",
+  // debug console
+  "Conversation": "Gesprek", "Problems": "Problemen", "Everything": "Alles", "live": "live",
+  "listening (ears)": "luisteren (oren)", "thinking (brain)": "denken (brein)", "speaking (voice)": "praten (stem)", "tools / search": "tools / zoeken", "other": "overig", "show all": "toon alles",
+  "Show only what was heard": "Toon alleen wat is gehoord", "Show only the brain": "Toon alleen het brein", "Show only what was spoken": "Toon alleen wat is gesproken",
+  "Show only tool calls and web search": "Toon alleen toolaanroepen en webzoeken", "Show only the other (uncoloured) lines": "Toon alleen de overige (ongekleurde) regels",
+  "Show every kind of line again": "Toon weer alle soorten regels",
+  "Conversation = what was heard, the brain's answers, voice and tool calls. For every internal message set": "Gesprek = wat is gehoord, de antwoorden van het brein, stem en toolaanroepen. Zet voor elk intern bericht",
+  "Log detail": "Logdetail", "to DEBUG above and Save & restart. The files are in": "hierboven op DEBUG en kies Opslaan & herstarten. De bestanden staan in",
+  "click a colour to show only that kind": "klik op een kleur om alleen die soort te tonen", "showing only the selected kinds": "alleen de geselecteerde soorten worden getoond",
+  // dialog and toasts
+  "Cancel": "Annuleren",
+  "Copy failed - select the text by hand.": "Kopi\u00ebren mislukt - selecteer de tekst met de hand.",
+  "Key saved (needs a restart to apply). Refreshing the model lists...": "Sleutel opgeslagen (herstart nodig om toe te passen). Modellijsten worden vernieuwd...",
+  "Nothing entered.": "Niets ingevoerd.", "That is the key already saved.": "Dat is de sleutel die al is opgeslagen.", "Link copied.": "Link gekopieerd.", "Log copied.": "Log gekopieerd.",
+  "Memory cleared.": "Geheugen gewist.", "Forgotten.": "Vergeten.", "Forget everything Jarvis remembers?": "Alles vergeten wat Jarvis onthoudt?",
+  "Forget what Jarvis remembers for this robot?": "Vergeten wat Jarvis onthoudt voor deze robot?", "Forget": "Vergeten", "Forget all": "Alles vergeten",
+  "Model and voice lists refreshed.": "Model- en stemlijsten vernieuwd.", "Next song asked.": "Volgend nummer gevraagd.", "Stop sent.": "Stop verzonden.",
+  "Saved.": "Opgeslagen.", "Saved (restart the server to apply).": "Opgeslagen (herstart de server om toe te passen).", "Saved. Restarting the server\u2026": "Opgeslagen. De server wordt herstart\u2026",
+  "Stop the server? Jarvis cannot talk or listen until it is started again.": "De server stoppen? Jarvis kan niet praten of luisteren tot hij weer is gestart.", "Stop server": "Stop server",
+  "Turn off": "Uitzetten", "Turn phone alerts off? The topic is forgotten; setting up again makes a new one.": "Telefoonmeldingen uitzetten? Het onderwerp wordt vergeten; opnieuw instellen maakt een nieuwe aan.",
+  "Test sent: it should arrive on the phone in a few seconds.": "Test verzonden: hij hoort over een paar seconden op de telefoon aan te komen.",
+  "The test could not be sent (check the internet connection).": "De test kon niet worden verzonden (controleer de internetverbinding).",
+  "That folder does not exist on this PC.": "Die map bestaat niet op deze pc.", "No folder set yet: music is off.": "Nog geen map ingesteld: muziek staat uit.",
+  "The Jarvis page button now skips the PIN.": "De knop op de Jarvis-pagina slaat de pincode nu over.", "The PIN is now always required.": "De pincode is nu altijd nodig.",
+  "Memory is off (nothing is added to the prompt, nothing new is saved).": "Geheugen staat uit (er wordt niets aan de prompt toegevoegd, niets nieuws opgeslagen).",
+  "Memory is on. Notes per robot:": "Geheugen staat aan. Notities per robot:", "Memory is on. Nothing remembered yet; notes appear after a conversation ends.": "Geheugen staat aan. Nog niets onthouden; notities verschijnen nadat een gesprek is afgelopen.",
+  "Normal: no extra mood instruction.": "Normaal: geen extra stemmingsinstructie.", "the normal Jarvis": "de gewone Jarvis",
+  "Ears changed: the ears fields below belong to the old module until you press Save (they reset to the new module's defaults).": "Oren gewijzigd: de velden hieronder horen bij de oude module tot je op Opslaan drukt (ze worden teruggezet naar de standaardwaarden van de nieuwe module).",
+  // statuses
+  "Online": "Online", "Not answering": "Antwoordt niet", "asleep, napping off Wi-Fi, or out of range": "slaapt, dutje zonder wifi, of buiten bereik",
+  "panel offline": "paneel offline", "server starting\u2026": "server start\u2026", "server stopped": "server gestopt", "servers running": "servers actief",
+  "not running (not needed now)": "niet actief (nu niet nodig)", "not set": "niet ingesteld", "set \u00b7 checking\u2026": "ingesteld \u00b7 controleren\u2026", "set \u00b7 could not check": "ingesteld \u00b7 kon niet controleren",
+  "set": "ingesteld", "limit unknown": "limiet onbekend", "no limit set": "geen limiet ingesteld", "no data": "geen gegevens", "no failures": "geen fouten", "no reply": "geen antwoord",
+  "not checked yet": "nog niet gecontroleerd", "not reported": "niet gemeld", "(default)": "(standaard)", "(empty)": "(leeg)", "(local model)": "(lokaal model)", "just now": "zojuist",
+  "collecting\u2026": "verzamelen\u2026", "synthesising\u2026": "synthetiseren\u2026", "asking the brain\u2026": "brein vragen\u2026", "asking Home Assistant\u2026": "Home Assistant vragen\u2026",
+  "asking Tavily\u2026": "Tavily vragen\u2026", "requested\u2026": "aangevraagd\u2026", "(current)": "(huidig)", "(backup)": "(reserve)", " - type the value instead": " - typ in plaats daarvan de waarde",
+  "days": "dagen", "lines": "regels", "min ago": "min geleden", "voices": "stemmen", "\u00b7 no key needed": "\u00b7 geen sleutel nodig", "\u00b7 nothing playing": "\u00b7 er speelt niets",
+  "\u00b7 the robot does not answer": "\u00b7 de robot antwoordt niet", "\u00b7 your voice choice is kept": "\u00b7 je stemkeuze blijft behouden", "too loud": "te hard",
+  "key set: web search is on after Save & restart": "sleutel ingesteld: webzoeken staat aan na Opslaan & herstarten", "no key yet: web search is off": "nog geen sleutel: webzoeken staat uit",
+  "Open items": "Openstaande punten", "Preferences": "Voorkeuren", "Set up phone alerts": "Telefoonmeldingen instellen", "Show topic": "Toon onderwerp", "Send a test": "Verstuur een test", "Download": "Downloaden",
+  "Open AI Studio usage \u2197": "Open AI Studio-gebruik \u2197", "last 14 days": "laatste 14 dagen", "(nothing here yet)": "(hier staat nog niets)",
+  "Nothing recorded yet. Talk to Jarvis and it shows up here.": "Nog niets opgenomen. Praat met Jarvis en het verschijnt hier.",
+  "Selected, but nothing recorded yet. Talk to Jarvis and it shows up here.": "Geselecteerd, maar nog niets opgenomen. Praat met Jarvis en het verschijnt hier.",
+  "No readings yet. This panel looks at the robot once a minute while it runs.": "Nog geen metingen. Dit paneel kijkt elke minuut naar de robot zolang het draait.",
+  "No other restarts seen.": "Geen andere herstarts gezien.", "DOWN": "UIT",
+  "24 hours": "24 uur", "7 days": "7 dagen",
+  // server-provided: parameter labels and hints
+  "Language hint": "Taalhint", "nl, en ... (empty = auto-detect)": "nl, en ... (leeg = automatisch herkennen)", "Cloud model": "Cloudmodel", "only for cloud ears, e.g. whisper-large-v3-turbo": "alleen voor cloud-oren, bijv. whisper-large-v3-turbo",
+  "Speech threshold": "Spraakdrempel", "0.1-0.9, higher = ignores more noise": "0,1-0,9, hoger = negeert meer ruis", "Low threshold": "Lage drempel", "0.1-0.9, end-of-speech sensitivity": "0,1-0,9, gevoeligheid voor het einde van spraak",
+  "End-of-speech pause (ms)": "Pauze aan het einde van spraak (ms)", "longer = waits more before answering": "langer = wacht langer voordat hij antwoordt",
+  "Vision model (camera)": "Visiemodel (camera)", "the model that looks at photos; must accept images": "het model dat naar foto\u2019s kijkt; moet afbeeldingen accepteren",
+  "Model name": "Modelnaam", "the models your key can use; changes when you pick another Brain above": "de modellen die je sleutel kan gebruiken; verandert als je hierboven een ander brein kiest",
+  "Briefing topics": "Briefingonderwerpen", "what the daily briefing (\"good morning\") looks for in the news, plus the weather; e.g. networking, data centers, IT infrastructure. Empty = general top news": "waar de dagelijkse briefing (\"good morning\") in het nieuws naar zoekt, plus het weer; bijv. netwerken, datacenters, IT-infrastructuur. Leeg = algemeen topnieuws",
+  "Instant commands": "Directe commando\u2019s", "on: short commands (stop, volume, time, timers, moves, moods, explore, briefing) are done before the brain: instant, no tokens, work with no brain at all": "aan: korte commando\u2019s (stop, volume, tijd, timers, bewegingen, stemmingen, verkennen, briefing) worden v\u00f3\u00f3r het brein uitgevoerd: direct, geen tokens, werkt zelfs zonder brein",
+  "Memory": "Geheugen", "on: Jarvis keeps short notes about the people it talks to (a file on this PC, see the Memory card); off: it forgets everything after each conversation": "aan: Jarvis bewaart korte notities over de mensen met wie hij praat (een bestand op deze pc, zie de kaart Geheugen); uit: hij vergeet alles na elk gesprek",
+  "Fallback brain": "Reservebrein", "answers when the main brain fails (quota used up, overloaded, too slow); auto = the other brain whose key is set": "antwoordt als het hoofdbrein faalt (quotum op, overbelast, te traag); auto = het andere brein waarvan de sleutel is ingesteld",
+  "Music folder": "Muziekmap", "the folder with your songs (mp3, m4a, flac ...), sub-folders are searched too: music = the music folder in this project, or a full path, e.g. D:\\Music. Empty = no music": "de map met je nummers (mp3, m4a, flac ...), submappen worden ook doorzocht: music = de muziekmap in dit project, of een volledig pad, bijv. D:\\Music. Leeg = geen muziek",
+  "Seconds per song": "Seconden per nummer", "how much of a song is played (10-180)": "hoeveel van een nummer wordt gespeeld (10-180)",
+  "Radio and podcasts stop after (minutes)": "Radio en podcasts stoppen na (minuten)", "0 = an internet radio station or podcast plays until you stop it (voice, landing page, app or panel); a number of minutes adds a timer": "0 = een internetradiostation of podcast speelt tot je stopt (stem, landingspagina, app of paneel); een aantal minuten voegt een timer toe",
+  "Radio: home country": "Radio: thuisland", "two-letter country code (NL, BE, DE, GB, US ...): stations of this country come first when you ask for \"jazz radio\" or a name several stations share": "landcode van twee letters (NL, BE, DE, GB, US ...): stations uit dit land komen eerst als je om \"jazz radio\" vraagt of een naam die meerdere stations delen",
+  "Start in the song": "Start in het nummer", "auto = from 20% into the song (past the intro), 0 = from the start, or a number of seconds": "auto = vanaf 20% in het nummer (voorbij de intro), 0 = vanaf het begin, of een aantal seconden",
+  "Home Assistant: done at once": "Home Assistant: direct uitgevoerd", "kinds of Home Assistant things Jarvis may switch straight away, comma separated (light, switch, fan, scene, script, climate, input_boolean ...)": "soorten Home Assistant-dingen die Jarvis meteen mag schakelen, gescheiden door komma\u2019s (light, switch, fan, scene, script, climate, input_boolean ...)",
+  "Home Assistant: ask first": "Home Assistant: eerst vragen", "kinds Jarvis only does after you say yes (cover = blinds and curtains). Anything not listed in either box is refused": "soorten die Jarvis pas doet nadat je ja zegt (cover = jaloezie\u00ebn en gordijnen). Alles wat in geen van beide vakken staat, wordt geweigerd",
+  "Temperature": "Temperatuur", "0 = factual, 1 = creative": "0 = feitelijk, 1 = creatief", "Max answer length (tokens)": "Maximale antwoordlengte (tokens)", "short answers are faster to speak": "korte antwoorden worden sneller uitgesproken",
+  "Voice": "Stem", "e.g. en-GB-RyanNeural, nl-NL-MaartenNeural": "bijv. en-GB-RyanNeural, nl-NL-MaartenNeural", "Reply language": "Antwoordtaal", "the language the brain is told to answer in (English, Dutch ...); must match the voice": "de taal waarin het brein moet antwoorden (Engels, Nederlands ...); moet bij de stem passen",
+  "Speaking speed (%)": "Spreeksnelheid (%)", "-50 slower ... +50 faster": "-50 langzamer ... +50 sneller", "Pitch (Hz)": "Toonhoogte (Hz)",
+  "INFO, or DEBUG to see every message in the debug console": "INFO, of DEBUG om elk bericht in de debugconsole te zien",
+  "Search level": "Zoekniveau", "basic = fast, 1 Tavily credit per search; advanced = deeper and slower, 2 credits": "basic = snel, 1 Tavily-credit per zoekopdracht; advanced = dieper en trager, 2 credits",
+  "Regions to search": "Te doorzoeken regio\u2019s", "one search per region, run together; more regions = more credits": "\u00e9\u00e9n zoekopdracht per regio, tegelijk uitgevoerd; meer regio\u2019s = meer credits",
+  "Results per search": "Resultaten per zoekopdracht", "more results = more tokens for the brain": "meer resultaten = meer tokens voor het brein",
+  "Hang up after silence (s)": "Ophangen na stilte (s)", "conversation ends after this long": "het gesprek eindigt na zoveel tijd",
+  "Personality / instructions": "Persoonlijkheid / instructies", "the system prompt of the brain": "de systeemprompt van het brein",
+  "No region preference (one search)": "Geen regiovoorkeur (\u00e9\u00e9n zoekopdracht)", "US + Europe (NL, DE, FR, UK) - 5 searches": "VS + Europa (NL, DE, FR, UK) - 5 zoekopdrachten",
+  "advanced (deeper, slower, 2 credits)": "advanced (dieper, trager, 2 credits)", "basic (fast, 1 credit)": "basic (snel, 1 credit)", "auto (the other brain)": "auto (het andere brein)",
+  "off (the brain handles everything)": "uit (het brein regelt alles)", "tuned": "aangepast",
+  "Free tier. The daily limit is what guides report; check it in the Cerebras console (cloud.cerebras.ai).": "Gratis niveau. De daglimiet is wat gidsen melden; controleer die in de Cerebras-console (cloud.cerebras.ai).",
+  "Paid per use. The cost is an estimate: tokens counted by Jarvis x the price in profiles\\limits.yaml (section prices); your Anthropic console is the real bill.": "Betaald per gebruik. De kosten zijn een schatting: door Jarvis getelde tokens x de prijs in profiles\\limits.yaml (sectie prices); je Anthropic-console toont de echte rekening.",
+  // key rows
+  "Groq key": "Groq-sleutel", "Gemini key": "Gemini-sleutel", "Tavily key (web search)": "Tavily-sleutel (webzoeken)", "Cerebras key (optional 3rd brain)": "Cerebras-sleutel (optioneel 3e brein)",
+  "Anthropic key (optional, Claude Haiku, paid)": "Anthropic-sleutel (optioneel, Claude Haiku, betaald)", "Home Assistant address (like http://100.x.x.x:8123)": "Home Assistant-adres (zoals http://100.x.x.x:8123)",
+  "Home Assistant token (long-lived access token)": "Home Assistant-token (langdurige toegangstoken)",
+  // module descriptions (the hints under the module choices)
+  "EARS (with local Whisper as fallback when Groq fails): any language, auto-detected by Groq Whisper (no language hint). Needs groq_api_key.": "OREN (met lokale Whisper als terugval als Groq faalt): elke taal, automatisch herkend door Groq Whisper (geen taalhint). Heeft groq_api_key nodig.",
+  "EARS: English, fully local (SenseVoice int8 via sherpa-onnx). Free, no key, no internet, ~1 s per sentence.": "OREN: Engels, volledig lokaal (SenseVoice int8 via sherpa-onnx). Gratis, geen sleutel, geen internet, ~1 s per zin.",
+  "EARS (with local Whisper as fallback when Groq fails): Dutch (or any language), cloud: Groq Whisper large-v3-turbo. Free tier, needs groq_api_key.": "OREN (met lokale Whisper als terugval als Groq faalt): Nederlands (of elke taal), cloud: Groq Whisper large-v3-turbo. Gratis niveau, heeft groq_api_key nodig.",
+  "BRAIN: Cerebras (OpenAI-compatible endpoint), model gpt-oss-120b, the same model as the Groq brain but on Cerebras' own very fast chips.": "BREIN: Cerebras (OpenAI-compatibel eindpunt), model gpt-oss-120b, hetzelfde model als het Groq-brein maar op Cerebras\u2019 eigen razendsnelle chips.",
+  "BRAIN: Claude Haiku 5.5 (Anthropic), through Anthropic's OpenAI-compatible endpoint. PAID: about $0.10 per million input and $0.50 per million output tokens": "BREIN: Claude Haiku 5.5 (Anthropic), via Anthropics OpenAI-compatibele eindpunt. BETAALD: ongeveer $0,10 per miljoen invoer- en $0,50 per miljoen uitvoertokens",
+  "BRAIN: Groq (OpenAI-compatible endpoint), model openai/gpt-oss-120b. Free tier, fast (~0.5 s). Needs groq_api_key.": "BREIN: Groq (OpenAI-compatibel eindpunt), model openai/gpt-oss-120b. Gratis niveau, snel (~0,5 s). Heeft groq_api_key nodig.",
+  "VOICE: Edge (Microsoft, needs internet), Dutch. Replies in Dutch; the spoken \"sorry\" and goodbye lines are Dutch. Starts with the voice Maarten (pick any voice in the Voice card).": "STEM: Edge (Microsoft, heeft internet nodig), Nederlands. Antwoordt in het Nederlands; de gesproken \"sorry\"- en afscheidszinnen zijn Nederlands. Begint met de stem Maarten (kies een willekeurige stem op de kaart Stem).",
+  "VOICE: Edge (Microsoft, needs internet), English. Replies in English; the spoken \"sorry\" and goodbye lines are English. Starts with the British voice Ryan (pick any voice in the Voice card).": "STEM: Edge (Microsoft, heeft internet nodig), Engels. Antwoordt in het Engels; de gesproken \"sorry\"- en afscheidszinnen zijn Engels. Begint met de Britse stem Ryan (kies een willekeurige stem op de kaart Stem).",
+  "VOICE: Dutch, local Piper voice Pim (Netherlands, male). Free, no internet, ~0.25 s per sentence. Replies in Dutch.": "STEM: Nederlands, lokale Piper-stem Pim (Nederland, man). Gratis, geen internet, ~0,25 s per zin. Antwoordt in het Nederlands.",
+  "VOICE: Dutch, local Piper voice Ronnie (Netherlands, male). Free, no internet, ~0.25 s per sentence. Replies in Dutch.": "STEM: Nederlands, lokale Piper-stem Ronnie (Nederland, man). Gratis, geen internet, ~0,25 s per zin. Antwoordt in het Nederlands.",
+  "VOICE: Dutch, local Piper voice Nathalie (Flemish, female). Free, no internet, ~0.25 s per sentence. Replies in Dutch. Other local Dutch voices: Pim and Ronnie (male).": "STEM: Nederlands, lokale Piper-stem Nathalie (Vlaams, vrouw). Gratis, geen internet, ~0,25 s per zin. Antwoordt in het Nederlands. Andere lokale Nederlandse stemmen: Pim en Ronnie (man).",
+  "VOICE: English, local Piper (free, no internet, ~0.3 s per sentence). Replies in English. Starts with the British male Alan.": "STEM: Engels, lokale Piper (gratis, geen internet, ~0,3 s per zin). Antwoordt in het Engels. Begint met de Britse man Alan.",
+  "Brain failovers, 24 h:": "Brein-terugvallen, 24 u:",
+"Config saved: needs reboot to apply": "Config opgeslagen: herstart nodig om toe te passen", "Config changes made: needs save/reboot": "Config gewijzigd: opslaan/herstarten nodig",
+  "Used up": "Op", "Almost used up": "Bijna op", "Getting full": "Raakt vol",
+  "requests today": "verzoeken vandaag", "tokens today": "tokens vandaag", "requests this minute": "verzoeken deze minuut", "tokens this minute": "tokens deze minuut",
+  "Requests today": "Verzoeken vandaag", "Tokens this minute": "Tokens deze minuut",
+  "Tavily · web search": "Tavily · webzoeken", "Credits this billing cycle": "Credits in deze factureringsperiode", "Gemini · brain and camera": "Gemini · brein en camera",
+  "Groq · brain": "Groq · brein", "Cerebras · brain": "Cerebras · brein", "Claude · brain (paid)": "Claude · brein (betaald)",
+  "Credits per day, last 14 days (Jarvis searches; basic = 1 credit, advanced = 2, per region)": "Credits per dag, laatste 14 dagen (Jarvis-zoekopdrachten; basic = 1 credit, advanced = 2, per regio)",
+  "Requests per day, last 14 days (through Jarvis). Limits are from your AI Studio Rate limit page (profiles\\limits.yaml).": "Verzoeken per dag, laatste 14 dagen (via Jarvis). Limieten komen van je AI Studio-pagina met snelheidslimieten (profiles\\limits.yaml).",
+  "Tokens per day, last 14 days (through Jarvis)": "Tokens per dag, laatste 14 dagen (via Jarvis)",
+  "tokens, estimated in use": "tokens, geschat in gebruik", "requests, last 24 h": "verzoeken, laatste 24 u", "tokens, last 24 h": "tokens, laatste 24 u",
+  "estimate, not yet checked against a Groq refusal": "schatting, nog niet gecontroleerd aan een Groq-weigering",
+  "Groq's daily token allowance refills gradually, so a plain 24-hour sum overstates it. This estimate removes what has refilled since each call, and is reset to Groq's own figure whenever Groq refuses a call.": "Groqs dagelijkse tokenruimte wordt geleidelijk aangevuld, dus een gewone 24-uurssom overschat hem. Deze schatting haalt weg wat sinds elke aanroep is aangevuld en wordt teruggezet naar Groqs eigen cijfer zodra Groq een aanroep weigert.",
+  "Where the time goes, for a typical answer from the brain": "Waar de tijd naartoe gaat, voor een typisch antwoord van het brein", "Click to switch between packets per second and Mbit/s": "Klik om te wisselen tussen pakketten per seconde en Mbit/s",
+  "instant commands": "directe commando’s", "typical total": "typisch totaal", "slowest 10%": "traagste 10%", "Brain answers": "Antwoorden van het brein", "Latest turns": "Laatste beurten",
+  "Measured on this PC from the moment the end of your sentence is detected to the first sound leaving for the robot. The short wait for the end of speech and the trip over the Wi-Fi are not included. Green under 2.5 s, amber under 4.5 s.": "Gemeten op deze pc vanaf het moment dat het einde van je zin wordt gedetecteerd tot het eerste geluid naar de robot gaat. De korte wachttijd voor het einde van de spraak en de reis over het wifi zijn niet inbegrepen. Groen onder 2,5 s, oranje onder 4,5 s.",
+  "No spoken turns recorded in this period yet. Each time you talk to Jarvis, the time from the end of your sentence to the first sound shows up here.": "In deze periode zijn nog geen gesproken beurten opgenomen. Elke keer dat je met Jarvis praat, verschijnt hier de tijd van het einde van je zin tot het eerste geluid.",
+  "nothing counted yet: it starts with the next conversation": "nog niets geteld: het begint met het volgende gesprek", "wake-ups (wake word heard)": "wekmomenten (wekwoord gehoord)",
+  "conversations cut off (the connection broke)": "gesprekken afgebroken (de verbinding viel weg)", "Wi-Fi drops reported by the robot": "Wifi-uitvallers gemeld door de robot",
+  "Fallbacks: a backup that took over": "Terugvallen: een reserve die het overnam",
+  "Voice: Edge failed, Piper spoke": "Stem: Edge faalde, Piper sprak", "Voice: Piper failed, Edge spoke": "Stem: Piper faalde, Edge sprak", "Ears: cloud failed, local Whisper": "Oren: cloud faalde, lokale Whisper",
+  "Brain: backup brain answered": "Brein: reservebrein antwoordde", "Camera: backup model answered": "Camera: reservemodel antwoordde", "Camera: no answer in time": "Camera: geen antwoord op tijd",
+  "answers from a backup brain (": "antwoorden van een reservebrein (",
+  "of the last 24 h it answered": "van de laatste 24 u dat hij antwoordde", "restarts in 24 h (sleep wake-ups count)": "herstarts in 24 u (slaap-wakkerwordingen tellen mee)",
+  "Microphone, last minute: peak": "Microfoon, laatste minuut: piek", "-3 · too loud": "-3 · te hard",
+  "Wi-Fi signal and ping, last 24 h": "Wifi-signaal en ping, laatste 24 u", "signal (dBm), higher is better": "signaal (dBm), hoger is beter", "ping server ↔ robot (s, right)": "ping server ↔ robot (s, rechts)",
+  "Largest free memory block, last 24 h": "Grootste vrije geheugenblok, laatste 24 u", "free block (KB), below 20 is trouble": "vrij blok (KB), onder 20 is een probleem",
+  "USB reset": "USB-reset", "Power on": "Inschakelen", "Software reset": "Software-reset", "Watchdog reset": "Watchdog-reset", "Brownout": "Spanningsdip", "Panic": "Paniek",
+  "Server: voice link (websocket)": "Server: spraakverbinding (websocket)", "Server: setup and photos (OTA, vision)": "Server: installatie en foto’s (OTA, vision)", "Piper voice": "Piper-stem",
+  "Local Whisper ears (fallback)": "Lokale Whisper-oren (terugval)", "Control panel": "Bedieningspaneel", "running": "actief", "stopped": "gestopt",
+  "this PC: processor": "deze pc: processor", "free on this drive": "vrij op deze schijf", "this PC: memory": "deze pc: geheugen",
+  "Server watchdog": "Server-waakhond", "looks every 15 s; restarts the server when it is down or stops answering (at most 3 times in 15 minutes)": "kijkt elke 15 s; herstart de server als die uitvalt of niet meer antwoordt (maximaal 3 keer in 15 minuten)",
+  "Phone alerts": "Telefoonmeldingen", "not set up: events are only written to the list below": "niet ingesteld: gebeurtenissen worden alleen in de lijst hieronder geschreven",
+  "the server was down: restarted": "de server lag eruit: herstart", "the server was not answering: restarted": "de server antwoordde niet: herstart", "phone alerts set up": "telefoonmeldingen ingesteld",
+  "server crashed / restarted": "server gecrasht / herstart",
+  "Piper voices run on this PC (free, no internet); Edge voices come from Microsoft (internet). Pick either: the voice profile follows.": "Piper-stemmen draaien op deze pc (gratis, geen internet); Edge-stemmen komen van Microsoft (internet). Kies er een: het stemprofiel volgt.",
+  "off (no fallback)": "uit (geen reserve)", "on (instant)": "aan (direct)", "on (remember)": "aan (onthouden)", "off (no memory)": "uit (geen geheugen)",
+  "US + Netherlands": "VS + Nederland", "United States only": "Alleen Verenigde Staten", "Netherlands only": "Alleen Nederland",
+  "Dutch": "Nederlands", "English": "Engels", "German": "Duits", "French": "Frans", "Spanish": "Spaans", "Italian": "Italiaans", "Portuguese": "Portugees", "Polish": "Pools", "Swedish": "Zweeds",
+  "Turkish": "Turks", "Chinese": "Chinees", "Japanese": "Japans", "Korean": "Koreaans",
+  "Normal": "Normaal", "Cheerful": "Vrolijk", "Calm": "Rustig", "Serious": "Serieus", "Dry wit": "Droge humor",
+  "Mood: cheerful and playful. Warm, upbeat, a little silly, still short.": "Stemming: vrolijk en speels. Warm, opgewekt, een beetje gek, maar nog steeds kort.",
+  "Mood: calm and gentle. Soft, soothing wording, no jokes, no exclamation marks.": "Stemming: rustig en zacht. Zachte, kalmerende woorden, geen grapjes, geen uitroeptekens.",
+  "Mood: serious and precise. Direct answers, no jokes, no filler.": "Stemming: serieus en precies. Directe antwoorden, geen grapjes, geen opvulling.",
+  "Mood: dry wit. Deadpan, understated humour, still helpful and short.": "Stemming: droge humor. Deadpan, ingehouden humor, maar nog steeds behulpzaam en kort.",
+  "Forget this robot": "Deze robot vergeten", "works": "werkt", "Home Assistant found at this address": "Home Assistant gevonden op dit adres",
+  "Anyone who knows the topic can read the alerts, so keep it private.": "Iedereen die het onderwerp kent, kan de meldingen lezen, dus houd het privé.",
+  "fine": "prima", "loud": "hard", "clipping": "afgekapt",
+  "BRAIN: Google Gemini, model gemini-3-flash-preview (measured 2026-10-23 with a 3k-token prompt and tools: first word after 1.2-1.6 s every time). Paid prepaid credits via Google AI Studio (no training on the data).": "BREIN: Google Gemini, model gemini-3-flash-preview (gemeten op 23-10-2026 met een prompt van 3k tokens en tools: eerste woord na 1,2-1,6 s, elke keer). Betaald met vooruitbetaalde credits via Google AI Studio (geen training op de gegevens).",
+  "PIN for other devices:": "Pincode voor andere apparaten:",
+  "could not load usage": "kon het gebruik niet laden", "the saved voice": "de opgeslagen stem"
+};
+  var RULES = [
+  [/^brain: ([\s\S]+)$/, function (r) { return "brein: " + r[1].replace(/ \(backup\)$/, " (reserve)"); }],
+  [/^The main brain \((.*)\) failed(?: \((.*)\))?, so a backup answered the last question$/, function (r) { return "Het hoofdbrein (" + r[1] + ") faalde" + (r[2] ? " (" + r[2] + ")" : "") + ", dus een reserve beantwoordde de laatste vraag"; }],
+  [/^Robot connects to ([\s\S]+)$/, function (r) { return "Robot verbindt met " + r[1]; }],
+  [/^Nothing found for "([\s\S]*)"\. Try another word\.$/, function (r) { return "Niets gevonden voor \"" + r[1] + "\". Probeer een ander woord."; }],
+  [/^Not saved: ([\s\S]+)$/, function (r) { return "Niet opgeslagen: " + r[1]; }],
+  [/^Failed: ([\s\S]*)$/, function (r) { return "Mislukt: " + r[1]; }],
+  [/^FAILED: ([\s\S]*)$/, function (r) { return "MISLUKT: " + r[1]; }],
+  [/^error: ([\s\S]*)$/, function (r) { return "fout: " + r[1]; }],
+  [/^Mood changed: ([\s\S]*)$/, function (r) { return "Stemming gewijzigd: " + r[1]; }],
+  [/^(\d+) songs in the folder$/, function (r) { return r[1] + " nummers in de map"; }],
+  [/^OK in (\d+) ms: ([\s\S]*)$/, function (r) { return "OK in " + r[1] + " ms: " + r[2]; }],
+  [/^updated ([\s\S]*)$/, function (r) { return "bijgewerkt " + r[1]; }],
+[/^(\S+) \((Female|Male)\)$/, function (r) { return r[1] + " (" + (r[2] === "Female" ? "vrouw" : "man") + ")"; }],
+  [/^live ([\s\S]+)$/, function (r) { return "live " + tr(r[1]); }],
+  [/^(\d+) failed$/, function (r) { return r[1] + " mislukt"; }],
+  [/^(\d+) of (\d+)$/, function (r) { return r[1] + " van " + r[2]; }],
+  [/^\) · last failure ([\s\S]+)$/, function (r) { return ") · laatste fout " + r[1]; }],
+  [/^(\w+) (\S+): (\d+)% of the free (requests today|requests this minute|tokens today|tokens this minute) \((.+?)\)( - this is the active brain; the fallback brain answers when it runs out)?$/,
+    function (r) { return r[1] + " " + r[2] + ": " + r[3] + "% van de gratis " + tr(r[4]) + " (" + r[5] + ")" + (r[6] ? " - dit is het actieve brein; het reservebrein antwoordt als het op is" : ""); }],
+  [/^Tavily web search: (\d+)% of this month's credits \((.+?)\)$/, function (r) { return "Tavily-webzoeken: " + r[1] + "% van de credits van deze maand (" + r[2] + ")"; }],
+  [/^credits used by Jarvis today · (\d+) search(?:es)?$/, function (r) { return "credits vandaag door Jarvis gebruikt · " + r[1] + (r[1] === "1" ? " zoekopdracht" : " zoekopdrachten"); }],
+  [/^(\d\d-\d\d) \(today\)$/, function (r) { return r[1] + " (vandaag)"; }],
+  [/^(\d+) requests today$/, function (r) { return r[1] + " verzoeken vandaag"; }],
+  [/^(\d+) requests in 24 h$/, function (r) { return r[1] + " verzoeken in 24 u"; }],
+  [/^tokens today · (\d+) requests \(day = midnight Pacific\)$/, function (r) { return "tokens vandaag · " + r[1] + " verzoeken (dag = middernacht Pacific)"; }],
+  [/^tokens in the last 24 h · (\d+) requests$/, function (r) { return "tokens in de laatste 24 u · " + r[1] + " verzoeken"; }],
+  [/^sent in the last 24 h: (.+?) · refills about (.+?) an hour · ([\s\S]+)$/, function (r) { return "verzonden in de laatste 24 u: " + r[1] + " · vult ongeveer " + r[2] + " per uur aan · " + tr(r[3]); }],
+  [/^Tokens per day, last 14 days\. ([\s\S]+)$/, function (r) { return "Tokens per dag, laatste 14 dagen. " + tr(r[1]); }],
+  [/^typical answer from the brain \(median of (\d+)\)$/, function (r) { return "typisch antwoord van het brein (mediaan van " + r[1] + ")"; }],
+  [/^typical reply \(median of (\d+)\)$/, function (r) { return "typisch antwoord (mediaan van " + r[1] + ")"; }],
+  [/^hearing you: (.+)$/, function (r) { return "jou horen: " + r[1]; }],
+  [/^thinking, first word: (.+)$/, function (r) { return "denken, eerste woord: " + r[1]; }],
+  [/^voice, first sound: (.+)$/, function (r) { return "stem, eerste geluid: " + r[1]; }],
+  [/^counting since (.+)$/, function (r) { return "telt sinds " + r[1]; }],
+  [/^conversations · (\d+) sentences heard$/, function (r) { return "gesprekken · " + r[1] + " zinnen gehoord"; }],
+  [/^false wakes: woke but heard nothing \((.+)\)$/, function (r) { return "valse wekkers: werd wakker maar hoorde niets (" + r[1] + ")"; }],
+  [/^Wi-Fi now · 24 h average (.+), worst (.+)$/, function (r) { return "Wifi nu · gemiddelde over 24 u " + r[1] + ", slechtst " + r[2]; }],
+  [/^largest free block now · lowest in 24 h (.+)$/, function (r) { return "grootste vrije blok nu · laagste in 24 u " + r[1]; }],
+  [/^free PSRAM · free RAM (.+)$/, function (r) { return "vrij PSRAM · vrij RAM " + r[1]; }],
+  [/^chip temperature now · 24 h (.+?) to (.+?) °C \(the die runs warmer than the room\)$/, function (r) { return "chiptemperatuur nu · 24 u " + r[1] + " tot " + r[2] + " °C (de chip draait warmer dan de kamer)"; }],
+  [/^Wi-Fi drops in 24 h · (\d+) since its last restart$/, function (r) { return "Wifi-uitvallers in 24 u · " + r[1] + " sinds de laatste herstart"; }],
+  [/^\((fine|loud|too loud|clipping)\) · (\d+) samples? clipped$/, function (r) { return "(" + tr(r[1]) + ") · " + r[2] + (r[2] === "1" ? " sample" : " samples") + " afgekapt"; }],
+  [/^24 h: (\d+) min clipping, (\d+) min too loud$/, function (r) { return "24 u: " + r[1] + " min afgekapt, " + r[2] + " min te hard"; }],
+  [/^Wi-Fi traffic of the robot \(Tx sent, Rx received\)(?: · since start: sent (.+?) packets, (.+?) MB · received (.+?) packets, (.+?) MB)?$/,
+    function (r) { return "Wifi-verkeer van de robot (Tx verzonden, Rx ontvangen)" + (r[1] ? " · sinds start: verzonden " + r[1] + " pakketten, " + r[2] + " MB · ontvangen " + r[3] + " pakketten, " + r[4] + " MB" : ""); }],
+  [/^since (.+)$/, function (r) { return "sinds " + r[1]; }],
+  [/^· up (.+)$/, function (r) { return "· looptijd " + r[1].replace(" · napping", " · dutje").replace(" · on USB", " · op USB").replace(" · on battery", " · op batterij"); }],
+  [/^Latest restart: ([\s\S]*?) ·\s*$/, function (r) { return "Laatste herstart: " + r[1] + " ·"; }],
+  [/^· (\d+) seen in the last days, click for the list$/, function (r) { return "· " + r[1] + " gezien in de afgelopen dagen, klik voor de lijst"; }],
+  [/^(.+?) · restarted after (.+?) away · (?:reason: (.+?)|reason not reported by this firmware)( · [\s\S]*)?$/, function (r) { return r[1] + " · herstart na " + r[2] + " weg · " + (r[3] ? "reden: " + tr(r[3]) : "reden niet gemeld door deze firmware") + (r[4] ? r[4].replace(" · napping", " · dutje") : ""); }],
+  [/^port (\d+)$/, function (r) { return "poort " + r[1]; }],
+  [/^port (\d+) · only used with a Piper voice$/, function (r) { return "poort " + r[1] + " · alleen gebruikt met een Piper-stem"; }],
+  [/^port (\d+) · only used with the cloud ears$/, function (r) { return "poort " + r[1] + " · alleen gebruikt met de cloud-oren"; }],
+  [/^running · (\d+) MB$/, function (r) { return "actief · " + r[1] + " MB"; }],
+  [/^memory in use \((.+) free\)$/, function (r) { return "geheugen in gebruik (" + r[1] + " vrij)"; }],
+  [/^Phone app (\S+)( · [\s\S]*)?$/, function (r) { return "Telefoon-app " + r[1] + (r[2] || ""); }],
+  [/^(\S+ MB) · open this panel on the phone \(PIN is in the app's Backend card\), then tap Download and install$/, function (r) { return r[1] + " · open dit paneel op de telefoon (de pincode staat op de Backend-kaart van de app), tik dan op Downloaden en installeer"; }],
+  [/^watching · (\d+) restarts? in 24 h$/, function (r) { return "bewaakt · " + r[1] + " herstart" + (r[1] === "1" ? "" : "s") + " in 24 u"; }],
+  [/^through ntfy \((.+)\)$/, function (r) { return "via ntfy (" + r[1] + ")"; }],
+  [/^(\d+) songs in the folder(?: · (nothing playing|playing: [\s\S]+))?$/, function (r) { return r[1] + " nummers in de map" + (r[2] ? " · " + (r[2] === "nothing playing" ? "er speelt niets" : "speelt: " + r[2].slice(9)) : ""); }],
+  [/^Latest action: ([\s\S]+)$/, function (r) { return "Laatste actie: " + r[1].replace(/ · done( · |$)/, " · klaar$1").replace(/(\d+) more, click for the list/, "$1 meer, klik voor de lijst"); }],
+  [/^([A-Za-z]{3} [\d:]+ [AP]M · \S+ · \S+) · done$/, function (r) { return r[1] + " · klaar"; }],
+  [/^robot ([\s\S]+)$/, function (r) { return "robot " + r[1]; }],
+  [/^(\d+) lines$/, function (r) { return r[1] + " regels"; }],
+  [/^Voice profile switched to (\S+) to match the language \((.+)\)\.$/, function (r) { return "Stemprofiel gewisseld naar " + r[1] + " passend bij de taal (" + tr(r[2]) + ")."; }],
+  [/^([\s\S]+?) · needs key: ([\s\S]+)$/, function (r) { return tr(r[1]) + " · heeft sleutel nodig: " + r[2]; }],
+  [/^([\s\S]+?) · no key needed$/, function (r) { return tr(r[1]) + " · geen sleutel nodig"; }],
+  [/^([\s\S]+?) - type the value instead$/, function (r) { return tr(r[1]) + " - typ in plaats daarvan de waarde"; }],
+  [/^(.+?) · (the server was down: restarted|the server was not answering: restarted|phone alerts set up)$/, function (r) { return r[1] + " · " + tr(r[2]); }],
+  [/^Last 24 h: [\s\S]+$/, function (r) { return r[0].replace("Last 24 h:", "Laatste 24 u:").replace(" requests,", " verzoeken,").replace(" failed attempts,", " mislukte pogingen,").replace(" answered by a backup brain.", " beantwoord door een reservebrein.").replace("Reasons:", "Redenen:").replace("Last 28 days:", "Laatste 28 dagen:").replace(" answered by a backup.", " beantwoord door een reserve.").replace("Memory notes (24 h):", "Geheugennotities (24 u):"); }],
+  [/^([^\s·]+ [\d:]+(?: [AP]M)?) · (\w+\.\w+) · ([\w.]*) · done$/, function (r) { return r[1] + " · " + r[2] + " · " + r[3] + " · klaar"; }],
+  [/^· ([\s\S]+)$/, function (r) { return has(NL, r[1]) ? "· " + NL[r[1]] : undefined; }],
+  [/^playing sample of ([\s\S]*)$/, function (r) { return "voorbeeld afspelen van " + r[1]; }],
+  [/^· starts with ([\s\S]*)$/, function (r) { return "· begint met " + r[1]; }],
+  [/^([\s\S]+):$/, function (r) { return has(NL, r[1]) ? NL[r[1]] + ":" : undefined; }]
+];
+  var lang = "en";
+  try { lang = localStorage.getItem("lang") === "nl" ? "nl" : "en"; } catch (e) {}
+  var ATTRS = ["title", "placeholder", "aria-label", "alt"];
+  var SKIP = /^(SCRIPT|STYLE|TEXTAREA|PRE|CODE)$/;
+  var texts = new WeakMap(), attrs = new WeakMap();
+  function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function tr(s) {
+    var m = /^(\s*)([\s\S]*?)(\s*)$/.exec(s), core = m[2];
+    if (!core) return s;
+    var d;
+    if (has(NL, core)) d = NL[core];
+    else for (var i = 0; i < RULES.length; i++) { var r = RULES[i][0].exec(core); if (r) { d = RULES[i][1](r); break; } }
+    return d === undefined ? s : m[1] + d + m[3];
+  }
+  window.trNl = tr;
+  // dates and times follow the chosen language wherever the panel asks for the browser's own format (an empty locale list)
+  ["toLocaleString", "toLocaleTimeString", "toLocaleDateString"].forEach(function (f) {
+    var orig = Date.prototype[f];
+    Date.prototype[f] = function (l, o) { if (lang === "nl" && (l === undefined || (Array.isArray(l) && !l.length))) l = "nl-NL"; return orig.call(this, l, o); };
+  });
+  function inSkipped(node) { for (var p = node.parentNode; p && p.nodeType === 1; p = p.parentNode) if (SKIP.test(p.nodeName) || (p.id === "console")) return true; return false; }
+  function doText(node) {
+    var p = node.parentNode;
+    if (!p || inSkipped(node)) return;
+    var cur = node.nodeValue, st = texts.get(node), orig = st && cur === st.shown ? st.orig : cur;
+    var shown = lang === "nl" ? tr(orig) : orig;
+    if (st && st.orig === orig && st.shown === shown && cur === shown) return;
+    if (shown !== cur) {
+      // an <option> without a value attribute takes its value from its text: pin the value first, so translating a label can never change what is chosen or sent
+      if (p.nodeName === "OPTION" && !p.hasAttribute("value")) p.setAttribute("value", orig.replace(/\s+/g, " ").trim());
+      node.nodeValue = shown;
+    }
+    texts.set(node, { orig: orig, shown: shown });
+  }
+  function doAttr(el, name) {
+    if (!el.getAttribute || SKIP.test(el.nodeName)) return;
+    var cur = el.getAttribute(name);
+    if (cur === null) return;
+    var map = attrs.get(el) || {}, st = map[name], orig = st && cur === st.shown ? st.orig : cur;
+    var shown = lang === "nl" ? tr(orig) : orig;
+    if (st && st.orig === orig && st.shown === shown && cur === shown) return;
+    if (shown !== cur) el.setAttribute(name, shown);
+    map[name] = { orig: orig, shown: shown };
+    attrs.set(el, map);
+  }
+  function walk(node) {
+    if (node.nodeType === 3) { doText(node); return; }
+    if (node.nodeType !== 1 || SKIP.test(node.nodeName) || node.id === "console") return;
+    for (var i = 0; i < ATTRS.length; i++) if (node.hasAttribute(ATTRS[i])) doAttr(node, ATTRS[i]);
+    for (var c = node.firstChild; c; c = c.nextSibling) walk(c);
+  }
+  var titleOrig = document.title;
+  function paintLang() {
+    var btns = document.querySelectorAll(".lang-sw button");
+    for (var i = 0; i < btns.length; i++) {
+      var on = btns[i].getAttribute("data-lang") === lang;
+      btns[i].classList.toggle("on", on);
+      btns[i].setAttribute("aria-pressed", on ? "true" : "false");
+    }
+  }
+  function apply() {
+    document.documentElement.setAttribute("lang", lang);
+    document.title = lang === "nl" ? tr(titleOrig) : titleOrig;
+    walk(document.body);
+    paintLang();
+  }
+  window.panelLang = function () { return lang; };
+  window.setPanelLang = function (l) {
+    l = l === "nl" ? "nl" : "en";
+    if (l === lang) return;
+    lang = l;
+    try { localStorage.setItem("lang", l); } catch (e) {}
+    apply();
+    window.dispatchEvent(new Event("panellang"));
+  };
+  var sw = document.getElementById("langSw");
+  if (sw) sw.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) window.setPanelLang(b.getAttribute("data-lang")); });
+  apply();
+  new MutationObserver(function (list) {
+    for (var i = 0; i < list.length; i++) {
+      var m = list[i];
+      if (m.type === "characterData") doText(m.target);
+      else if (m.type === "attributes") doAttr(m.target, m.attributeName);
+      else for (var j = 0; j < m.addedNodes.length; j++) walk(m.addedNodes[j]);
+    }
+  }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+})();
+</script>
+<!-- i18n:end -->
 </body>
 </html>

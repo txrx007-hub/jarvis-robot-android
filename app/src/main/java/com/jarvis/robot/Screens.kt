@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -330,9 +329,10 @@ fun PhoneContent(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             )
-            Spacer(Modifier.height(64.dp))
+            Spacer(Modifier.height(104.dp))
         }
 
+        LangSwitch(modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 14.dp, bottom = 62.dp))
         ThemeSwitch(
             modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(14.dp),
             palette = state.palette,
