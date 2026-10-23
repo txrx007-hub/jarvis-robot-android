@@ -112,6 +112,12 @@ class ModelsTest {
     }
 
     @Test
+    fun muteStateIsOptional() {
+        assertEquals(true, parseStatus(JSONObject("""{"muted":true}""")).muted)
+        assertNull(parseStatus(JSONObject("{}")).muted)   // older firmware: no Mute button
+    }
+
+    @Test
     fun chipTemperatureAndTrafficRate() {
         assertEquals(44.3, parseStatus(JSONObject("""{"chip_temp_c":44.3}""")).chipTempC!!, 0.001)
         assertNull(parseStatus(JSONObject("{}")).chipTempC)   // older firmware: no row

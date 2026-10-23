@@ -105,7 +105,7 @@ fun JCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> 
 }
 
 @Composable
-fun JButton(text: String, modifier: Modifier = Modifier, danger: Boolean = false, hint: String? = null, onClick: () -> Unit) {
+fun JButton(text: String, modifier: Modifier = Modifier, danger: Boolean = false, hint: String? = null, icon: (@Composable (Color) -> Unit)? = null, onClick: () -> Unit) {
     val p = LocalPalette.current
     val tint = if (danger) p.danger else p.accent
     val tick = rememberTick(strong = danger)
@@ -116,6 +116,10 @@ fun JButton(text: String, modifier: Modifier = Modifier, danger: Boolean = false
             shape = RoundedCornerShape(10.dp),
             border = BorderStroke(1.dp, tint),
         ) {
+            if (icon != null) {
+                icon(tint)
+                Spacer(Modifier.width(6.dp))
+            }
             Text(text, color = tint, fontSize = 15.sp)
         }
     }
@@ -317,6 +321,24 @@ private fun LegendDot(text: String, color: Color) {
 
 // ------------------------------------------------------------------ power card
 
+/** A small speaker icon, with a slash across it while the microphone is muted. */
+@Composable
+private fun MuteIcon(muted: Boolean, tint: Color) {
+    androidx.compose.foundation.Canvas(Modifier.size(16.dp)) {
+        val w = size.width
+        val body = androidx.compose.ui.graphics.Path().apply {
+            moveTo(w * 0.12f, w * 0.38f); lineTo(w * 0.30f, w * 0.38f); lineTo(w * 0.50f, w * 0.20f)
+            lineTo(w * 0.50f, w * 0.80f); lineTo(w * 0.30f, w * 0.62f); lineTo(w * 0.12f, w * 0.62f); close()
+        }
+        drawPath(body, tint)
+        if (muted) {
+            val stroke = androidx.compose.ui.graphics.drawscope.Stroke(width = w * 0.09f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            drawLine(tint, androidx.compose.ui.geometry.Offset(w * 0.64f, w * 0.38f), androidx.compose.ui.geometry.Offset(w * 0.92f, w * 0.62f), stroke.width, stroke.cap)
+            drawLine(tint, androidx.compose.ui.geometry.Offset(w * 0.92f, w * 0.38f), androidx.compose.ui.geometry.Offset(w * 0.64f, w * 0.62f), stroke.width, stroke.cap)
+        }
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PowerCard(
@@ -326,6 +348,7 @@ fun PowerCard(
     onNap: (currentlyNapping: Boolean) -> Unit,
     onDeepSleep: (minutes: Int) -> Unit,
     musicPlaying: Boolean = false,
+    onMute: (on: Boolean) -> Unit = {},
 ) {
     val p = LocalPalette.current
     var panelOpen by remember { mutableStateOf(false) }
@@ -346,6 +369,13 @@ fun PowerCard(
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             JButton(if (napping) "Wake up" else "Nap", Modifier.weight(1f), hint = "Nap = light standby: the screen goes off, Wi-Fi and the wake word stay on") { onNap(napping) }
+            status?.muted?.let { muted ->   // firmware before build 61 reports nothing: no button
+                JButton(
+                    if (muted) "Unmute" else "Mute", Modifier.weight(1f), danger = muted,
+                    hint = "Mute turns the microphone off until you unmute (or the robot restarts): Jarvis hears nothing. The speaker stays on, so timers and music still sound",
+                    icon = { tint -> MuteIcon(muted, tint) },
+                ) { onMute(!muted) }
+            }
             JButton("Deep sleep…", Modifier.weight(1f), hint = "Wi-Fi and the wake word go off for the time you choose, or until the BOOT button") { panelOpen = !panelOpen }
         }
         if (panelOpen) {

@@ -67,6 +67,16 @@ class DemoRobotTest {
     }
 
     @Test
+    fun theMuteButtonFollowsTheRobot() {
+        val a = api()
+        assertEquals(false, a.status().muted)
+        assertTrue(a.power("mute").ok)
+        assertEquals(true, a.status().muted)
+        assertTrue(a.power("unmute").ok)
+        assertEquals(false, a.status().muted)
+    }
+
+    @Test
     fun theCameraGivesAPicture() {
         assertEquals(4, api().photo().size)
     }

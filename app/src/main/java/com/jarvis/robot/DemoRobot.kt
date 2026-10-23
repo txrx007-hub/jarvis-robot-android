@@ -21,6 +21,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
     private val started = System.currentTimeMillis()
     private var settings: JSONArray = defaultSettings()
     private var napping = false
+    private var muted = false
     private var volume = 70
     private var musicOn = true
     private var song = 0
@@ -78,12 +79,13 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
         .put("cpu_load", if (napping) 6 else 38).put("fps", 27).put("heap_largest_kb", 61).put("audio_in_hz", 16000).put("audio_out_hz", 24000)
         .put("power", "battery").put("cpu_mhz", if (napping) 160 else 240).put("ram_free_kb", 71).put("ram_total_kb", 399)
         .put("psram_free_kb", 3300).put("psram_total_kb", 8192).put("chip_temp_c", 46.5 + (System.currentTimeMillis() / 7000 % 3))
-        .put("server", "http://192.168.1.10:8003/xiaozhi/ota/").put("server_custom", true)
+        .put("muted", muted).put("server", "http://192.168.1.10:8003/xiaozhi/ota/").put("server_custom", true)
         .put("volume", volume).put("volume_requested", volume).put("volume_cap", 100).put("panel_url", "http://192.168.1.10:8090/")
 
     private fun power(action: String): String = when (action) {
         "nap" -> { napping = true; "{\"ok\":true,\"message\":\"Napping.\"}" }
         "wake" -> { napping = false; "{\"ok\":true,\"message\":\"Waking up.\"}" }
+        "mute", "unmute" -> { muted = action == "mute"; "{\"ok\":true,\"message\":\"" + (if (muted) "Muted." else "Unmuted.") + "\"}" }
         "deepsleep" -> { napping = true; "{\"ok\":true,\"message\":\"Demo: deep sleep is pretended (the robot is napping).\"}" }
         else -> "{\"ok\":false,\"message\":\"action must be nap, wake or deepsleep\"}"
     }

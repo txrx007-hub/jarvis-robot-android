@@ -271,6 +271,7 @@ private fun Overview(state: MainUiState, actions: MainActions, columns: Int) {
                 feedback = state.powerFeedback,
                 sleepingNow = state.sleepingNow,
                 onNap = actions.onNap,
+                onMute = actions.onMute,
                 onDeepSleep = actions.onDeepSleep,
                 musicPlaying = musicPlaying,
             )

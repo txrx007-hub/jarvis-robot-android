@@ -80,6 +80,7 @@ data class MainUiState(
 class MainActions(
     val onChangeAddress: () -> Unit = {},
     val onNap: (currentlyNapping: Boolean) -> Unit = {},
+    val onMute: (on: Boolean) -> Unit = {},
     val onDeepSleep: (minutes: Int) -> Unit = {},
     val onHold: (Dir, Boolean) -> Unit = { _, _ -> },
     val onReleaseAll: () -> Unit = {},
@@ -131,6 +132,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         MainActions(
             onChangeAddress = onChangeAddress,
             onNap = vm::nap,
+            onMute = vm::setMuted,
             onDeepSleep = vm::deepSleep,
             onHold = vm::hold,
             onReleaseAll = vm::releaseAll,
@@ -287,6 +289,7 @@ fun PhoneContent(
                 feedback = state.powerFeedback,
                 sleepingNow = state.sleepingNow,
                 onNap = actions.onNap,
+                onMute = actions.onMute,
                 onDeepSleep = actions.onDeepSleep,
                 musicPlaying = musicPlaying,
             )

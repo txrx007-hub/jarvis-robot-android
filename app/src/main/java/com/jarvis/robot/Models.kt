@@ -35,6 +35,8 @@ data class Status(
     val panelUrl: String = "",
     // the chip's own temperature sensor (firmware build 55 and newer; null before)
     val chipTempC: Double? = null,
+    // microphone muted (firmware build 61 and newer; null before: no Mute button)
+    val muted: Boolean? = null,
 )
 
 /** The robot's Wi-Fi traffic in packets per second (Tx = sent, Rx = received), worked out from two readings of its counters (/api/net). */
@@ -98,6 +100,7 @@ fun parseStatus(o: JSONObject): Status {
         audioInHz = o.optInt("audio_in_hz", 0),
         audioOutHz = o.optInt("audio_out_hz", 0),
         chipTempC = if (o.has("chip_temp_c") && !o.isNull("chip_temp_c")) o.optDouble("chip_temp_c") else null,
+        muted = if (o.has("muted") && !o.isNull("muted")) o.optBoolean("muted") else null,
         volume = intOrNull("volume"),
         volumeRequested = intOrNull("volume_requested"),
         volumeCap = intOrNull("volume_cap"),

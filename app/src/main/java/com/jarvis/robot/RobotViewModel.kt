@@ -529,6 +529,19 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Mutes or unmutes the microphone (the Mute button of the power card); the status shows the result a second later. */
+    fun setMuted(on: Boolean) {
+        val current = api
+        viewModelScope.launch {
+            val r = runCatching { withContext(Dispatchers.IO) { current.power(if (on) "mute" else "unmute") } }
+            powerFeedback = r.fold({ Feedback(it.ok, it.message) }, { Feedback(false, "Could not reach Jarvis") })
+            if (r.isSuccess) {
+                delay(600)
+                runCatching { withContext(Dispatchers.IO) { current.status() } }.onSuccess { if (current === api) status = it }
+            }
+        }
+    }
+
     fun deepSleep(minutes: Int) {
         val current = api
         viewModelScope.launch {
