@@ -213,26 +213,13 @@ fun InfoTable(status: Status?, pingText: String, musicPlaying: Boolean = false, 
     )
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         InfoColumn(left, labelWidth = 104, highlight = "Status", modifier = Modifier.weight(1.6f))
-        InfoColumn(right, labelWidth = 46, highlight = null, modifier = Modifier.weight(1f))
-    }
-    NetRow(net)
-}
-
-/** Live Wi-Fi traffic of the robot in the colours of the backend panel: Tx (sent) amber, Rx (received) blue. */
-@Composable
-private fun NetRow(net: NetRate?) {
-    val p = LocalPalette.current
-    val tx = if (p.isDark) Color(0xFFFFB86B) else Color(0xFFB3560A)
-    val rx = if (p.isDark) Color(0xFF5EC8FF) else Color(0xFF0F6FA8)
-    Row(Modifier.fillMaxWidth().padding(top = 2.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("TX / RX", color = p.muted, fontSize = 11.5.sp, modifier = Modifier.width(104.dp))
-        Text(net?.let { "%.1f p/s".format(Locale.US, it.txPps) } ?: "--", color = tx, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)   // sent (Tx)
-        Text(net?.let { "%.1f p/s".format(Locale.US, it.rxPps) } ?: "--", color = rx, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)   // received (Rx)
+        InfoColumn(right, labelWidth = 46, highlight = null, modifier = Modifier.weight(1f), net = net)   // TX / RX is the last row of the right column, under AUDIO
     }
 }
 
 @Composable
-private fun InfoColumn(rows: List<Pair<String, String>>, labelWidth: Int, highlight: String?, modifier: Modifier) {
+@OptIn(ExperimentalLayoutApi::class)
+private fun InfoColumn(rows: List<Pair<String, String>>, labelWidth: Int, highlight: String?, modifier: Modifier, net: NetRate? = null) {
     val p = LocalPalette.current
     Column(modifier, verticalArrangement = Arrangement.spacedBy(1.dp)) {
         for ((k, v) in rows) {
@@ -245,6 +232,17 @@ private fun InfoColumn(rows: List<Pair<String, String>>, labelWidth: Int, highli
                     fontSize = 11.5.sp,
                     modifier = Modifier.weight(1f),
                 )
+            }
+        }
+        if (highlight == null) {   // the right column: live Wi-Fi traffic of the robot, in the colours of the backend panel: sent (Tx) amber, received (Rx) blue
+            val tx = if (p.isDark) Color(0xFFFFB86B) else Color(0xFFB3560A)
+            val rx = if (p.isDark) Color(0xFF5EC8FF) else Color(0xFF0F6FA8)
+            Row {
+                Text("TX / RX", color = p.muted, fontSize = 11.5.sp, maxLines = 1, softWrap = false, modifier = Modifier.width(labelWidth.dp))
+                FlowRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(net?.let { "%.1f p/s".format(Locale.US, it.txPps) } ?: "--", color = tx, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text(net?.let { "%.1f p/s".format(Locale.US, it.rxPps) } ?: "--", color = rx, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                }
             }
         }
     }
