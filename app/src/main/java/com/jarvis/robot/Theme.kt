@@ -68,14 +68,15 @@ private val SucculentLight = LightPalette.copy(
     text = Color(0xFF171D24), muted = Color(0xFF556A5E), field = Color(0xFFEDF1E9), photo = R.drawable.theme_succulent,
 )
 
-// Peach: amber, cream, blush, sage and coral, no photo. Dark mode shines in amber; light mode uses a deep sage so the accent never looks like the red of "danger".
+// Peach: amber, cream, blush, sage and coral, no photo. Dark mode is built on the palette's sage green with a blush pink accent; light mode is cream with blush borders and a
+// deep sage accent, so the accent never looks like the red of "danger".
 private val PeachDark = DarkPalette.copy(
-    bg = Color(0xFF1F1815), card = Color(0xFF2D221E), border = Color(0xFF4D3A33), accent = Color(0xFFF6BD60),
-    text = Color(0xFFF7EDE2), muted = Color(0xFFCDB5AA), field = Color(0xFF251B18),
+    bg = Color(0xFF131A19), card = Color(0xFF1E2B29), border = Color(0xFF4A5F5A), accent = Color(0xFFF5CAC3),
+    text = Color(0xFFF7EDE2), muted = Color(0xFFA9C2BB), field = Color(0xFF17211F),
 )
 private val PeachLight = LightPalette.copy(
-    bg = Color(0xFFF7EDE2), card = Color(0xFFFFF9F3), border = Color(0xFFEFC9C0), accent = Color(0xFF3F7F73),
-    text = Color(0xFF3A2E2B), muted = Color(0xFF7A6258), field = Color(0xFFFBF2E8),
+    bg = Color(0xFFF7EDE2), card = Color(0xFFFFF9F2), border = Color(0xFFEFC3BB), accent = Color(0xFF3F7F73),
+    text = Color(0xFF22302D), muted = Color(0xFF54706B), field = Color(0xFFFBF3EA),
 )
 
 fun paletteFor(palette: AppPalette, dark: Boolean): Palette = when (palette) {
