@@ -498,7 +498,17 @@ fun CameraBrightnessSlider(setting: SettingDef?, onSave: (key: String, value: St
     val hi = setting.max.toFloat()
     var live by remember { mutableFloatStateOf(saved.toFloat()) }
     var dragging by remember { mutableStateOf(false) }
-    if (!dragging && live.roundToInt() != saved) live = saved.toFloat()
+    // the value just sent: shown until the robot reports it back (or 5 s pass without that, e.g. no answer), so the thumb does not jump back meanwhile
+    var pending by remember { mutableStateOf<Int?>(null) }
+    if (pending == saved) pending = null
+    androidx.compose.runtime.LaunchedEffect(pending) {
+        if (pending != null) {
+            kotlinx.coroutines.delay(5000)
+            pending = null
+        }
+    }
+    val target = pending ?: saved
+    if (!dragging && live.roundToInt() != target) live = target.toFloat()
     val shown = live.roundToInt()
     Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -508,7 +518,7 @@ fun CameraBrightnessSlider(setting: SettingDef?, onSave: (key: String, value: St
         Slider(
             value = live,
             onValueChange = { dragging = true; live = it },
-            onValueChangeFinished = { onSave(setting.key, live.roundToInt().toString()); dragging = false },
+            onValueChangeFinished = { pending = live.roundToInt(); onSave(setting.key, live.roundToInt().toString()); dragging = false },
             valueRange = lo..hi,
             steps = ((hi - lo) / setting.step.toFloat().coerceAtLeast(1f)).roundToInt() - 1,
             colors = SliderDefaults.colors(
