@@ -27,6 +27,7 @@ object SampleData {
           {"key":"motor_swap","kind":"bool","help":"swaps the left and right motors","value":false},
           {"key":"soft_start_ms","kind":"int","help":"ramp-up time that limits current spikes","min":0,"max":1000,"step":10,"value":200},
           {"key":"mic_gain_db","kind":"int","help":"software microphone gain in dB","min":0,"max":24,"step":1,"value":18},
+          {"key":"camera_brightness","kind":"int","help":"camera exposure target","min":-5,"max":5,"step":1,"value":2},
           {"key":"wake_threshold","kind":"hundredths","help":"wake word threshold, lower wakes more easily","min":0.5,"max":0.95,"step":0.01,"value":0.52},
           {"key":"wake_chirp","kind":"bool","help":"short chirp right after the wake word","value":true},
           {"key":"idle_clock_min","kind":"int","help":"minutes of idle before the clock","min":0,"max":60,"step":1,"value":5},

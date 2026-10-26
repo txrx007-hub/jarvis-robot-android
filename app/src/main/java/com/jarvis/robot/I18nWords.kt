@@ -4,7 +4,7 @@ package com.jarvis.robot
 // The Dutch word list of the app: what is shown for an English text when the language is Dutch (see I18n.kt).
 object I18nNl {
     val words: Map<String, String> by lazy {
-        HashMap<String, String>(780).apply {
+        HashMap<String, String>(788).apply {
             putAll(chunk0())
             putAll(chunk1())
             putAll(chunk2())
@@ -89,6 +89,7 @@ object I18nNl {
         "Chip temperature" to "Chiptemperatuur",
         "Classic" to "Klassiek",
         "Clock / screensaver" to "Klok / schermbeveiliging",
+        "Close full screen" to "Sluit volledig scherm",
         "Cloud (xiaozhi.me)" to "Cloud (xiaozhi.me)",
         "Colour theme" to "Kleurthema",
         "Come here" to "Kom hier",
@@ -124,10 +125,10 @@ object I18nNl {
         "Everything you can say to Jarvis" to "Alles wat je tegen Jarvis kunt zeggen",
         "Explore" to "Verkennen",
         "Faces" to "Gezichten",
-        "Fatal error" to "Fatale fout",
     )
 
     private fun chunk2(): Map<String, String> = mapOf(
+        "Fatal error" to "Fatale fout",
         "Follow the device" to "Volg het apparaat",
         "Forward" to "Vooruit",
         "Found a Jarvis here — tap to use it" to "Hier een Jarvis gevonden — tik om te gebruiken",
@@ -139,6 +140,7 @@ object I18nNl {
         "Hide picture" to "Verberg foto",
         "Hide remote" to "Verberg afstandsbediening",
         "Hide voice commands" to "Verberg spraakopdrachten",
+        "Higher if photos come out dark, lower if bright spots wash out." to "Hoger als foto’s te donker zijn, lager als lichte plekken overbelicht raken.",
         "Hold an arrow to drive (full speed), let go to stop. Keyboard arrows work too." to "Houd een pijl ingedrukt om te rijden (volle snelheid), laat los om te stoppen. De pijltjestoetsen op het toetsenbord werken ook.",
         "Hold an arrow to drive (full speed), let go to stop. Two arrows together turn in an arc." to "Houd een pijl ingedrukt om te rijden (volle snelheid), laat los om te stoppen. Twee pijlen samen draaien in een boog.",
         "Hold to drive" to "Ingedrukt houden om te rijden",
@@ -166,11 +168,11 @@ object I18nNl {
         "Light mode" to "Lichte modus",
         "Light theme" to "Licht thema",
         "List / read / change / reset" to "Opsommen / uitlezen / wijzigen / terugzetten",
-        "List / run a check" to "Opsommen / een controle uitvoeren",
-        "List expressions" to "Uitdrukkingen opsommen",
     )
 
     private fun chunk3(): Map<String, String> = mapOf(
+        "List / run a check" to "Opsommen / een controle uitvoeren",
+        "List expressions" to "Uitdrukkingen opsommen",
         "Listening" to "Luisteren",
         "Live view" to "Live beeld",
         "Live view from Jarvis's camera" to "Live beeld van Jarvis’ camera",
@@ -209,11 +211,11 @@ object I18nNl {
         "Never" to "Nooit",
         "Next" to "Volgende",
         "Next song" to "Volgend nummer",
-        "Not reachable" to "Niet bereikbaar",
-        "Not saved." to "Niet opgeslagen.",
     )
 
     private fun chunk4(): Map<String, String> = mapOf(
+        "Not reachable" to "Niet bereikbaar",
+        "Not saved." to "Niet opgeslagen.",
         "Notes" to "Notities",
         "Nothing playing" to "Er speelt niets",
         "Nothing playing. Say: Jarvis, play something random." to "Er speelt niets. Zeg: Jarvis, play something random.",
@@ -232,6 +234,7 @@ object I18nNl {
         "Pages" to "Pagina2019s",
         "Peach" to "Perzik",
         "Photo from Jarvis's camera" to "Foto van Jarvis’ camera",
+        "Photo from Jarvis's camera, full screen" to "Foto van Jarvis’ camera, volledig scherm",
         "Photo from the robot's camera" to "Foto van de camera van de robot",
         "Play" to "Afspelen",
         "Plays another song from the music folder" to "Speelt een ander nummer uit de muziekmap",
@@ -251,12 +254,12 @@ object I18nNl {
         "Reset" to "Terugzetten",
         "Reset all robot settings to defaults" to "Alle robotinstellingen terugzetten naar standaard",
         "Reset all settings?" to "Alle instellingen terugzetten?",
-        "Reset all to defaults" to "Alles terugzetten naar standaard",
-        "Reset every setting to its default? This cannot be undone." to "Elke instelling terugzetten naar de standaardwaarde? Dit kan niet ongedaan worden gemaakt.",
-        "Right motor direction" to "Richting rechtermotor",
     )
 
     private fun chunk5(): Map<String, String> = mapOf(
+        "Reset all to defaults" to "Alles terugzetten naar standaard",
+        "Reset every setting to its default? This cannot be undone." to "Elke instelling terugzetten naar de standaardwaarde? Dit kan niet ongedaan worden gemaakt.",
+        "Right motor direction" to "Richting rechtermotor",
         "Robot address" to "Robotadres",
         "Robot settings" to "Robotinstellingen",
         "Save" to "Opslaan",
@@ -273,6 +276,7 @@ object I18nNl {
         "Sets every robot setting back to its default" to "Zet elke robotinstelling terug naar de standaardwaarde",
         "Settings" to "Instellingen",
         "Show an expression" to "Een uitdrukking tonen",
+        "Show full screen" to "Toon op volledig scherm",
         "Shows what the robot sees while you drive: a new picture about once a second, only while this page is open (stops after 3 minutes)" to "Toont wat de robot ziet terwijl je rijdt: ongeveer elke seconde een nieuw beeld, alleen zolang deze pagina open is (stopt na 3 minuten)",
         "Shows what the robot sees while you drive: a new picture about once a second, only while this screen is open (stops after 3 minutes)" to "Toont wat de robot ziet terwijl je rijdt: ongeveer elke seconde een nieuw beeld, alleen zolang dit scherm open is (stopt na 3 minuten)",
         "Sleep" to "Slapen",
@@ -293,13 +297,13 @@ object I18nNl {
         "Stops the song, radio station or podcast now" to "Stopt het nummer, het radiostation of de podcast direct",
         "Succulent" to "Vetplant",
         "Swap left/right" to "Links/rechts omwisselen",
+    )
+
+    private fun chunk6(): Map<String, String> = mapOf(
         "System" to "Systeem",
         "Take a picture" to "Maak een foto",
         "Take another" to "Maak er nog een",
         "Takes one photo with the robot’s camera; with your own backend it is also saved in the dcim folder on the PC" to "Maakt één foto met de camera van de robot; met je eigen backend wordt die ook opgeslagen in de dcim-map op de pc",
-    )
-
-    private fun chunk6(): Map<String, String> = mapOf(
         "Taking a picture..." to "Foto wordt genomen...",
         "Taking photo..." to "Foto maken...",
         "Tap a group to see what you can say." to "Tik op een groep om te zien wat je kunt zeggen.",
@@ -336,13 +340,13 @@ object I18nNl {
         "Volume, photo, status, theme" to "Volume, foto, status, thema",
         "Wake chirp" to "Wektjilp",
         "Wake sensitivity" to "Wekgevoeligheid",
+    )
+
+    private fun chunk7(): Map<String, String> = mapOf(
         "Wake up" to "Wakker worden",
         "Waking up." to "Wakker worden.",
         "Weather" to "Weer",
         "Weather city" to "Plaats voor het weer",
-    )
-
-    private fun chunk7(): Map<String, String> = mapOf(
         "Whole rooms" to "Hele kamers",
         "Wi-Fi and the wake word go off for the time you choose, or until the BOOT button" to "Wifi en het wekwoord gaan uit voor de gekozen tijd, of tot de BOOT-knop",
         "WiFi" to "Wifi",
@@ -379,13 +383,13 @@ object I18nNl {
         "serial log detail" to "detail van het seriële log",
         "serial log detail: error, warn, info or debug" to "detail van het seriële log: error, warn, info of debug",
         "short chirp right after the wake word" to "kort tjilpgeluid direct na het wekwoord",
+    )
+
+    private fun chunk8(): Map<String, String> = mapOf(
         "show the big clock after this many idle minutes (0 = off)" to "toon de grote klok na zoveel minuten inactiviteit (0 = uit)",
         "software microphone gain in dB" to "softwarematige microfoonversterking in dB",
         "sound and screen" to "geluid en scherm",
         "stop and drive" to "stoppen en rijden",
-    )
-
-    private fun chunk8(): Map<String, String> = mapOf(
         "swaps the left and right motors" to "wisselt de linker- en rechtermotor om",
         "the camera is busy with another picture" to "de camera is bezig met een andere foto",
         "the picture could not be read" to "de foto kon niet worden gelezen",
@@ -422,13 +426,13 @@ object I18nNl {
         "“party time”, “greet the room”, “good night mode”: one phrase runs a list of steps you write in profiles/macros.yaml (say stop to end it)" to "“party time”, “greet the room”, “good night mode”: één zin voert een lijst stappen uit die je schrijft in profiles/macros.yaml (zeg stop om te beëindigen)",
         "“play Radio 538”, “play jazz radio”, “put on NPO Radio 2”, “speel Q-music” (plays until you stop it)" to "“play Radio 538”, “play jazz radio”, “put on NPO Radio 2”, “speel Q-music” (speelt tot je stopt)",
         "“play something random”, “play a song by Queen”, “play Bohemian Rhapsody”, “speel een nummer van Abba” (30 seconds of the song)" to "“play something random”, “play a song by Queen”, “play Bohemian Rhapsody”, “speel een nummer van Abba” (30 seconden van het nummer)",
+    )
+
+    private fun chunk9(): Map<String, String> = mapOf(
         "“play the latest episode of <a podcast from your list>”, “play podcast <name>” (the shows you list in music/radio.yaml on the backend)" to "“play the latest episode of <a podcast from your list>”, “play podcast <name>” (de programma’s die je opsomt in music/radio.yaml op de backend)",
         "“reconfigure your WiFi” (confirm when asked; Jarvis opens its setup hotspot)" to "“reconfigure your WiFi” (bevestig als erom gevraagd wordt; Jarvis opent zijn installatie-hotspot)",
         "“remove milk from the shopping list”, “haal melk van de boodschappenlijst”" to "“remove milk from the shopping list”, “haal melk van de boodschappenlijst”",
         "“set a timer for 5 minutes”, “alarm at 7:30”, “what timers are running?”" to "“set a timer for 5 minutes”, “alarm at 7:30”, “what timers are running?”",
-    )
-
-    private fun chunk9(): Map<String, String> = mapOf(
         "“set a timer for 5 minutes”, “cancel all timers”" to "“set a timer for 5 minutes”, “cancel all timers”",
         "“set the AC livingroom to 21”, “zet de airco kantoor op 20”, “make it warmer” (with two thermostats it asks which one)" to "“set the AC livingroom to 21”, “zet de airco kantoor op 20”, “make it warmer” (bij twee thermostaten vraagt het welke)",
         "“set the volume to 80”, “turn the volume up” (100 is full volume)" to "“set the volume to 80”, “turn the volume up” (100 is vol volume)",

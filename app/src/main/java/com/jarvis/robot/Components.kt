@@ -13,6 +13,9 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.graphics.ImageBitmap
@@ -23,7 +26,11 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -478,6 +485,45 @@ fun VolumeCard(status: Status?, onSet: (Int) -> Unit) {
     }
 }
 
+// ------------------------------------------------------------------ camera brightness
+
+/** The robot's camera_brightness setting (exposure target, -5..5) as a slider under the Camera button: sent when the finger lifts,
+ *  used from the next picture on. Nothing is shown until the settings have been read from the robot. */
+@Composable
+fun CameraBrightnessSlider(setting: SettingDef?, onSave: (key: String, value: String) -> Unit) {
+    val p = LocalPalette.current
+    setting ?: return
+    val saved = setting.value.toFloatOrNull()?.roundToInt() ?: 0
+    val lo = setting.min.toFloat()
+    val hi = setting.max.toFloat()
+    var live by remember { mutableFloatStateOf(saved.toFloat()) }
+    var dragging by remember { mutableStateOf(false) }
+    if (!dragging && live.roundToInt() != saved) live = saved.toFloat()
+    val shown = live.roundToInt()
+    Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Camera brightness", color = p.text, fontSize = 14.sp)
+            Text(if (shown > 0) "+$shown" else "$shown", color = p.accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        }
+        Slider(
+            value = live,
+            onValueChange = { dragging = true; live = it },
+            onValueChangeFinished = { onSave(setting.key, live.roundToInt().toString()); dragging = false },
+            valueRange = lo..hi,
+            steps = ((hi - lo) / setting.step.toFloat().coerceAtLeast(1f)).roundToInt() - 1,
+            colors = SliderDefaults.colors(
+                thumbColor = p.accent,
+                activeTrackColor = p.accent,
+                inactiveTrackColor = p.border,
+                activeTickColor = Color.Transparent,
+                inactiveTickColor = Color.Transparent,
+            ),
+            modifier = Modifier.semantics { contentDescription = tr("Camera brightness") },
+        )
+        Text("Higher if photos come out dark, lower if bright spots wash out.", color = p.muted, fontSize = 12.sp)
+    }
+}
+
 // ------------------------------------------------------------------ voice server card
 
 @Composable
@@ -549,28 +595,117 @@ fun ServerCard(
 
 /** The camera window: the last picture the robot took (it stays until the next one), when it was taken, or why there is none. */
 @Composable
-fun CameraPanel(state: MainUiState, onHide: (() -> Unit)? = null, onTake: (() -> Unit)? = null) {
+fun CameraPanel(
+    state: MainUiState,
+    onHide: (() -> Unit)? = null,
+    onTake: (() -> Unit)? = null,
+    onSave: ((key: String, value: String) -> Unit)? = null,   // given (tablet): the brightness slider sits under the take button
+) {
     val p = LocalPalette.current
     JCard {
         if (onTake != null) {
             JButton(if (state.photoBusy) "Taking photo..." else if (state.photo == null) "Take a picture" else "Take another", Modifier.fillMaxWidth(), onClick = onTake)
         }
+        if (onSave != null) CameraBrightnessSlider(state.settings.firstOrNull { it.key == "camera_brightness" }, onSave)
         val photo = state.photo
+        var fullScreen by rememberSaveable { mutableStateOf(false) }
         if (photo != null) {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 androidx.compose.foundation.Image(
                     bitmap = photo,
                     contentDescription = tr("Photo from Jarvis's camera"),
                     contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.dp, p.border, RoundedCornerShape(10.dp)),
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.dp, p.border, RoundedCornerShape(10.dp))
+                        .clickable(onClickLabel = tr("Show full screen"), role = Role.Image) { fullScreen = true },
                 )
             }
-            state.photoTime?.let { Text("Taken at $it. Tap Camera again for a new one.", color = p.muted, fontSize = 13.sp) }
+            state.photoTime?.let { Text("Taken at $it. Tap the picture for full screen, Camera for a new one.", color = p.muted, fontSize = 13.sp) }
+            if (fullScreen) PhotoFullScreen(photo) { fullScreen = false }
         } else if (state.photoBusy) {
             Text("Taking a picture...", color = p.muted, fontSize = 13.sp)
         }
         state.photoError?.let { Text("No picture: $it", color = p.danger, fontSize = 13.sp) }
         if (onHide != null) TextButton(onClick = onHide) { Text("Hide picture", color = p.muted) }
+    }
+}
+
+/** The picture on its own, filling the screen on black: pinch to zoom (up to 5x), drag to move around, double-tap to zoom in or back out.
+ *  The ✕ at the top right (or the phone's Back) returns to the app. */
+@Composable
+fun PhotoFullScreen(photo: ImageBitmap, onClose: () -> Unit) {
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = onClose,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+    ) { PhotoFullScreenContent(photo, onClose) }
+}
+
+/** What the full-screen window shows (separate from the Dialog so a screenshot test can draw it). */
+@Composable
+fun PhotoFullScreenContent(photo: ImageBitmap, onClose: () -> Unit) {
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offset by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+    var area by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    // keep the zoomed picture over the screen: it may move at most half of the extra size each way
+    fun bounded(o: androidx.compose.ui.geometry.Offset, s: Float): androidx.compose.ui.geometry.Offset {
+        val maxX = area.width * (s - 1f) / 2f
+        val maxY = area.height * (s - 1f) / 2f
+        return androidx.compose.ui.geometry.Offset(o.x.coerceIn(-maxX, maxX), o.y.coerceIn(-maxY, maxY))
+    }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .onSizeChanged { area = it }
+            .pointerInput(Unit) {
+                detectTapGestures(onDoubleTap = { tap ->
+                    if (scale > 1.05f) {
+                        scale = 1f
+                        offset = androidx.compose.ui.geometry.Offset.Zero
+                    } else {   // zoom 2.5x on the spot that was tapped
+                        val s = 2.5f
+                        val centre = androidx.compose.ui.geometry.Offset(area.width / 2f, area.height / 2f)
+                        offset = bounded((centre - tap) * (s - 1f), s)
+                        scale = s
+                    }
+                })
+            }
+            .pointerInput(Unit) {
+                detectTransformGestures { centroid, pan, zoom, _ ->
+                    val s = (scale * zoom).coerceIn(1f, 5f)
+                    val centre = androidx.compose.ui.geometry.Offset(area.width / 2f, area.height / 2f)
+                    // zoom around the fingers: the point under them stays put
+                    val o = (offset + centre - centroid) * (s / scale) - centre + centroid + pan
+                    scale = s
+                    offset = if (s == 1f) androidx.compose.ui.geometry.Offset.Zero else bounded(o, s)
+                }
+            },
+    ) {
+        androidx.compose.foundation.Image(
+            bitmap = photo,
+            contentDescription = tr("Photo from Jarvis's camera, full screen"),
+            contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+            modifier = Modifier.fillMaxSize().graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                translationX = offset.x
+                translationY = offset.y
+            },
+        )
+        Box(
+            Modifier
+                .align(Alignment.TopEnd)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(12.dp)
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.55f))
+                .border(1.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+                .clickable(onClickLabel = tr("Close"), role = Role.Button, onClick = onClose)
+                .semantics { contentDescription = tr("Close full screen") },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("✕", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }
 

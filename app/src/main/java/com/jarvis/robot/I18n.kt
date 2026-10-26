@@ -58,6 +58,7 @@ private val RULES: List<Pair<Regex, (MatchResult) -> String?>> = listOf(
     Regex("^State (\\d+)$") to { m -> "Status " + m.groupValues[1] },
     Regex("^Asked for (\\d+)%, but night mode \\(quiet hours\\) limits it to (\\d+)%\\.$") to { m -> m.groupValues[1] + "% gevraagd, maar de nachtmodus (stille uren) beperkt het tot " + m.groupValues[2] + "%." },
     Regex("^Taken at (.+)\\. Tap Camera again for a new (?:one|picture)\\.$") to { m -> "Genomen om " + m.groupValues[1] + ". Tik nogmaals op Camera voor een nieuwe foto." },
+    Regex("^Taken at (.+)\\. Tap the picture for full screen, Camera for a new one\\.$") to { m -> "Genomen om " + m.groupValues[1] + ". Tik op de foto voor volledig scherm, op Camera voor een nieuwe." },
     Regex("^No picture: ([\\s\\S]+)$") to { m -> "Geen foto: " + tr(m.groupValues[1]) },
     Regex("^Live view stopped: ([\\s\\S]+)$") to { m -> "Live beeld gestopt: " + tr(m.groupValues[1]) },
     Regex("^Deep sleep (until you press the BOOT button|for [^?]*)\\? Wi-Fi turns off and (?:the robot|this page) (?:will stop|stops) responding\\.$") to
