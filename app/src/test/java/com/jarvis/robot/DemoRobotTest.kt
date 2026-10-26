@@ -61,7 +61,7 @@ class DemoRobotTest {
     fun cameraBrightnessHasItsOwnGroup() {
         val groups = groupSettings(parseSettings(DemoRobot.defaultSettings()))
         val camera = groups.first { it.first.title == "Camera" }
-        assertEquals(listOf("camera_brightness"), camera.second.map { it.key })
+        assertEquals(listOf("camera_brightness", "camera_saturation"), camera.second.map { it.key })
         assertEquals("Camera brightness", labelFor("camera_brightness"))
         assertTrue(groups.none { it.first.title == "Other" })   // nothing the robot reports lands in "Other"
     }

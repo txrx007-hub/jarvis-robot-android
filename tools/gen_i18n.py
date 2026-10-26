@@ -54,6 +54,8 @@ words.update({
     "Show full screen": "Toon op volledig scherm", "Photo from Jarvis's camera, full screen": "Foto van Jarvis\u2019 camera, volledig scherm",
     "Close full screen": "Sluit volledig scherm",
     "Higher if photos come out dark, lower if bright spots wash out.": "Hoger als foto’s te donker zijn, lager als lichte plekken overbelicht raken.",
+    "Camera colour": "Camerakleur",
+    "Higher for stronger colours, lower for paler ones. 0 is the camera's own.": "Hoger voor sterkere kleuren, lager voor flauwere. 0 is die van de camera zelf.",
     "Nothing playing. Say: Jarvis, play something random.": "Er speelt niets. Zeg: Jarvis, play something random.", "Next song": "Volgend nummer",
     "Live view from Jarvis's camera": "Live beeld van Jarvis\u2019 camera", "Drive forward": "Vooruit rijden", "Turn left": "Links draaien", "Turn right": "Rechts draaien",
     "Drive backward": "Achteruit rijden",

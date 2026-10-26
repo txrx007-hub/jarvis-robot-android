@@ -485,12 +485,21 @@ fun VolumeCard(status: Status?, onSet: (Int) -> Unit) {
     }
 }
 
-// ------------------------------------------------------------------ camera brightness
+// ------------------------------------------------------------------ camera brightness and colour
 
-/** The robot's camera_brightness setting (exposure target, -5..5) as a slider under the Camera button: sent when the finger lifts,
- *  used from the next picture on. Nothing is shown until the settings have been read from the robot. */
+/** Camera brightness (camera_brightness, -5..5) and camera colour (camera_saturation, -4..4) as two sliders under the Camera button. */
 @Composable
-fun CameraBrightnessSlider(setting: SettingDef?, onSave: (key: String, value: String) -> Unit) {
+fun CameraSliders(settings: List<SettingDef>, onSave: (key: String, value: String) -> Unit) {
+    CameraSettingSlider(settings.firstOrNull { it.key == "camera_brightness" }, "Camera brightness",
+        "Higher if photos come out dark, lower if bright spots wash out.", onSave)
+    CameraSettingSlider(settings.firstOrNull { it.key == "camera_saturation" }, "Camera colour",
+        "Higher for stronger colours, lower for paler ones. 0 is the camera's own.", onSave)
+}
+
+/** One of the robot's camera settings as a slider: sent when the finger lifts, used from the next picture on.
+ *  Nothing is shown until the settings have been read from the robot (or when the robot's firmware does not have the setting). */
+@Composable
+fun CameraSettingSlider(setting: SettingDef?, title: String, hint: String, onSave: (key: String, value: String) -> Unit) {
     val p = LocalPalette.current
     setting ?: return
     val saved = setting.value.toFloatOrNull()?.roundToInt() ?: 0
@@ -512,7 +521,7 @@ fun CameraBrightnessSlider(setting: SettingDef?, onSave: (key: String, value: St
     val shown = live.roundToInt()
     Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Camera brightness", color = p.text, fontSize = 14.sp)
+            Text(title, color = p.text, fontSize = 14.sp)
             Text(if (shown > 0) "+$shown" else "$shown", color = p.accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
         }
         Slider(
@@ -528,9 +537,9 @@ fun CameraBrightnessSlider(setting: SettingDef?, onSave: (key: String, value: St
                 activeTickColor = Color.Transparent,
                 inactiveTickColor = Color.Transparent,
             ),
-            modifier = Modifier.semantics { contentDescription = tr("Camera brightness") },
+            modifier = Modifier.semantics { contentDescription = tr(title) },
         )
-        Text("Higher if photos come out dark, lower if bright spots wash out.", color = p.muted, fontSize = 12.sp)
+        Text(hint, color = p.muted, fontSize = 12.sp)
     }
 }
 
@@ -616,7 +625,7 @@ fun CameraPanel(
         if (onTake != null) {
             JButton(if (state.photoBusy) "Taking photo..." else if (state.photo == null) "Take a picture" else "Take another", Modifier.fillMaxWidth(), onClick = onTake)
         }
-        if (onSave != null) CameraBrightnessSlider(state.settings.firstOrNull { it.key == "camera_brightness" }, onSave)
+        if (onSave != null) CameraSliders(state.settings, onSave)
         val photo = state.photo
         var fullScreen by rememberSaveable { mutableStateOf(false) }
         if (photo != null) {
