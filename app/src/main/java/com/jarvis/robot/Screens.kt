@@ -279,7 +279,6 @@ fun PhoneContent(
                 showCamera = true
                 actions.onPhoto()
             }
-            CameraSliders(state.settings, actions.onSave)
             if (showCamera) CameraPanel(state, onHide = { showCamera = false })
             if (state.music?.enabled == true) MusicCard(state.music, actions.onMusicStop, actions.onMusicNext)
             if (showVoice) VoiceCommandsPanel(haOk = state.haOk, musicOn = state.music?.enabled == true)

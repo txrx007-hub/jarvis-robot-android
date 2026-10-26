@@ -104,7 +104,7 @@ fun TabletContent(state: MainUiState, actions: MainActions, initialSection: Stri
                         Column(Modifier.widthIn(max = 460.dp)) { RemotePanel(state.held, actions.onHold, state.liveOn, state.liveImage, state.liveNote, actions.onToggleLive, actions.onStopLive) }
                     }
                     SECTION_CAMERA -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-                        Column(Modifier.widthIn(max = 720.dp)) { CameraPanel(state, onTake = actions.onPhoto, onSave = actions.onSave) }
+                        Column(Modifier.widthIn(max = 720.dp)) { CameraPanel(state, onTake = actions.onPhoto) }
                     }
                     SECTION_MUSIC -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Column(Modifier.widthIn(max = 560.dp)) { state.music?.let { MusicCard(it, actions.onMusicStop, actions.onMusicNext) } }

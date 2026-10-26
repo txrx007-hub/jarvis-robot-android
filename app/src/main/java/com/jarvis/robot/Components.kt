@@ -485,64 +485,6 @@ fun VolumeCard(status: Status?, onSet: (Int) -> Unit) {
     }
 }
 
-// ------------------------------------------------------------------ camera brightness and colour
-
-/** Camera brightness (camera_brightness, -5..5) and camera colour (camera_saturation, -4..4) as two sliders under the Camera button. */
-@Composable
-fun CameraSliders(settings: List<SettingDef>, onSave: (key: String, value: String) -> Unit) {
-    CameraSettingSlider(settings.firstOrNull { it.key == "camera_brightness" }, "Camera brightness",
-        "Higher if photos come out dark, lower if bright spots wash out.", onSave)
-    CameraSettingSlider(settings.firstOrNull { it.key == "camera_saturation" }, "Camera colour",
-        "Higher for stronger colours, lower for paler ones. 0 is the camera's own.", onSave)
-}
-
-/** One of the robot's camera settings as a slider: sent when the finger lifts, used from the next picture on.
- *  Nothing is shown until the settings have been read from the robot (or when the robot's firmware does not have the setting). */
-@Composable
-fun CameraSettingSlider(setting: SettingDef?, title: String, hint: String, onSave: (key: String, value: String) -> Unit) {
-    val p = LocalPalette.current
-    setting ?: return
-    val saved = setting.value.toFloatOrNull()?.roundToInt() ?: 0
-    val lo = setting.min.toFloat()
-    val hi = setting.max.toFloat()
-    var live by remember { mutableFloatStateOf(saved.toFloat()) }
-    var dragging by remember { mutableStateOf(false) }
-    // the value just sent: shown until the robot reports it back (or 5 s pass without that, e.g. no answer), so the thumb does not jump back meanwhile
-    var pending by remember { mutableStateOf<Int?>(null) }
-    if (pending == saved) pending = null
-    androidx.compose.runtime.LaunchedEffect(pending) {
-        if (pending != null) {
-            kotlinx.coroutines.delay(5000)
-            pending = null
-        }
-    }
-    val target = pending ?: saved
-    if (!dragging && live.roundToInt() != target) live = target.toFloat()
-    val shown = live.roundToInt()
-    Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(title, color = p.text, fontSize = 14.sp)
-            Text(if (shown > 0) "+$shown" else "$shown", color = p.accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-        }
-        Slider(
-            value = live,
-            onValueChange = { dragging = true; live = it },
-            onValueChangeFinished = { pending = live.roundToInt(); onSave(setting.key, live.roundToInt().toString()); dragging = false },
-            valueRange = lo..hi,
-            steps = ((hi - lo) / setting.step.toFloat().coerceAtLeast(1f)).roundToInt() - 1,
-            colors = SliderDefaults.colors(
-                thumbColor = p.accent,
-                activeTrackColor = p.accent,
-                inactiveTrackColor = p.border,
-                activeTickColor = Color.Transparent,
-                inactiveTickColor = Color.Transparent,
-            ),
-            modifier = Modifier.semantics { contentDescription = tr(title) },
-        )
-        Text(hint, color = p.muted, fontSize = 12.sp)
-    }
-}
-
 // ------------------------------------------------------------------ voice server card
 
 @Composable
@@ -618,14 +560,12 @@ fun CameraPanel(
     state: MainUiState,
     onHide: (() -> Unit)? = null,
     onTake: (() -> Unit)? = null,
-    onSave: ((key: String, value: String) -> Unit)? = null,   // given (tablet): the brightness slider sits under the take button
 ) {
     val p = LocalPalette.current
     JCard {
         if (onTake != null) {
             JButton(if (state.photoBusy) "Taking photo..." else if (state.photo == null) "Take a picture" else "Take another", Modifier.fillMaxWidth(), onClick = onTake)
         }
-        if (onSave != null) CameraSliders(state.settings, onSave)
         val photo = state.photo
         var fullScreen by rememberSaveable { mutableStateOf(false) }
         if (photo != null) {
