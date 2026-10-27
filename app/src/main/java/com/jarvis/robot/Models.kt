@@ -37,6 +37,8 @@ data class Status(
     val chipTempC: Double? = null,
     // microphone muted (firmware build 61 and newer; null before: no Mute button)
     val muted: Boolean? = null,
+    // follow mode on (firmware build 81 and newer; null before: no Follow me card)
+    val follow: Boolean? = null,
 )
 
 /** The robot's Wi-Fi traffic in packets per second (Tx = sent, Rx = received), worked out from two readings of its counters (/api/net). */
@@ -101,6 +103,7 @@ fun parseStatus(o: JSONObject): Status {
         audioOutHz = o.optInt("audio_out_hz", 0),
         chipTempC = if (o.has("chip_temp_c") && !o.isNull("chip_temp_c")) o.optDouble("chip_temp_c") else null,
         muted = if (o.has("muted") && !o.isNull("muted")) o.optBoolean("muted") else null,
+        follow = if (o.has("follow") && !o.isNull("follow")) o.optBoolean("follow") else null,
         volume = intOrNull("volume"),
         volumeRequested = intOrNull("volume_requested"),
         volumeCap = intOrNull("volume_cap"),
@@ -167,6 +170,15 @@ private val LABELS = mapOf(
     "idle_clock_min" to "Idle clock after",
     "quiet_start" to "Quiet hours start",
     "quiet_end" to "Quiet hours end",
+    "talk_motion" to "Move while talking",
+    "talk_power" to "Talking movement power",
+    "face_power" to "Face and follow turn power",
+    "follow_mode" to "Follow me",
+    "follow_ms" to "Follow: time between looks",
+    "face_short_ms" to "Face turn: small step",
+    "face_mid_ms" to "Face turn: medium step",
+    "face_long_ms" to "Face turn: big step",
+    "face_invert" to "Face turn: swap left/right",
     "weather_city" to "Weather city",
     "visualizer_mode" to "Speaking screen effect",
     "music_icon" to "Music screen picture",
@@ -185,7 +197,7 @@ fun fmtValue(def: SettingDef): String = when (def.kind) {
     Kind.INT -> def.value + when {
         def.key.contains("_ms") || def.key == "turn_ms_per_90" -> " ms"
         def.key == "mic_gain_db" -> " dB"
-        def.key.contains("speed") -> "%"
+        def.key.contains("speed") || def.key == "talk_power" || def.key == "face_power" -> "%"
         def.key == "idle_clock_min" -> " min"
         else -> ""
     }
@@ -245,7 +257,7 @@ private fun trimKhz(hz: Int): String {
 // ---------------------------------------------------------------- section layout (mirrors the page)
 
 /** Settings that exist on the robot but are fixed at their defaults and not offered on the page. */
-val HIDDEN_KEYS = setOf("motor_max_speed", "shutter_sound")
+val HIDDEN_KEYS = setOf("motor_max_speed", "shutter_sound", "follow_mode")   // follow_mode has its own card
 
 data class SettingsGroup(val title: String, val keys: List<String>, val collapsible: Boolean)
 
@@ -255,6 +267,7 @@ val SETTINGS_GROUPS = listOf(
         listOf("motor_trim", "turn_ms_per_90", "motor_a_invert", "motor_b_invert", "motor_swap", "soft_start_ms"),
         true,
     ),
+    SettingsGroup("Face and movement", listOf("talk_motion", "talk_power", "face_power", "follow_ms", "face_short_ms", "face_mid_ms", "face_long_ms", "face_invert"), true),
     SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
@@ -291,6 +304,7 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("Drive, turn, stop", "“drive forward for two seconds”, “turn around”, “stop”"),
         VoiceCommand("Dance", "“do a little dance” (random, wiggle, spin, or happy)"),
         VoiceCommand("Look around", "“look around the room” (4 photos, one combined answer)"),
+        VoiceCommand("Face me, follow me", "“look at me” (turns towards your face), “follow me” / “stop following me” (keeps turning towards it)"),
     ),
     "Screen" to listOf(
         VoiceCommand(
@@ -342,6 +356,9 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("Drive", "“go forward”, “go back”, “go forward for 3 seconds”", instant = true),
         VoiceCommand("Come here", "“come here” / “kom hier”: one second straight ahead at full power", instant = true),
         VoiceCommand("Turn", "“turn left”, “turn right”, “turn around”", instant = true),
+        VoiceCommand("Look at me", "“look at me”, “face me”, “turn to me”: a picture, then a few short turns until Jarvis faces your face", instant = true),
+        VoiceCommand("Follow me", "“follow me” / “stop following me”: keeps turning towards your face while idle (off again after a restart)", instant = true),
+        VoiceCommand("Talking movements", "“don't move while you talk” / “move when you talk”: the small shakes while Jarvis speaks", instant = true),
         VoiceCommand("Dance", "“dance”", instant = true),
     ),
     "Instant: sound and screen" to listOf(

@@ -22,6 +22,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
     private var settings: JSONArray = defaultSettings()
     private var napping = false
     private var muted = false
+    private var follow = false
     private var volume = 70
     private var musicOn = true
     private var song = 0
@@ -79,13 +80,15 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
         .put("cpu_load", if (napping) 6 else 38).put("fps", 27).put("heap_largest_kb", 61).put("audio_in_hz", 16000).put("audio_out_hz", 24000)
         .put("power", "battery").put("cpu_mhz", if (napping) 160 else 240).put("ram_free_kb", 71).put("ram_total_kb", 399)
         .put("psram_free_kb", 3300).put("psram_total_kb", 8192).put("chip_temp_c", 46.5 + (System.currentTimeMillis() / 7000 % 3))
-        .put("muted", muted).put("server", "http://192.168.1.10:8003/xiaozhi/ota/").put("server_custom", true)
+        .put("muted", muted).put("follow", follow).put("server", "http://192.168.1.10:8003/xiaozhi/ota/").put("server_custom", true)
         .put("volume", volume).put("volume_requested", volume).put("volume_cap", 100).put("panel_url", "http://192.168.1.10:8090/")
 
     private fun power(action: String): String = when (action) {
         "nap" -> { napping = true; "{\"ok\":true,\"message\":\"Napping.\"}" }
         "wake" -> { napping = false; "{\"ok\":true,\"message\":\"Waking up.\"}" }
         "mute", "unmute" -> { muted = action == "mute"; "{\"ok\":true,\"message\":\"" + (if (muted) "Muted." else "Unmuted.") + "\"}" }
+        "follow_on", "follow_off" -> { follow = action == "follow_on"; "{\"ok\":true,\"message\":\"" + (if (follow) "Follow mode on: Jarvis turns towards your face." else "Follow mode off.") + "\"}" }
+        "face" -> "{\"ok\":true,\"message\":\"Looking for your face.\"}"
         "deepsleep" -> { napping = true; "{\"ok\":true,\"message\":\"Demo: deep sleep is pretended (the robot is napping).\"}" }
         else -> "{\"ok\":false,\"message\":\"action must be nap, wake or deepsleep\"}"
     }
@@ -150,6 +153,14 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
             {"key":"motor_a_invert","kind":"bool","help":"reverses motor A (right wheel)","value":false},
             {"key":"motor_b_invert","kind":"bool","help":"reverses motor B (left wheel)","value":false},
             {"key":"motor_swap","kind":"bool","help":"swaps the left and right motors","value":false},
+            {"key":"talk_motion","kind":"bool","help":"small left and right body movements while Jarvis is speaking","value":true},
+            {"key":"talk_power","kind":"int","help":"power of those talking movements, in percent","min":40,"max":100,"step":1,"value":80},
+            {"key":"face_power","kind":"int","help":"power of the turns towards your face and of follow mode, in percent (100 = full power)","min":30,"max":100,"step":1,"value":100},
+            {"key":"follow_ms","kind":"int","help":"follow mode: pause between two looks, in milliseconds","min":400,"max":5000,"step":1,"value":1000},
+            {"key":"face_short_ms","kind":"int","help":"turn towards your face: a small correction","min":100,"max":1500,"step":1,"value":200},
+            {"key":"face_mid_ms","kind":"int","help":"turn towards your face: a medium correction","min":100,"max":2000,"step":1,"value":350},
+            {"key":"face_long_ms","kind":"int","help":"turn towards your face: a big correction","min":100,"max":3000,"step":1,"value":700},
+            {"key":"face_invert","kind":"bool","help":"swap left and right if Jarvis turns away from your face","value":false},
             {"key":"soft_start_ms","kind":"int","help":"ramp-up time that limits current spikes","min":0,"max":1000,"step":10,"value":200},
             {"key":"mic_gain_db","kind":"int","help":"software microphone gain in dB","min":0,"max":24,"step":1,"value":18},
             {"key":"wake_threshold","kind":"hundredths","help":"wake word threshold, lower wakes more easily","min":0.5,"max":0.95,"step":0.01,"value":0.52},

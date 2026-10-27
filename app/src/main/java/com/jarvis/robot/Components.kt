@@ -345,6 +345,27 @@ private fun MuteIcon(muted: Boolean, tint: Color) {
     }
 }
 
+/** Follow mode: while idle Jarvis keeps turning on the spot towards your face. Shown when the robot reports it (firmware build 81 and newer). */
+@Composable
+fun FollowCard(status: Status?, onFollow: (on: Boolean) -> Unit, onFace: () -> Unit) {
+    val follow = status?.follow ?: return
+    val p = LocalPalette.current
+    JCard {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text("Follow me", fontWeight = FontWeight.SemiBold, color = p.text)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(if (follow) "On" else "Off", color = if (follow) p.accent else p.muted, fontSize = 13.sp)
+                Switch(checked = follow, onCheckedChange = onFollow, colors = jSwitchColors())
+            }
+        }
+        Text("Jarvis turns on the spot towards your face. Keep it on a flat table with room to turn.", color = p.muted, fontSize = 13.sp)
+        JButton(
+            "Face me", Modifier.fillMaxWidth(),
+            hint = "Look at you once: takes a picture, finds your face and turns in up to three short steps",
+        ) { onFace() }
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PowerCard(

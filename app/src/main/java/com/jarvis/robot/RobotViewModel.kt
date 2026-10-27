@@ -547,6 +547,28 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Follow mode on or off (the Follow me switch); the status shows the result a second later. */
+    fun setFollow(on: Boolean) {
+        val current = api
+        viewModelScope.launch {
+            val r = runCatching { withContext(Dispatchers.IO) { current.power(if (on) "follow_on" else "follow_off") } }
+            powerFeedback = r.fold({ Feedback(it.ok, it.message) }, { Feedback(false, "Could not reach Jarvis") })
+            if (r.isSuccess) {
+                delay(700)
+                runCatching { withContext(Dispatchers.IO) { current.status() } }.onSuccess { if (current === api) status = it }
+            }
+        }
+    }
+
+    /** "Face me": one look, then up to three short turns towards the face. */
+    fun faceMe() {
+        val current = api
+        viewModelScope.launch {
+            val r = runCatching { withContext(Dispatchers.IO) { current.power("face") } }
+            powerFeedback = r.fold({ Feedback(it.ok, it.message) }, { Feedback(false, "Could not reach Jarvis") })
+        }
+    }
+
     fun deepSleep(minutes: Int) {
         val current = api
         viewModelScope.launch {

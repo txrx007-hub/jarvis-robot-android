@@ -266,6 +266,7 @@ private fun Overview(state: MainUiState, actions: MainActions, columns: Int) {
     JCard { InfoTable(state.status, state.pingText, musicPlaying, state.netRate) }
     Columns(columns, listOf(
         {
+            FollowCard(state.status, actions.onFollow, actions.onFaceMe)
             PowerCard(
                 status = state.status,
                 feedback = state.powerFeedback,
