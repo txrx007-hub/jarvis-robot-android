@@ -160,7 +160,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
             {"key":"face_short_ms","kind":"int","help":"turn towards your face: a small correction","min":100,"max":1500,"step":1,"value":200},
             {"key":"face_mid_ms","kind":"int","help":"turn towards your face: a medium correction","min":100,"max":2000,"step":1,"value":350},
             {"key":"face_long_ms","kind":"int","help":"turn towards your face: a big correction","min":100,"max":3000,"step":1,"value":700},
-            {"key":"face_invert","kind":"bool","help":"swap left and right if Jarvis turns away from your face","value":false},
+            {"key":"face_invert","kind":"bool","help":"swap left and right if Jarvis turns away from your face","value":true},
             {"key":"soft_start_ms","kind":"int","help":"ramp-up time that limits current spikes","min":0,"max":1000,"step":10,"value":200},
             {"key":"mic_gain_db","kind":"int","help":"software microphone gain in dB","min":0,"max":24,"step":1,"value":18},
             {"key":"wake_threshold","kind":"hundredths","help":"wake word threshold, lower wakes more easily","min":0.5,"max":0.95,"step":0.01,"value":0.52},
