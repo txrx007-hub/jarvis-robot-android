@@ -173,6 +173,8 @@ private val LABELS = mapOf(
     "talk_motion" to "Move while talking",
     "talk_power" to "Talking movement power",
     "face_power" to "Face and follow turn power",
+    "face_fine_power" to "Face turn: power of small corrections",
+    "face_deadzone" to "Face turn: centre margin",
     "follow_mode" to "Follow me",
     "follow_ms" to "Follow: time between looks",
     "face_short_ms" to "Face turn: small step",
@@ -197,7 +199,7 @@ fun fmtValue(def: SettingDef): String = when (def.kind) {
     Kind.INT -> def.value + when {
         def.key.contains("_ms") || def.key == "turn_ms_per_90" -> " ms"
         def.key == "mic_gain_db" -> " dB"
-        def.key.contains("speed") || def.key == "talk_power" || def.key == "face_power" -> "%"
+        def.key.contains("speed") || def.key == "talk_power" || def.key == "face_power" || def.key == "face_fine_power" || def.key == "face_deadzone" -> "%"
         def.key == "idle_clock_min" -> " min"
         else -> ""
     }
@@ -267,7 +269,7 @@ val SETTINGS_GROUPS = listOf(
         listOf("motor_trim", "turn_ms_per_90", "motor_a_invert", "motor_b_invert", "motor_swap", "soft_start_ms"),
         true,
     ),
-    SettingsGroup("Face and movement", listOf("talk_motion", "talk_power", "face_power", "follow_ms", "face_short_ms", "face_mid_ms", "face_long_ms", "face_invert"), true),
+    SettingsGroup("Face and movement", listOf("talk_motion", "talk_power", "face_power", "face_fine_power", "face_deadzone", "follow_ms", "face_short_ms", "face_mid_ms", "face_long_ms", "face_invert"), true),
     SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),

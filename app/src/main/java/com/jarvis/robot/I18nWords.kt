@@ -33,6 +33,8 @@ object I18nNl {
         "talk_motion" to "Bewegen tijdens praten",
         "talk_power" to "Kracht praatbewegingen",
         "face_power" to "Kracht gezichts- en volgdraaien",
+        "face_fine_power" to "Gezichtsdraai: kracht kleine correcties",
+        "face_deadzone" to "Gezichtsdraai: marge rond het midden",
         "follow_mode" to "Volg mij",
         "follow_ms" to "Volgen: tijd tussen blikken",
         "face_short_ms" to "Gezichtsdraai: kleine stap",
