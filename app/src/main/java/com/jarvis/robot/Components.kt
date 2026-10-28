@@ -196,7 +196,6 @@ fun InfoTable(status: Status?, pingText: String, musicPlaying: Boolean = false, 
     val s = status
     val left = listOf(
         "Board" to (s?.boardName.orEmpty().ifEmpty { "--" }),
-        "Revision" to (s?.revision?.takeIf { it > 0 }?.let { "r$it" } ?: "--"),
     ) + listOfNotNull(s?.chipTempC?.let { "Chip temperature" to "%.1f °C".format(Locale.US, it) }) + listOf(   // the chip, not the room: about 35-65 °C is normal
         "Camera detected" to when {
             s == null -> "--"

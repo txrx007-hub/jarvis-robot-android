@@ -345,7 +345,7 @@ fun PhoneContent(
             onPalette = actions.onPalette,
             onChange = actions.onTheme,
         )
-        AppVersionLabel(Modifier.align(Alignment.BottomStart).navigationBarsPadding().padding(start = 16.dp, bottom = 26.dp))
+        AppVersionLabel(Modifier.align(Alignment.BottomStart).navigationBarsPadding().padding(start = 16.dp, bottom = 26.dp), state.status?.revision ?: 0)
 
         // The backend page opens over this screen (back returns here, the scroll position is kept).
         if (showBackend) BackendScreen(state) { showBackend = false }

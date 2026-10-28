@@ -67,9 +67,10 @@ fun appVersionName(): String {
     return remember { runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty() }
 }
 
-/** A small "App v2.15" line, so it is always clear which build is on the phone. */
+/** A small "App v2.36 - Rev 87" line, so it is always clear which build is on the phone and which firmware revision the robot reports (revision 0 = not known yet). */
 @Composable
-fun AppVersionLabel(modifier: Modifier = Modifier) {
+fun AppVersionLabel(modifier: Modifier = Modifier, revision: Int = 0) {
     val version = appVersionName()
-    if (version.isNotEmpty()) Text(if (BuildConfig.DEMO) "Demo app v${version.removeSuffix("-demo")}" else "App v$version", color = LocalPalette.current.muted, fontSize = 11.sp, maxLines = 1, softWrap = false, modifier = modifier)
+    val rev = if (revision > 0) " - Rev $revision" else ""
+    if (version.isNotEmpty()) Text((if (BuildConfig.DEMO) "Demo app v${version.removeSuffix("-demo")}" else "App v$version") + rev, color = LocalPalette.current.muted, fontSize = 11.sp, maxLines = 1, softWrap = false, modifier = modifier)
 }
