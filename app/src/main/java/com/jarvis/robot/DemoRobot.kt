@@ -74,7 +74,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
 
     // ------------------------------------------------------------------ robot status
     private fun status(): JSONObject = JSONObject()
-        .put("revision", 87).put("board", "wall-e-xiao/2.5.0").put("board_name", "ESP32 S3 Sense").put("camera_detected", true).put("camera_sensor", "OV3660")
+        .put("revision", 88).put("board", "wall-e-xiao/2.5.0").put("board_name", "ESP32 S3 Sense").put("camera_detected", true).put("camera_sensor", "OV3660")
         .put("ssid", "HomeWiFi").put("ip", "192.168.1.50").put("mac", "AA:BB:CC:DD:EE:FF").put("rssi", -52 + (System.currentTimeMillis() / 4000 % 5).toInt())
         .put("uptime_s", (System.currentTimeMillis() - started) / 1000 + 86_400 + 5_400).put("state", 3).put("napping", napping)
         .put("cpu_load", if (napping) 6 else 38).put("fps", 27).put("heap_largest_kb", 61).put("audio_in_hz", 16000).put("audio_out_hz", 24000)
@@ -155,6 +155,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
             {"key":"motor_swap","kind":"bool","help":"swaps the left and right motors","value":false},
             {"key":"talk_motion","kind":"bool","help":"small left and right body movements while Jarvis is speaking","value":true},
             {"key":"talk_power","kind":"int","help":"power of those talking movements, in percent","min":40,"max":100,"step":1,"value":80},
+            {"key":"talk_alternate","kind":"bool","help":"talking movements swing from one wheel at a time, left then right then left","value":true},
             {"key":"face_power","kind":"int","help":"power of the turns towards your face and of follow mode, in percent (100 = full power)","min":30,"max":100,"step":1,"value":100},
             {"key":"face_deadzone","kind":"int","help":"how far off-centre your face may be, in percent of half the picture, before Jarvis turns at all","min":5,"max":40,"step":1,"value":18},
             {"key":"follow_ms","kind":"int","help":"follow mode: pause between two looks, in milliseconds","min":100,"max":5000,"step":1,"value":1000},

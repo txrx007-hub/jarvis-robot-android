@@ -32,6 +32,7 @@ object I18nNl {
         "motor_trim" to "Stuurcorrectie",
         "talk_motion" to "Bewegen tijdens praten",
         "talk_power" to "Kracht praatbewegingen",
+        "talk_alternate" to "Praten: één wiel tegelijk",
         "face_power" to "Gezichtsdraai: maximale kracht",
         "face_deadzone" to "Gezichtsdraai: marge rond het midden",
         "follow_mode" to "Volg mij",
