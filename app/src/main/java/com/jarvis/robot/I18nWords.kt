@@ -75,6 +75,7 @@ object I18nNl {
         "Blinds" to "Jaloezieën",
         "Blueberry" to "Blauwe bes",
         "Board" to "Bord",
+        "Revision" to "Revisie",
         "Both QR codes" to "Beide QR-codes",
         "Brain" to "Brein",
         "Briefing" to "Briefing",

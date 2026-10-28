@@ -74,7 +74,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
 
     // ------------------------------------------------------------------ robot status
     private fun status(): JSONObject = JSONObject()
-        .put("board", "wall-e-xiao/2.5.0").put("board_name", "ESP32 S3 Sense").put("camera_detected", true).put("camera_sensor", "OV3660")
+        .put("revision", 86).put("board", "wall-e-xiao/2.5.0").put("board_name", "ESP32 S3 Sense").put("camera_detected", true).put("camera_sensor", "OV3660")
         .put("ssid", "HomeWiFi").put("ip", "192.168.1.50").put("mac", "AA:BB:CC:DD:EE:FF").put("rssi", -52 + (System.currentTimeMillis() / 4000 % 5).toInt())
         .put("uptime_s", (System.currentTimeMillis() - started) / 1000 + 86_400 + 5_400).put("state", 3).put("napping", napping)
         .put("cpu_load", if (napping) 6 else 38).put("fps", 27).put("heap_largest_kb", 61).put("audio_in_hz", 16000).put("audio_out_hz", 24000)

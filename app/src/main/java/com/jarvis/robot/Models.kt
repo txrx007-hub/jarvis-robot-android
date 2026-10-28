@@ -6,6 +6,7 @@ import org.json.JSONObject
 /** One poll of GET /api/status. Optional fields are null when an older firmware doesn't send them. */
 data class Status(
     val boardName: String = "",
+    val revision: Int = 0,
     val cameraDetected: Boolean = false,
     val cameraSensor: String = "",
     val mac: String = "",
@@ -82,6 +83,7 @@ fun parseStatus(o: JSONObject): Status {
     fun intOrNull(k: String): Int? = if (o.has(k) && !o.isNull(k)) o.optInt(k) else null
     return Status(
         boardName = o.optString("board_name", o.optString("board", "").substringBefore('/')),
+        revision = o.optInt("revision", 0),
         cameraDetected = o.optBoolean("camera_detected", false),
         cameraSensor = o.optString("camera_sensor", ""),
         mac = o.optString("mac", ""),
