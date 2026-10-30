@@ -50,7 +50,7 @@ import java.util.Date
 import java.util.Locale
 
 /** The app's own detail pages (tap and hold a tile, or a row on the Brain tab); they open over the tabs, back closes them. */
-enum class V2Page { GREETER, VOICES, MUSIC, MEMORY, VOLUME, MOOD, HOME, HEALTH }
+enum class V2Page { GREETER, VOICES, MUSIC, MEMORY, VOLUME, MOOD, HOME, HEALTH, FACES }
 
 @Composable
 fun V2PageHost(page: V2Page, state: MainUiState, actions: MainActions, onOpenGroup: (String) -> Unit, onOpenPanel: (String) -> Unit, onClose: () -> Unit) {
@@ -64,6 +64,7 @@ fun V2PageHost(page: V2Page, state: MainUiState, actions: MainActions, onOpenGro
         V2Page.MOOD -> V2MoodPage(actions, onOpenPanel, onClose)
         V2Page.HOME -> V2HomeAssistantPage(actions, onOpenPanel, onClose)
         V2Page.HEALTH -> V2HealthPage(actions, onOpenPanel, onClose)
+        V2Page.FACES -> V2FacesPage(state, actions, onOpenPanel, onClose)
     }
 }
 
@@ -143,7 +144,14 @@ private fun V2GreeterPage(state: MainUiState, actions: MainActions, onOpenPanel:
             }
         }
         V2Label("Who")
-        V2Connected(listOf("owner" to "Only me", "anyone" to "Anyone"), g.optString("who", "owner"), { set("who", it) })
+        V2Connected(listOf("owner" to "Only me", "known" to "People I know", "anyone" to "Anyone"), g.optString("who", "owner"), { set("who", it) })
+        if (g.optString("who") == "known" || g.optString("who") == "anyone") {
+            val people = g.optJSONArray("people")
+            Text(
+                if (people == null || people.length() == 0) "Nobody is enrolled yet: add people on the Faces page." else tr("Greets you and") + " " + (0 until people.length()).joinToString(", ") { people.optString(it) },
+                color = v.muted, fontSize = 13.sp,
+            )
+        }
         var name by remember(g.optString("name")) { mutableStateOf(g.optString("name")) }
         V2Field(name, { name = it }, "Name", g.optString("name_default").ifEmpty { "your name" }, onDone = { set("name", name.trim()) })
         Text("Example: ${g.optString("example")}", color = v.muted, fontSize = 13.sp)

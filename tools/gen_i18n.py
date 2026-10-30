@@ -271,6 +271,21 @@ V2B = {
     "average": "gemiddeld", "worst": "slechtst", "since": "sinds", "after": "na", "away": "weg", "days": "dagen", "turns": "beurten", "hearing": "horen", "voice": "stem",
     "instant": "direct", "brain": "brein", "clipping": "vervorming", "failed": "mislukt", "of": "van", "today": "vandaag", "camera": "camera", "free": "vrij", "running": "draait",
     "live": "live", "ago": "geleden", "answers": "antwoorden", "fine": "prima", "loud": "luid",
+    # the Faces page (named people for the greeter)
+    "Faces": "Gezichten", "Greet more people by name": "Begroet meer mensen bij naam", "Jarvis greets the people it knows by name": "Jarvis begroet de mensen die hij kent bij naam",
+    "People I know": "Mensen die ik ken", "People it knows": "Mensen die hij kent", "You": "Jij", "Nobody yet.": "Nog niemand.",
+    "face samples": "gezichtsvoorbeelden", "1 face sample": "1 gezichtsvoorbeeld", "changed in the panel under Face finding": "aan te passen in het paneel onder Gezichten vinden",
+    "Not enrolled yet: enrol your own face in the panel under Face finding.": "Nog niet ingeschreven: schrijf je eigen gezicht in via het paneel onder Gezichten vinden.",
+    "Add more pictures of this person": "Meer foto’s van deze persoon toevoegen", "Forget this person": "Vergeet deze persoon", "Forget this person?": "Deze persoon vergeten?",
+    "The face samples of": "De gezichtsvoorbeelden van", "Taking pictures of": "Foto’s maken van", "Look at the robot and keep still.": "Kijk naar de robot en blijf stil staan.",
+    "last picture": "laatste foto", "Stop (keep what was taken)": "Stoppen (bewaar wat gemaakt is)", "Added": "Toegevoegd", "pictures to": "foto’s aan", "now": "nu", "Nothing added": "Niets toegevoegd",
+    "Enrol a new person": "Een nieuwe persoon inschrijven", "Take 6 pictures": "Maak 6 foto’s", "The face model files are missing on the PC.": "De gezichtsmodelbestanden ontbreken op de pc.",
+    "The person stands about one metre in front of the robot, facing the camera. The robot takes 6 pictures, one every 1.2 seconds; only numbers describing the face are kept, no pictures. Then choose People I know on the Greeter page.":
+        "De persoon staat ongeveer een meter voor de robot, met het gezicht naar de camera. De robot maakt 6 foto’s, een per 1,2 seconden; alleen getallen die het gezicht beschrijven blijven bewaard, geen foto’s. Kies daarna Mensen die ik ken op de pagina Begroeten.",
+    "Greets you and": "Begroet jou en", "Nobody is enrolled yet: add people on the Faces page.": "Nog niemand is ingeschreven: voeg mensen toe op de pagina Gezichten.",
+    "this looks like the owner (the owner is enrolled in Face finding, not here)": "dit lijkt op de eigenaar (de eigenaar schrijf je in bij Gezichten vinden, niet hier)",
+    "no face in this picture": "geen gezicht in deze foto", "more than one face in this picture": "meer dan een gezicht in deze foto", "the face is not clear enough": "het gezicht is niet duidelijk genoeg",
+    "the robot gave no picture": "de robot gaf geen foto", "a name is needed": "een naam is nodig",
 }
 for _k, _v in V2B.items():
     words.setdefault(_k, _v)

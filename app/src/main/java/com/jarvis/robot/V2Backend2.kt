@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +55,77 @@ internal fun V2MoodPage(actions: MainActions, onOpenPanel: (String) -> Unit, onB
         }
         Text("Applies at once, no restart. You can also say “be cheerful”, “be calm”, “be serious”, “be dry” or “back to normal”.", color = v.muted, fontSize = 13.sp)
         V2Button("Open in the panel", { onOpenPanel("moodCard") }, Modifier.fillMaxWidth(), filled = false)
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------- faces
+/** The gallery: people the greeter knows by name (numbers of their faces on the PC, no pictures). Enrolling takes pictures with the robot's camera, one every 1.2 s. */
+@Composable
+internal fun V2FacesPage(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> Unit, onBack: () -> Unit) {
+    val v = v2Colors()
+    var enrolling by remember { mutableStateOf(false) }
+    val d = rememberPanelData(actions, "api/faces") { if (enrolling) 1500L else 6000L }
+    var confirmForget by remember { mutableStateOf<String?>(null) }
+    V2PageFrame("Faces", onBack, "Jarvis greets the people it knows by name") {
+        val s = d.data ?: run { V2Waiting(d); return@V2PageFrame }
+        fun send(b: JSONObject) = panelPost(actions, d, "api/faces", b)
+        val enrol = s.optJSONObject("enrol")
+        enrolling = enrol != null
+        val owner = s.optInt("owner_samples")
+        V2Card {
+            V2Row("You", if (owner > 0) "$owner " + tr("face samples") + " · " + tr("changed in the panel under Face finding") else "Not enrolled yet: enrol your own face in the panel under Face finding.", onClick = { onOpenPanel("faceCard") }) {
+                androidx.compose.material3.Icon(V2Icons.Chevron, contentDescription = null, tint = v.muted, modifier = Modifier.size(16.dp))
+            }
+        }
+
+        val people = s.optJSONArray("people").objects()
+        V2Label("People it knows")
+        if (people.isEmpty()) Text("Nobody yet.", color = v.muted, fontSize = 14.sp)
+        else V2Card {
+            people.forEachIndexed { i, p ->
+                if (i > 0) V2Divider()
+                val n = p.optString("name")
+                val samples = p.optInt("samples")
+                V2Row(n, if (samples == 1) "1 face sample" else "$samples " + tr("face samples")) {
+                    V2IconButton(V2Icons.Plus, "Add more pictures of this person", { send(JSONObject().put("enrol", n).put("count", 3)) }, size = 40.dp, enabled = enrol == null && state.online)
+                    V2IconButton(V2Icons.Close, "Forget this person", { confirmForget = n }, size = 40.dp)
+                }
+            }
+        }
+
+        if (enrol != null) {
+            V2Tile(Modifier.fillMaxWidth(), color = v.accentContainer) {
+                Text(tr("Taking pictures of") + " ${enrol.optString("name")}: ${enrol.optInt("taken")} " + tr("of") + " ${enrol.optInt("total")}. " + tr("Look at the robot and keep still."), color = v.onAccentContainer, fontSize = 14.sp)
+                enrol.strOrNull("note")?.takeIf { it.isNotEmpty() }?.let { Text(tr("last picture") + ": " + tr(it), color = v.onAccentContainer, fontSize = 13.sp) }
+                Spacer(Modifier.height(8.dp))
+                V2Button("Stop (keep what was taken)", { send(JSONObject().put("cancel", true)) }, Modifier.fillMaxWidth(), filled = false)
+            }
+        } else {
+            s.optJSONObject("enrol_done")?.let { done ->
+                val added = done.optInt("added")
+                val why = done.optJSONArray("reasons")?.let { r -> (0 until r.length()).joinToString("; ") { tr(r.optString(it)) } }.orEmpty()
+                Text(
+                    if (added > 0) tr("Added") + " $added " + tr("pictures to") + " ${done.optString("name")}: ${done.optInt("total")} " + tr("face samples") + " " + tr("now") + (if (why.isNotEmpty()) " ($why)" else "")
+                    else tr("Nothing added") + (if (why.isNotEmpty()) ": $why" else ""),
+                    color = if (added > 0) v.success else v.danger, fontSize = 13.sp,
+                )
+            }
+            var newName by remember { mutableStateOf("") }
+            V2Field(newName, { newName = it.take(40) }, "Enrol a new person", "Name", onDone = { if (newName.isNotBlank()) { send(JSONObject().put("enrol", newName.trim())); newName = "" } })
+            V2Button("Take 6 pictures", { if (newName.isNotBlank()) { send(JSONObject().put("enrol", newName.trim())); newName = "" } }, Modifier.fillMaxWidth(), enabled = newName.isNotBlank() && s.optBoolean("model_ready") && state.online)
+            if (!s.optBoolean("model_ready")) Text("The face model files are missing on the PC.", color = v.danger, fontSize = 13.sp)
+        }
+        Text(
+            "The person stands about one metre in front of the robot, facing the camera. The robot takes 6 pictures, one every 1.2 seconds; only numbers describing the face are kept, no pictures. " +
+                "Then choose People I know on the Greeter page.",
+            color = v.muted, fontSize = 12.sp,
+        )
+    }
+    confirmForget?.let { n ->
+        V2Dialog("Forget this person?", "The face samples of $n are deleted. You can enrol again later.", "Forget", onConfirm = {
+            confirmForget = null
+            panelPost(actions, d, "api/faces", JSONObject().put("forget", n))
+        }, onDismiss = { confirmForget = null }, danger = true)
     }
 }
 

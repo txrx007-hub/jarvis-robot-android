@@ -105,6 +105,10 @@ fun V2Brain(state: MainUiState, actions: MainActions, nav: V2Nav = V2Nav()) {
                 V2Switch(b?.voices == true, { actions.onBrainSet("voiceprint", it) }, enabled = b?.voices != null)
             }
             V2Divider()
+            V2Row("Faces", "Greet more people by name", onClick = { nav.openPage(V2Page.FACES) }, onLongClick = { nav.openPage(V2Page.FACES) }) {
+                Icon(V2Icons.Chevron, contentDescription = null, tint = v.muted, modifier = Modifier.size(16.dp))
+            }
+            V2Divider()
             V2Row("Smart turn", asking ?: if (b?.smartTurn == null) "Not on this backend" else if (b.smartModel) "Waits when you pause mid-sentence" else "The model file is missing", onClick = { onOpenPanel("smartCard") }) {
                 V2Switch(b?.smartTurn == true, { actions.onBrainSet("smartturn", it) }, enabled = b?.smartTurn != null)
             }

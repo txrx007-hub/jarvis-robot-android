@@ -77,6 +77,8 @@ class V2ScreenshotTest {
             {"id": "calm", "label": "Calm", "emotion": "relaxed", "prompt": "Speak softly and slowly, in short sentences."}, {"id": "serious", "label": "Serious", "emotion": "neutral", "prompt": "Stay factual."}, {"id": "dry", "label": "Dry", "emotion": "smirk", "prompt": "Dry humour."}]}""",
         "api/key-check" to """{"ha_url": {"state": "ok", "msg": "Home Assistant found at this address"}, "ha_token": {"state": "ok", "msg": "works"}}""",
         "api/ha-log" to """{"rows": [{"t": 1793370000, "service": "light.turn_off", "entity": "light.kitchen", "ok": true}, {"t": 1793369000, "service": "cover.open_cover", "entity": "cover.living_room", "ok": false, "error": "not allowed"}]}""",
+        "api/faces" to """{"people": [{"name": "Anna", "samples": 6}, {"name": "Jonas", "samples": 3}], "owner_samples": 8, "model_ready": true, "max_people": 8,
+            "enrol": null, "enrol_done": {"name": "Jonas", "added": 3, "tried": 3, "total": 3, "reasons": ["the face is not clear enough"]}}""",
         "api/test-ha" to """{"ok": true, "ms": 143, "entities": 214, "domains": {"sensor": 80, "light": 24, "switch": 18, "cover": 6, "climate": 3, "media_player": 4, "automation": 9}}""",
         "api/notify" to """{"configured": true, "server": "ntfy.sh", "events": {}}""",
         "api/state" to """{"keys": {"ha_url": true, "ha_token": true}, "choice": {"ears": "groq", "brain": "groq", "voice": "piper"}, "params": [{"id": "ha_allowed", "value": "light,switch,fan,scene,script,climate,input_boolean"}, {"id": "ha_confirm", "value": "cover"}]}""",
@@ -119,6 +121,15 @@ class V2ScreenshotTest {
     @Test fun v2PageMood() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2PageHost(V2Page.MOOD, online, panelActions, {}, {}) {} } }
     @Test fun v2PageHome() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2PageHost(V2Page.HOME, online, panelActions, {}, {}) {} } }
     @Test fun v2PageHealth() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2PageHost(V2Page.HEALTH, online, panelActions, {}, {}) {} } }
+    @Test fun v2PageFaces() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2PageHost(V2Page.FACES, online, panelActions, {}, {}) {} } }
+    @Test fun v2PageFacesDutch() {
+        I18n.restore("nl")
+        try {
+            paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2PageHost(V2Page.FACES, online, panelActions, {}, {}) {} } }
+        } finally {
+            I18n.restore("en")
+        }
+    }
     @Test fun v2PageHealthDutch() {
         I18n.restore("nl")
         try {
