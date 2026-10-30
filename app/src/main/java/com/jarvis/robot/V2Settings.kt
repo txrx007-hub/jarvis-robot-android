@@ -77,7 +77,7 @@ fun V2Settings(state: MainUiState, actions: MainActions, openGroup: String? = nu
     var serverSheet by remember { mutableStateOf(false) }
     var confirmReset by remember { mutableStateOf(false) }
     var resetNote by remember { mutableStateOf<Feedback?>(null) }
-    val groups = groupSettings(state.settings)
+    val groups = groupSettings(state.settings).filter { it.first.title != "System" }   // "System" holds only the USB log detail: for debugging with a cable, not for daily use (the classic app and the robot keep it)
 
     val page = openGroup?.let { t -> groups.firstOrNull { it.first.title == t } }
     if (page != null) {
