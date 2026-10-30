@@ -153,7 +153,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onSetServer = vm::setServer,
         )
     }
-    MainContent(state, actions)
+    // Jarvis v2 (build type "v2"): the same state and actions, the new layout (V2App.kt); the other builds keep the classic screen.
+    if (BuildConfig.UI_V2) V2App(state, actions) else MainContent(state, actions)
 }
 
 /** Width from which the screen is laid out as a tablet (the Fold's inner screen); below it the single column of the phone. */

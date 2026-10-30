@@ -16,6 +16,7 @@ android {
         versionCode = 39
         versionName = "2.37"
         buildConfigField("boolean", "DEMO", "false")
+        buildConfigField("boolean", "UI_V2", "false")
     }
 
     buildTypes {
@@ -29,6 +30,15 @@ android {
             applicationIdSuffix = ".demo"
             versionNameSuffix = "-demo"
             buildConfigField("boolean", "DEMO", "true")
+            matchingFallbacks += listOf("debug")
+        }
+        // Jarvis v2: the new layout (tabs, tiles, sheets; V2App.kt) on the same robot and backend code. Installs next to the classic app, so both can be compared.
+        // .\build.ps1 assembleV2  ->  app/build/outputs/apk/v2/app-v2.apk (copied as Jarvis-v2.apk)
+        create("v2") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".v2"
+            versionNameSuffix = "-v2"
+            buildConfigField("boolean", "UI_V2", "true")
             matchingFallbacks += listOf("debug")
         }
     }

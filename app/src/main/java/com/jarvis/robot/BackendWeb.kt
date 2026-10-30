@@ -46,7 +46,7 @@ val LocalLiveWeb = staticCompositionLocalOf { true }
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifier: Modifier = Modifier) {
+fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifier: Modifier = Modifier, anchor: String = "") {
     val p = LocalPalette.current
     if (LocalInspectionMode.current || !LocalLiveWeb.current) { // previews and the screenshot tests have no real WebView
         Box(modifier.background(p.card), contentAlignment = Alignment.Center) {
@@ -58,7 +58,10 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
     val demo = BuildConfig.DEMO   // the demo serves the panel's page from the app itself (DemoWeb)
     val base = if (demo) "https://${DemoWeb.HOST}/" else if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
     val panelHost = remember(base) { Uri.parse(base).host.orEmpty() }
-    val themeJs = themeScript(p.isDark, palette, I18n.lang)
+    // Jarvis v2 opens the page at one section: scroll there once the panel has drawn its cards (they come in a moment after the page itself).
+    val scrollJs = if (anchor.isEmpty()) "" else
+        "setTimeout(function(){var e=document.getElementById('$anchor');if(e){var c=e.closest('.card')||e;c.scrollIntoView({block:'start'});}},700);"
+    val themeJs = themeScript(p.isDark, palette, I18n.lang) + scrollJs
     var latestJs by remember { mutableStateOf(themeJs) }
     latestJs = themeJs
 

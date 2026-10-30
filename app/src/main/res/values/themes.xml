@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Jarvis" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/jarvis_bg</item>
+        <!-- See-through window: the splash shows only the photo, with the phone's own screen dimmed behind it (no white full-screen start window).
+             Every screen of the app paints its own background; MainActivity makes the window opaque again after the splash (Android 11 and newer). -->
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>

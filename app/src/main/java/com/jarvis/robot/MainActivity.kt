@@ -97,6 +97,9 @@ private fun Root(vm: RobotViewModel) {
             delay(SPLASH_MS)
             showSplash = false
         }
+        // The window is see-through for the splash (themes.xml); from here on every screen is opaque, so make the window opaque too (less drawing,
+        // and the app behind is no longer kept on screen). Before Android 11 there is no public call for it: the window stays see-through, unseen.
+        if (android.os.Build.VERSION.SDK_INT >= 30) activity.setTranslucent(false)
     }
 
     Crossfade(targetState = showSplash, animationSpec = tween(450), label = "splash") { splash ->
@@ -113,11 +116,14 @@ const val SPLASH_WIDTH = 0.7f   // share of the screen's width the photo may tak
 const val SPLASH_HEIGHT = 0.7f  // share of the screen's height the photo may take; the photo keeps its own proportions inside both
 const val SPLASH_ASPECT = 1080f / 1920f // width / height of splash.jpg (portrait)
 
-/** The robot in the user's hand, background blurred (made by tools/make_splash.py), in its original proportions, as large as fits. */
+/** Behind the splash photo: the phone's own screen, dimmed to half (the window is see-through while the splash shows). */
+const val SPLASH_SCRIM_ALPHA = 0.5f
+
+/** The robot in the user's hand, background blurred (made by tools/make_splash.py), in its original proportions, as large as fits; around it only a see-through dark layer. */
 @Composable
 fun SplashScreen() {
     BoxWithConstraints(
-        modifier = Modifier.fillMaxSize().background(LocalPalette.current.bg),
+        modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = SPLASH_SCRIM_ALPHA)),
         contentAlignment = Alignment.Center,
     ) {
         val width = minOf(maxWidth * SPLASH_WIDTH, maxHeight * SPLASH_HEIGHT * SPLASH_ASPECT)
