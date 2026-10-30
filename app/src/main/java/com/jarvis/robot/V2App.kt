@@ -138,4 +138,5 @@ private fun V2FeedbackSnacks(state: MainUiState, snack: SnackbarHostState) {
     LaunchedEffect(state.powerFeedback) { state.powerFeedback?.let { snack.showSnackbar(tr(it.text)) } }
     LaunchedEffect(state.serverFeedback) { state.serverFeedback?.let { snack.showSnackbar(tr(it.text)) } }
     LaunchedEffect(state.photoError) { state.photoError?.let { snack.showSnackbar(tr(it)) } }
+    LaunchedEffect(state.brainFeedback) { state.brainFeedback?.let { snack.showSnackbar(tr(it.text)) } }
 }

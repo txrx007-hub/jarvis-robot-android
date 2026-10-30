@@ -73,6 +73,8 @@ data class MainUiState(
     val palette: AppPalette = AppPalette.CLASSIC,
     val haOk: Boolean = false,
     val music: MusicStatus? = null,
+    val brain: BrainSwitches? = null,      // Jarvis v2's Brain tab: the backend's switches
+    val brainFeedback: Feedback? = null,
 )
 
 /** What the main screen can ask for; the ViewModel implements these, tests and previews pass no-ops. */
@@ -97,6 +99,8 @@ class MainActions(
     val onMusicNext: () -> Unit = {},
     val onSetVolume: (Int) -> Unit = {},
     val onSetServer: (String) -> Unit = {},
+    val onBrainLoad: () -> Unit = {},                              // Jarvis v2: ask the backend for its switches
+    val onBrainSet: (which: String, on: Boolean) -> Unit = { _, _ -> },   // Jarvis v2: greeter | voiceprint | smartturn on or off
 )
 
 @Composable
@@ -128,6 +132,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         haOk = vm.haOk,
         music = vm.music,
         palette = vm.palette,
+        brain = vm.brain,
+        brainFeedback = vm.brainFeedback,
     )
     val actions = remember(vm) {
         MainActions(
@@ -151,6 +157,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onMusicNext = vm::musicNext,
             onSetVolume = vm::setVolume,
             onSetServer = vm::setServer,
+            onBrainLoad = vm::loadBrain,
+            onBrainSet = vm::setBrain,
         )
     }
     // Jarvis v2 (build type "v2"): the same state and actions, the new layout (V2App.kt); the other builds keep the classic screen.

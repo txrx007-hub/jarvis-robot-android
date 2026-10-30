@@ -19,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -96,6 +97,53 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     /** The backend's music module (null = not on or not asked yet): the Music card shows while it is on. Asked every 4 seconds while the app is on screen. */
     var music by mutableStateOf<MusicStatus?>(null)
         private set
+
+    /** Jarvis v2's Brain switches as the backend reports them (null = not asked yet or no backend); asked when the Brain tab opens and after every change. */
+    var brain by mutableStateOf<BrainSwitches?>(null)
+        private set
+
+    fun loadBrain() {
+        val current = api
+        val url = panelUrlOf(status)
+        if (url.isEmpty()) return
+        viewModelScope.launch {
+            brain = withContext(Dispatchers.IO) { readBrain(current, url) }
+        }
+    }
+
+    /** which = greeter | voiceprint | smartturn: the panel's own switch for it ({"enabled": on}); takes effect at once on the voice server, no restart. */
+    fun setBrain(which: String, on: Boolean) {
+        val current = api
+        val url = panelUrlOf(status)
+        if (url.isEmpty() || which !in BRAIN_SWITCHES) return
+        brain = brain?.let { b -> b.copy(greeter = if (which == "greeter") on else b.greeter, voices = if (which == "voiceprint") on else b.voices, smartTurn = if (which == "smartturn") on else b.smartTurn) }
+        viewModelScope.launch {
+            val ok = runCatching { withContext(Dispatchers.IO) { current.panelJson(url, "api/$which", JSONObject().put("enabled", on)) } }.isSuccess
+            brainFeedback = Feedback(ok, if (ok) "${BRAIN_NAMES[which]} ${if (on) "on" else "off"}" else "Could not reach the backend: ${BRAIN_NAMES[which]} not changed")
+            brain = withContext(Dispatchers.IO) { readBrain(current, url) }
+        }
+    }
+
+    /** The answer to the last Brain switch (for the snackbar). */
+    var brainFeedback by mutableStateOf<Feedback?>(null)
+        private set
+
+    private fun readBrain(current: RobotApi, url: String): BrainSwitches {
+        fun get(path: String) = runCatching { current.panelJson(url, path) }.getOrNull()
+        val g = get("api/greeter")
+        val vp = get("api/voiceprint")
+        val st = get("api/smartturn")
+        val mem = get("api/memory")
+        return BrainSwitches(
+            greeter = g?.optBoolean("enabled"),
+            voices = vp?.optBoolean("enabled"),
+            voicesPeople = vp?.optJSONArray("people")?.length() ?: 0,
+            voicesModel = vp?.optBoolean("model_ready") ?: false,
+            smartTurn = st?.optBoolean("enabled"),
+            smartModel = st?.optBoolean("model_ready") ?: false,
+            memoryOn = mem?.optBoolean("on"),
+        )
+    }
 
     /** True while a pull-down refresh is asking the robot (and the backend) again. */
     var refreshing by mutableStateOf(false)

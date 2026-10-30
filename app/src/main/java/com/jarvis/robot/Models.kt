@@ -452,3 +452,18 @@ fun sleepText(total: Int): String {
 
 /** The backend's music module: is it on (a folder is set), how many songs, and what is playing right now. */
 data class MusicStatus(val enabled: Boolean, val tracks: Int, val title: String?, val artist: String?)
+
+/** Jarvis v2's Brain switches, read from the backend panel (null = that part could not be asked, e.g. an older backend). */
+data class BrainSwitches(
+    val greeter: Boolean? = null,
+    val voices: Boolean? = null,
+    val voicesPeople: Int = 0,
+    val voicesModel: Boolean = false,
+    val smartTurn: Boolean? = null,
+    val smartModel: Boolean = false,
+    val memoryOn: Boolean? = null,
+)
+
+/** The switches the app may flip on the panel, and their names for the snackbar. */
+val BRAIN_SWITCHES = setOf("greeter", "voiceprint", "smartturn")
+val BRAIN_NAMES = mapOf("greeter" to "Greeter", "voiceprint" to "Voice recognition", "smartturn" to "Smart turn")

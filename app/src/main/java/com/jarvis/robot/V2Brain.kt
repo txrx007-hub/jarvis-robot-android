@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -80,6 +81,38 @@ fun V2Brain(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> U
                 }
             }
         }
+
+        // ---- the switches people flip: straight on the voice server (no restart); a row opens its panel card for the details
+        LaunchedEffect(panel) { if (panel) actions.onBrainLoad() }
+        val b = state.brain
+        val asking = if (b == null) "Asking the backend…" else null
+        V2Card {
+            V2Row("Greeter", asking ?: if (b?.greeter == null) "Not on this backend" else "Good morning when it sees you", onClick = { onOpenPanel("greetCard") }) {
+                V2Switch(b?.greeter == true, { actions.onBrainSet("greeter", it) }, enabled = b?.greeter != null)
+            }
+            V2Divider()
+            val voicesSub = when {
+                b == null -> asking
+                b.voices == null -> "Not on this backend"
+                !b.voicesModel -> "The speaker model file is missing"
+                b.voicesPeople == 0 -> "Nobody enrolled yet"
+                b.voicesPeople == 1 -> "1 voice enrolled"
+                else -> "${b.voicesPeople} voices enrolled"
+            }
+            V2Row("Voice recognition", voicesSub, onClick = { onOpenPanel("voiceCard") }) {
+                V2Switch(b?.voices == true, { actions.onBrainSet("voiceprint", it) }, enabled = b?.voices != null)
+            }
+            V2Divider()
+            V2Row("Smart turn", asking ?: if (b?.smartTurn == null) "Not on this backend" else if (b.smartModel) "Waits when you pause mid-sentence" else "The model file is missing", onClick = { onOpenPanel("smartCard") }) {
+                V2Switch(b?.smartTurn == true, { actions.onBrainSet("smartturn", it) }, enabled = b?.smartTurn != null)
+            }
+            V2Divider()
+            V2Row("Memory", asking ?: "Notes about the people it talks to", onClick = { onOpenPanel("memCard") }) {
+                Text(when (b?.memoryOn) { true -> "On"; false -> "Off"; null -> "--" }, color = v.muted, fontSize = 14.sp)
+                Icon(V2Icons.Chevron, contentDescription = null, tint = v.muted, modifier = Modifier.size(16.dp))
+            }
+        }
+        Text("Memory is switched on the panel: it restarts the voice server.", color = v.muted, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 4.dp))
 
         // ---- every section of the panel
         for (row in PANEL_SECTIONS.chunked(2)) {

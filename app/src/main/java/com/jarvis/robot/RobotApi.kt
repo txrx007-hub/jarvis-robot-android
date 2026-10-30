@@ -103,6 +103,15 @@ class RobotApi(host: String, demo: DemoRobot? = if (BuildConfig.DEMO) DemoRobot.
         panelCall(panelUrl) { Request.Builder().url(it + "api/dcim?src=button").post(body).build() }
     }
 
+    /** One JSON answer of the panel: a GET, or with [post] a change (the panel wants its X-Panel header on every change). Jarvis v2's Brain switches. */
+    fun panelJson(panelUrl: String, path: String, post: JSONObject? = null): JSONObject {
+        val text = panelCall(panelUrl) { base ->
+            val b = Request.Builder().url(base + path)
+            if (post == null) b.get().build() else b.header("X-Panel", "1").post(post.toString().toRequestBody("application/json".toMediaType())).build()
+        }
+        return JSONObject(text)
+    }
+
     /** action = stop | next */
     fun musicControl(panelUrl: String, action: String): Boolean {
         val body = JSONObject().put("action", action).toString().toRequestBody("application/json".toMediaType())
