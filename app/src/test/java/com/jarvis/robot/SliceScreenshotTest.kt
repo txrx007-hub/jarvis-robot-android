@@ -1,7 +1,8 @@
-package com.jarvis.robot
+﻿package com.jarvis.robot
 
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
+import app.cash.paparazzi.detectEnvironment
 import org.junit.Rule
 import org.junit.Test
 
@@ -12,7 +13,7 @@ class SliceScreenshotTest {
     // Slices of the screen, 1080x1560 instead of the full-height phone: Paparazzi shrinks every image to
     // 1000 px tall, so a shorter slice is shown at a larger scale (readable text on the project page).
     @get:Rule
-    val slice = Paparazzi(
+    val slice = Paparazzi(environment = detectEnvironment().copy(compileSdkVersion = 34), 
         deviceConfig = DeviceConfig.PIXEL_5.copy(screenHeight = 1560),
         theme = "android:Theme.Material.NoActionBar",
         showSystemUi = false,

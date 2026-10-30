@@ -125,7 +125,8 @@ fun V2Home(state: MainUiState, actions: MainActions, nav: V2Nav = V2Nav()) {
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(v.surface).v2Press({ robotDetails = false; robotSheet = true }, { robotDetails = true; robotSheet = true }).padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                V2Eyes(awake = state.online && s?.napping != true, modifier = Modifier.size(88.dp))
+                if (V3.on) V3Cookie(96.dp) { V2Eyes(awake = state.online && s?.napping != true, modifier = Modifier.size(64.dp)) }
+                else V2Eyes(awake = state.online && s?.napping != true, modifier = Modifier.size(88.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(v2StateText(state), color = v.text, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
                     val parts = if (!state.online) emptyList() else listOfNotNull(

@@ -1,7 +1,8 @@
-package com.jarvis.robot
+﻿package com.jarvis.robot
 
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
+import app.cash.paparazzi.detectEnvironment
 import com.android.resources.Density
 import com.android.resources.ScreenOrientation
 import androidx.compose.runtime.CompositionLocalProvider
@@ -32,7 +33,7 @@ class FoldScreenshotTest {
     // Cover: 1080x2520 px at 420 dpi = 411 x 960 dp.
     private val cover = DeviceConfig.PIXEL_5.copy(screenWidth = 1080, screenHeight = 2520, xdpi = 420, ydpi = 420, density = Density.create(420))
 
-    @get:Rule val coverRule = Paparazzi(deviceConfig = cover, theme = "android:Theme.Material.NoActionBar", showSystemUi = false)
+    @get:Rule val coverRule = Paparazzi(environment = detectEnvironment().copy(compileSdkVersion = 34), deviceConfig = cover, theme = "android:Theme.Material.NoActionBar", showSystemUi = false)
 
     @Test fun coverSplash() = coverRule.snapshot { JarvisTheme(ThemeMode.DARK) { SplashScreen() } }
 
@@ -77,7 +78,7 @@ class FoldInnerScreenshotTest {
     private val inner = DeviceConfig.PIXEL_5.copy(screenWidth = 2184, screenHeight = 1968, xdpi = 320, ydpi = 320, density = Density.XHIGH,
         orientation = ScreenOrientation.LANDSCAPE)
 
-    @get:Rule val rule = Paparazzi(deviceConfig = inner, theme = "android:Theme.Material.NoActionBar", showSystemUi = false)
+    @get:Rule val rule = Paparazzi(environment = detectEnvironment().copy(compileSdkVersion = 34), deviceConfig = inner, theme = "android:Theme.Material.NoActionBar", showSystemUi = false)
 
     private fun shot(section: String, mode: ThemeMode = ThemeMode.DARK, palette: AppPalette = AppPalette.BLUEBERRY) = rule.snapshot {
         CompositionLocalProvider(LocalLiveWeb provides false) {
@@ -112,7 +113,7 @@ class FoldInnerPortraitScreenshotTest {
     private val online = SampleData.online
     private val portrait = DeviceConfig.PIXEL_5.copy(screenWidth = 1968, screenHeight = 2184, xdpi = 320, ydpi = 320, density = Density.XHIGH)
 
-    @get:Rule val rule = Paparazzi(deviceConfig = portrait, theme = "android:Theme.Material.NoActionBar", showSystemUi = false)
+    @get:Rule val rule = Paparazzi(environment = detectEnvironment().copy(compileSdkVersion = 34), deviceConfig = portrait, theme = "android:Theme.Material.NoActionBar", showSystemUi = false)
 
     @Test fun innerPortraitBackend() = rule.snapshot {
         CompositionLocalProvider(LocalLiveWeb provides false) {

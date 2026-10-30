@@ -180,7 +180,7 @@ fun Modifier.v2Press(onClick: (() -> Unit)?, onLongClick: (() -> Unit)? = null, 
 fun V2Tile(
     modifier: Modifier = Modifier,
     color: Color = v2Colors().surfaceHigh,
-    shape: RoundedCornerShape = RoundedCornerShape(28.dp),
+    shape: RoundedCornerShape = RoundedCornerShape(if (V3.on) 36.dp else 28.dp),
     onClick: (() -> Unit)? = null,
     role: Role = Role.Button,
     padding: Dp = 16.dp,
@@ -280,6 +280,7 @@ fun V2WifiBars(rssi: Int?, height: Dp = 14.dp) {
 /** A connected button group (M3 Expressive): one row, the ends rounder than the middle, the chosen one filled. */
 @Composable
 fun <T> V2Connected(options: List<Pair<T, String>>, selected: T?, onSelect: (T) -> Unit, modifier: Modifier = Modifier, height: Dp = 44.dp) {
+    if (V3.on) { V3Connected(options, selected, onSelect, modifier, height); return }
     val v = v2Colors()
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
         options.forEachIndexed { i, (value, label) ->
@@ -337,7 +338,7 @@ fun V2Switch(checked: Boolean, onChange: (Boolean) -> Unit, enabled: Boolean = t
 @Composable
 fun V2Card(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     val v = v2Colors()
-    Column(modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(v.surface), content = content)
+    Column(modifier.fillMaxWidth().clip(RoundedCornerShape(if (V3.on) 32.dp else 24.dp)).background(v.surface), content = content)
 }
 
 @Composable
@@ -358,7 +359,7 @@ fun V2Label(text: String) {
 fun V2Title(text: String, sub: String? = null) {
     val v = v2Colors()
     Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) {
-        Text(text, color = v.text, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Text(text, color = v.text, fontSize = if (V3.on) 38.sp else 30.sp, fontWeight = if (V3.on) FontWeight.ExtraBold else FontWeight.Bold, letterSpacing = if (V3.on) (-0.8).sp else 0.sp)
         if (!sub.isNullOrEmpty()) Text(sub, color = v.muted, fontSize = 13.sp)
     }
 }

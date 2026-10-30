@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -47,9 +48,9 @@ enum class V2Tab(val label: String, val icon: ImageVector, val iconOn: ImageVect
  * Nothing here talks to the robot by itself; every button calls one of the actions the classic app has too.
  */
 @Composable
-fun V2App(state: MainUiState, actions: MainActions) {
+fun V2App(state: MainUiState, actions: MainActions, startTab: V2Tab = V2Tab.HOME) {
     val v = v2Colors()
-    var tab by rememberSaveable { mutableStateOf(V2Tab.HOME) }
+    var tab by rememberSaveable { mutableStateOf(startTab) }
     var panelAnchor by rememberSaveable { mutableStateOf<String?>(null) }   // not null: the backend page is open over everything, scrolled to this element ("" = the top)
     var page by rememberSaveable { mutableStateOf<V2Page?>(null) }          // not null: one of the app's own detail pages is open over the tabs
     var openGroup by rememberSaveable { mutableStateOf<String?>(null) }     // the settings group page open on the Settings tab
@@ -111,6 +112,11 @@ fun V2App(state: MainUiState, actions: MainActions) {
                     }
                 }
                 Box(Modifier.weight(1f)) { content() }
+            }
+        } else if (V3.on) {   // v3: a floating toolbar instead of the bar; the page ends above it
+            Box(Modifier.fillMaxSize()) {
+                Box(Modifier.fillMaxSize().padding(bottom = 78.dp)) { content() }
+                V3FloatingNav(tab, { go(it) }, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 10.dp))
             }
         } else {
             Column(Modifier.fillMaxSize()) {

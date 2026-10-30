@@ -1,4 +1,4 @@
-package com.jarvis.robot
+﻿package com.jarvis.robot
 
 import android.app.TimePickerDialog
 import androidx.activity.compose.BackHandler
@@ -116,7 +116,8 @@ internal fun panelPost(actions: MainActions, d: PanelData, path: String, body: J
 @Composable
 internal fun V2Waiting(d: PanelData) {
     val v = v2Colors()
-    Text(if (d.failed) "Could not reach the backend. It is asked again in a moment." else "Asking the backend…", color = v.muted, fontSize = 14.sp)
+    if (V3.on && !d.failed) { V3Loading(); return }
+    Text(if (d.failed) "Could not reach the backend. It is asked again in a moment." else "Asking the backendâ€¦", color = v.muted, fontSize = 14.sp)
 }
 
 internal fun JSONObject.strOrNull(k: String): String? = if (has(k) && !isNull(k)) optString(k) else null
@@ -144,7 +145,7 @@ private fun V2GreeterPage(state: MainUiState, actions: MainActions, onOpenPanel:
             }
         }
         V2Label("Who")
-        V2Connected(listOf("owner" to "Only me", "known" to "People I know", "anyone" to "Anyone"), g.optString("who", "owner"), { set("who", it) })
+        V2Connected(listOf("owner" to "Only me", "known" to "Known", "anyone" to "Anyone"), g.optString("who", "owner"), { set("who", it) })
         if (g.optString("who") == "known" || g.optString("who") == "anyone") {
             val people = g.optJSONArray("people")
             Text(
@@ -184,23 +185,19 @@ private fun V2GreeterPage(state: MainUiState, actions: MainActions, onOpenPanel:
             var match by remember(g.optDouble("min_match")) { mutableFloatStateOf(g.optDouble("min_match", 0.45).toFloat()) }
             Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                 Row { Text("Sure match from", color = v.text, fontSize = 15.sp, modifier = Modifier.weight(1f)); Text("%.2f".format(Locale.US, match), color = v.accent, fontWeight = FontWeight.SemiBold) }
-                Slider(
-                    match, { match = it }, onValueChangeFinished = { set("min_match", Math.round(match * 100) / 100.0) }, valueRange = 0.35f..0.9f,
-                    modifier = Modifier.semantics { contentDescription = tr("Sure match from") },
-                    colors = SliderDefaults.colors(thumbColor = v.accent, activeTrackColor = v.accent, inactiveTrackColor = v.surfaceHighest),
-                )
+                V2Slider(match, { match = it }, { set("min_match", Math.round(match * 100) / 100.0) }, 0.35f..0.9f, "Sure match from")
                 Text("How sure the face finder must be that it is you (it calls 0.35 and up you).", color = v.muted, fontSize = 12.sp)
             }
         }
 
         V2Button("Greet now (test)", {
-            testNote = "…"
+            testNote = "â€¦"
             panelPost(actions, d, "api/greeter", JSONObject().put("test", true)) { r ->
                 val t = r.optJSONObject("test")
                 testNote = if (t?.optBoolean("ok") == true) "Said: ${t.optString("text")}" else "Did not work: ${t?.optString("message") ?: "?"}"
             }
         }, Modifier.fillMaxWidth(), enabled = state.online)
-        testNote?.takeIf { it != "…" }?.let { Text(it, color = v.muted, fontSize = 13.sp) }
+        testNote?.takeIf { it != "â€¦" }?.let { Text(it, color = v.muted, fontSize = 13.sp) }
 
         val today = g.optJSONObject("today")
         V2Label("Today")
@@ -222,7 +219,7 @@ private fun V2GreeterPage(state: MainUiState, actions: MainActions, onOpenPanel:
             V2Card {
                 recent.forEachIndexed { i, r ->
                     if (i > 0) V2Divider()
-                    V2Row(r.optString("text"), "${hhmm(r.optLong("t"))}${if (r.optBoolean("test")) " · test" else ""}${if (r.optBoolean("ok")) "" else " · " + r.optString("message")}")
+                    V2Row(r.optString("text"), "${hhmm(r.optLong("t"))}${if (r.optBoolean("test")) " Â· test" else ""}${if (r.optBoolean("ok")) "" else " Â· " + r.optString("message")}")
                 }
             }
         }
@@ -287,11 +284,7 @@ private fun V2VoicesPage(actions: MainActions, onOpenPanel: (String) -> Unit, on
         V2Card {
             Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                 Row { Text("Match needed", color = v.text, fontSize = 15.sp, modifier = Modifier.weight(1f)); Text("%.2f".format(Locale.US, thr), color = v.accent, fontWeight = FontWeight.SemiBold) }
-                Slider(
-                    thr, { thr = it }, onValueChangeFinished = { send(JSONObject().put("threshold", Math.round(thr * 100) / 100.0)) }, valueRange = 0.4f..0.95f,
-                    modifier = Modifier.semantics { contentDescription = tr("Match needed") },
-                    colors = SliderDefaults.colors(thumbColor = v.accent, activeTrackColor = v.accent, inactiveTrackColor = v.surfaceHighest),
-                )
+                V2Slider(thr, { thr = it }, { send(JSONObject().put("threshold", Math.round(thr * 100) / 100.0)) }, 0.4f..0.95f, "Match needed")
                 Text("Higher = fewer strangers get your name, but more of your own sentences stay unlabelled.", color = v.muted, fontSize = 12.sp)
             }
         }
@@ -310,7 +303,7 @@ private fun V2VoicesPage(actions: MainActions, onOpenPanel: (String) -> Unit, on
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             V2Kpi("${s.optInt("known") + s.optInt("unknown")}", "sentences checked", Modifier.weight(1f))
             V2Kpi("${s.optInt("known")}", "a known voice", Modifier.weight(1f), accent = s.optInt("known") > 0)
-            V2Kpi(if (s.isNull("avg_ms")) "–" else "${s.optDouble("avg_ms").toInt()} ms", "per check", Modifier.weight(1f))
+            V2Kpi(if (s.isNull("avg_ms")) "â€“" else "${s.optDouble("avg_ms").toInt()} ms", "per check", Modifier.weight(1f))
         }
         V2Button("Open in the panel", { onOpenPanel("voiceCard") }, Modifier.fillMaxWidth(), filled = false)
     }
@@ -349,7 +342,7 @@ private fun V2MusicPage(state: MainUiState, actions: MainActions, onOpenPanel: (
         }
         V2Label("Try saying")
         V2Card {
-            for ((i, line) in listOf("“play something random”", "“play a song by Queen”", "“play jazz radio”", "“next song”, “stop the music”").withIndex()) {
+            for ((i, line) in listOf("â€œplay something randomâ€", "â€œplay a song by Queenâ€", "â€œplay jazz radioâ€", "â€œnext songâ€, â€œstop the musicâ€").withIndex()) {
                 if (i > 0) V2Divider()
                 V2Row(line)
             }
@@ -366,7 +359,7 @@ private fun V2MemoryPage(state: MainUiState, actions: MainActions, onOpenPanel: 
     var confirm by remember { mutableStateOf<String?>(null) }
     V2PageFrame("Memory", onBack, "What Jarvis remembers about the people it talks to") {
         val m = d.data ?: run { V2Waiting(d); return@V2PageFrame }
-        V2Card { V2Row("Memory", if (m.optBoolean("on")) "On · switched in the panel (it restarts the voice server)" else "Off · switched in the panel") }
+        V2Card { V2Row("Memory", if (m.optBoolean("on")) "On Â· switched in the panel (it restarts the voice server)" else "Off Â· switched in the panel") }
         val robots = m.optJSONArray("memory").objects()
         if (robots.isEmpty()) Text("Nothing remembered yet.", color = v.muted, fontSize = 14.sp)
         for (r in robots) {
@@ -416,11 +409,7 @@ private fun V2VolumePage(state: MainUiState, actions: MainActions, onOpenGroup: 
         var live by remember(robot) { mutableFloatStateOf(robot.toFloat()) }
         V2Tile(Modifier.fillMaxWidth(), color = v.surface) {
             Text("${live.toInt()}", color = v.text, fontSize = 64.sp, fontWeight = FontWeight.Bold)
-            Slider(
-                live, { live = it }, onValueChangeFinished = { actions.onSetVolume(live.toInt()) }, valueRange = 0f..100f,
-                modifier = Modifier.semantics { contentDescription = tr("Volume") },
-                colors = SliderDefaults.colors(thumbColor = v.accent, activeTrackColor = v.accent, inactiveTrackColor = v.surfaceHighest),
-            )
+            V2Slider(live, { live = it }, { actions.onSetVolume(live.toInt()) }, 0f..100f, "Volume")
             V2Connected(listOf(25 to "25", 50 to "50", 75 to "75", 100 to "100"), live.toInt().takeIf { it in setOf(25, 50, 75, 100) }, { live = it.toFloat(); actions.onSetVolume(it) })
         }
         val cap = s.volumeCap

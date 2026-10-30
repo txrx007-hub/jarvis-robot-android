@@ -17,6 +17,7 @@ android {
         versionName = "2.37"
         buildConfigField("boolean", "DEMO", "false")
         buildConfigField("boolean", "UI_V2", "false")
+        buildConfigField("boolean", "UI_V3", "false")
     }
 
     buildTypes {
@@ -41,6 +42,16 @@ android {
             buildConfigField("boolean", "UI_V2", "true")
             matchingFallbacks += listOf("debug")
         }
+        // Jarvis v3: the v2 screens in the Material 3 Expressive design language (floating toolbar, button groups, shape morphing, wavy progress; V3Kit.kt). Installs next to the others.
+        // .\build.ps1 assembleV3  ->  app/build/outputs/apk/v3/app-v3.apk (copied as Jarvis-v3.apk)
+        create("v3") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".v3"
+            versionNameSuffix = "-v3"
+            buildConfigField("boolean", "UI_V2", "true")
+            buildConfigField("boolean", "UI_V3", "true")
+            matchingFallbacks += listOf("debug")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -56,10 +67,10 @@ android {
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
+    val composeBom = platform("androidx.compose:compose-bom:2025.06.00")   // Compose 1.8, the newest that still builds with compileSdk 35 and Kotlin 2.0
     implementation(composeBom)
     implementation("androidx.activity:activity-compose:1.9.3")
-    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3:1.4.0-alpha15")   // the Material 3 Expressive components (FloatingToolbar, ToggleButton, LoadingIndicator, wavy progress, MaterialShapes) are public here and still build with compileSdk 35 (1.4.0 stable hides them, 1.5 needs compileSdk 36)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")

@@ -1,4 +1,4 @@
-package com.jarvis.robot
+﻿package com.jarvis.robot
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
+import app.cash.paparazzi.detectEnvironment
 import org.junit.Rule
 import org.junit.Test
 
@@ -26,7 +27,7 @@ class ScreenshotTest {
     private val status = SampleData.status
 
     @get:Rule
-    val paparazzi = Paparazzi(
+    val paparazzi = Paparazzi(environment = detectEnvironment().copy(compileSdkVersion = 34), 
         deviceConfig = DeviceConfig.PIXEL_5,
         theme = "android:Theme.Material.NoActionBar",
         showSystemUi = false,

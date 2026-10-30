@@ -1,4 +1,4 @@
-package com.jarvis.robot
+﻿package com.jarvis.robot
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
+import app.cash.paparazzi.detectEnvironment
 import org.junit.Rule
 import org.junit.Test
 
@@ -14,11 +15,11 @@ import org.junit.Test
  * `./gradlew recordPaparazziDebug --tests com.jarvis.robot.V2ScreenshotTest` writes them to app/src/test/snapshots/images.
  */
 class V2ScreenshotTest {
-    private val online = SampleData.online
-    private val playing = online.copy(music = MusicStatus(enabled = true, tracks = 11, title = "JOE", artist = "Radio"))
+    internal val online = SampleData.online
+    internal val playing = online.copy(music = MusicStatus(enabled = true, tracks = 11, title = "JOE", artist = "Radio"))
 
     @get:Rule
-    val paparazzi = Paparazzi(deviceConfig = DeviceConfig.PIXEL_5, theme = "android:Theme.Material.NoActionBar", showSystemUi = false)
+    val paparazzi = Paparazzi(deviceConfig = DeviceConfig.PIXEL_5, theme = "android:Theme.Material.NoActionBar", showSystemUi = false, environment = detectEnvironment().copy(compileSdkVersion = 34))   // Compose 1.8 takes its Android 15 text path on an API 35 environment, which Paparazzi's layoutlib does not have
 
     /** One tab on the theme's background, the way V2App shows it (without the navigation bar). */
     @Composable
@@ -29,7 +30,7 @@ class V2ScreenshotTest {
     @Test fun v2HomePeach() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK, AppPalette.PEACH) { V2App(online, MainActions()) } }
     @Test fun v2Drive() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { Tab { V2Drive(online, MainActions()) } } }
     @Test fun v2Say() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { Tab { V2Say(online) } } }
-    private val brain = BrainSwitches(greeter = false, voices = true, voicesPeople = 1, voicesModel = true, smartTurn = true, smartModel = true, memoryOn = true)
+    internal val brain = BrainSwitches(greeter = false, voices = true, voicesPeople = 1, voicesModel = true, smartTurn = true, smartModel = true, memoryOn = true)
     @Test fun v2Brain() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { Tab { V2Brain(playing.copy(brain = brain), MainActions()) } } }
     @Test fun v2Settings() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { Tab { V2Settings(online, MainActions()) } } }
     @Test fun v2SettingsGroups() = paparazzi.snapshot {
@@ -102,7 +103,7 @@ class V2ScreenshotTest {
           "show": [], "failover": {"answer": {"day": {"requests": 40, "backups": 1, "failovers": 1, "reasons": [{"model": "openai/gpt-oss-120b", "reason": "rate limit", "n": 1}]}}},
           "live": {"tavily": {"ok": true, "plan": "Researcher", "plan_usage": 137, "plan_limit": 1000}, "groq": {"ok": true, "limit_requests": 1000, "remaining_requests": 960}}}""",
     )
-    private val panelActions = MainActions(onPanel = { path, _, done -> done(panelAnswers[path]?.let { org.json.JSONObject(it) }) })
+    internal val panelActions = MainActions(onPanel = { path, _, done -> done(panelAnswers[path]?.let { org.json.JSONObject(it) }) })
 
     @Test fun v2PageGreeter() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2PageHost(V2Page.GREETER, online, panelActions, {}, {}) {} } }
     @Test fun v2PageVoices() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2PageHost(V2Page.VOICES, online, panelActions, {}, {}) {} } }

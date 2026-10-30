@@ -1,4 +1,4 @@
-"""Writes app/src/main/java/com/jarvis/robot/I18nWords.kt: the Dutch word list of the app.
+﻿"""Writes app/src/main/java/com/jarvis/robot/I18nWords.kt: the Dutch word list of the app.
 
 Most of the Dutch texts are the landing page's (main/boards/wall-e-xiao/web/index.html, so the two always agree); the voice-command lists are paired from the
 landing page's English and Dutch lists; the app's own texts are written below.
@@ -53,7 +53,7 @@ words.update({
     "Take a picture": "Maak een foto", "Take another": "Maak er nog een", "Photo from Jarvis's camera": "Foto van Jarvis\u2019 camera", "Hide picture": "Verberg foto",
     "Show full screen": "Toon op volledig scherm", "Photo from Jarvis's camera, full screen": "Foto van Jarvis\u2019 camera, volledig scherm",
     "Close full screen": "Sluit volledig scherm",
-    "Higher if photos come out dark, lower if bright spots wash out.": "Hoger als foto’s te donker zijn, lager als lichte plekken overbelicht raken.",
+    "Higher if photos come out dark, lower if bright spots wash out.": "Hoger als fotoâ€™s te donker zijn, lager als lichte plekken overbelicht raken.",
     "Camera colour": "Camerakleur",
     "Higher for stronger colours, lower for paler ones. 0 is the camera's own.": "Hoger voor sterkere kleuren, lager voor flauwere. 0 is die van de camera zelf.",
     "Nothing playing. Say: Jarvis, play something random.": "Er speelt niets. Zeg: Jarvis, play something random.", "Next song": "Volgend nummer",
@@ -97,19 +97,19 @@ V2 = {
     "1 voice sample": "1 stemvoorbeeld", "A small model on the PC compares each sentence with the voices below": "Een klein model op de pc vergelijkt elke zin met de stemmen hieronder",
     "A small picture about every 20 s while it is idle; two sure looks and it speaks": "Een kleine foto ongeveer elke 20 s als hij niets doet; twee zekere blikken en hij praat",
     "Add a sentence to this voice": "Voeg een zin toe aan deze stem", "Anyone": "Iedereen", "Only me": "Alleen ik", "At most per day": "Hoogstens per dag", "Once per": "Eens per",
-    "Checking…": "Controleren…", "Scanning…": "Scannen…", "Could not reach the backend. It is asked again in a moment.": "De backend is niet bereikt. Hij wordt zo opnieuw gevraagd.",
+    "Checkingâ€¦": "Controlerenâ€¦", "Scanningâ€¦": "Scannenâ€¦", "Could not reach the backend. It is asked again in a moment.": "De backend is niet bereikt. Hij wordt zo opnieuw gevraagd.",
     "Details": "Details", "Enrol (6 sentences)": "Inschrijven (6 zinnen)", "Enrol a new voice": "Een nieuwe stem inschrijven", "Enrolled voices": "Ingeschreven stemmen",
     "Everything Jarvis noted about the people it talks to is deleted. It starts again with the next conversation.":
         "Alles wat Jarvis noteerde over de mensen met wie hij praat wordt gewist. Hij begint opnieuw bij het volgende gesprek.",
     "Forget": "Vergeten", "Forget the notes?": "De notities vergeten?", "Forget these notes": "Deze notities vergeten", "Forget this voice": "Vergeet deze stem", "Forget this voice?": "Deze stem vergeten?",
-    "Found a Jarvis here · tap to connect": "Hier een Jarvis gevonden · tik om te verbinden", "Go back to the xiaozhi.me cloud? Jarvis restarts.": "Terug naar de xiaozhi.me-cloud? Jarvis herstart.",
+    "Found a Jarvis here Â· tap to connect": "Hier een Jarvis gevonden Â· tik om te verbinden", "Go back to the xiaozhi.me cloud? Jarvis restarts.": "Terug naar de xiaozhi.me-cloud? Jarvis herstart.",
     "Greet now (test)": "Nu begroeten (test)", "Greet when it sees you": "Begroeten als hij je ziet",
     "Higher = fewer strangers get your name, but more of your own sentences stay unlabelled.": "Hoger = minder vreemden krijgen jouw naam, maar meer van je eigen zinnen blijven zonder label.",
     "How sure the face finder must be that it is you (it calls 0.35 and up you).": "Hoe zeker de gezichtszoeker moet zijn dat jij het bent (vanaf 0,35 noemt hij het jou).",
     "Jarvis says good morning when it sees you": "Jarvis zegt goedemorgen als hij je ziet", "Last greetings": "Laatste begroetingen", "Less": "Minder", "More": "Meer", "Limits": "Grenzen",
     "Match needed": "Nodige overeenkomst", "Music and radio": "Muziek en radio", "Music folder": "Muziekmap", "Name": "Naam", "No greeting in this time": "Geen begroeting in deze tijd",
-    "Nothing remembered yet.": "Nog niets onthouden.", "Off · switched in the panel": "Uit · wordt in het paneel geschakeld", "Off: no folder set on the PC": "Uit: geen map ingesteld op de pc",
-    "On · switched in the panel (it restarts the voice server)": "Aan · wordt in het paneel geschakeld (dat herstart de spraakserver)", "Open in the panel": "Openen in het paneel",
+    "Nothing remembered yet.": "Nog niets onthouden.", "Off Â· switched in the panel": "Uit Â· wordt in het paneel geschakeld", "Off: no folder set on the PC": "Uit: geen map ingesteld op de pc",
+    "On Â· switched in the panel (it restarts the voice server)": "Aan Â· wordt in het paneel geschakeld (dat herstart de spraakserver)", "Open in the panel": "Openen in het paneel",
     "Open items": "Open punten", "Open the backend in the browser": "De backend in de browser openen", "Own server address": "Adres van de eigen server", "Preferences": "Voorkeuren",
     "Quiet hours": "Stille uren", "Quiet now": "Nu stil", "Recent matches": "Recente overeenkomsten", "Recognise voices": "Stemmen herkennen", "Someone": "Iemand",
     "Stayed silent because of": "Stil gebleven door", "Stop (keep what was learned)": "Stoppen (bewaar wat is geleerd)", "Strictness": "Strengheid", "Sure match from": "Zeker vanaf",
@@ -117,7 +117,7 @@ V2 = {
         "Deze telefoon moet op hetzelfde wifi zitten als de robot. Het adres staat in de status op het scherm van de robot, of laat de app ernaar zoeken.",
     "This robot's firmware has no volume control.": "De firmware van deze robot heeft geen volumeregeling.", "Today": "Vandaag", "Try saying": "Zeg bijvoorbeeld",
     "Turn to me first": "Eerst naar mij draaien", "Turns until your face is in the middle, then speaks": "Draait tot je gezicht in het midden staat, en praat dan",
-    "What Jarvis remembers about the people it talks to": "Wat Jarvis onthoudt over de mensen met wie hij praat", "When Jarvis is quieter at night": "Wanneer Jarvis ’s nachts zachter is",
+    "What Jarvis remembers about the people it talks to": "Wat Jarvis onthoudt over de mensen met wie hij praat", "When Jarvis is quieter at night": "Wanneer Jarvis â€™s nachts zachter is",
     "Who": "Wie", "Who is speaking: label only, nothing is blocked": "Wie er praat: alleen een label, er wordt niets geblokkeerd",
     "a known voice": "een bekende stem", "sentences checked": "zinnen gecontroleerd", "per check": "per controle", "hours, for the same person": "uur, voor dezelfde persoon", "your name": "je naam",
     "a look failed": "een blik mislukte", "daily cap reached": "dagmaximum bereikt", "follow mode on": "volgmodus aan", "just talked to Jarvis": "net met Jarvis gepraat",
@@ -170,29 +170,29 @@ V2 = {
     # mood, Home Assistant, health / speed / usage pages
     "A backup brain answered": "Een reservebrein antwoordde", "API keys, debug console": "API-sleutels, foutopsporing", "Access token": "Toegangstoken",
     "Address and token in the panel": "Adres en token in het paneel", "Ask first": "Eerst vragen", "At once": "Meteen", "Never": "Nooit", "Automations": "Automatiseringen",
-    "Backups in the last 24 h": "Reserves in de laatste 24 uur", "Blinds and curtains": "Jaloezieën en gordijnen", "Brain answers": "Antwoorden van het brein",
+    "Backups in the last 24 h": "Reserves in de laatste 24 uur", "Blinds and curtains": "JaloezieÃ«n en gordijnen", "Brain answers": "Antwoorden van het brein",
     "Brain requests": "Verzoeken aan het brein", "Check Groq's limits now": "Limieten van Groq nu controleren", "Conversations": "Gesprekken",
     "Could not read the settings.": "De instellingen konden niet worden gelezen.", "Did not work.": "Werkte niet.", "Fans": "Ventilators",
     "Health and usage": "Gezondheid en gebruik", "Heating and cooling": "Verwarming en koeling", "Helper switches": "Hulpschakelaars", "Home Assistant": "Home Assistant",
-    "How Jarvis sounds": "Hoe Jarvis klinkt", "How Jarvis sounds. It applies at once.": "Hoe Jarvis klinkt. Het gaat meteen in.", "Instant commands": "Directe commando’s",
+    "How Jarvis sounds": "Hoe Jarvis klinkt", "How Jarvis sounds. It applies at once.": "Hoe Jarvis klinkt. Het gaat meteen in.", "Instant commands": "Directe commandoâ€™s",
     "It gave up after too many restarts: look at the PC.": "Hij gaf het op na te veel herstarts: kijk bij de pc.",
-    "It is gone for about 10 seconds. The robot reconnects by itself.": "Hij is zo’n 10 seconden weg. De robot verbindt vanzelf opnieuw.",
+    "It is gone for about 10 seconds. The robot reconnects by itself.": "Hij is zoâ€™n 10 seconden weg. De robot verbindt vanzelf opnieuw.",
     "Jarvis answers the way it always does.": "Jarvis antwoordt zoals altijd.",
     "Jarvis stops talking until it is started again (here, or on the PC).": "Jarvis houdt op met praten tot hij weer wordt gestart (hier, of op de pc).",
     "Keys and logs": "Sleutels en logboek", "Lamps": "Lampen", "Last 24 h": "Laatste 24 uur", "Last 7 days": "Laatste 7 dagen", "Latest actions": "Laatste acties",
     "Latest answers": "Laatste antwoorden", "Latest restarts of the robot": "Laatste herstarts van de robot",
-    "Locks, alarms and garage doors are always refused. “Ask first” means Jarvis does it after you say yes.":
-        "Sloten, alarmen en garagedeuren worden altijd geweigerd. “Eerst vragen” betekent dat Jarvis het doet nadat jij ja zegt.",
+    "Locks, alarms and garage doors are always refused. â€œAsk firstâ€ means Jarvis does it after you say yes.":
+        "Sloten, alarmen en garagedeuren worden altijd geweigerd. â€œEerst vragenâ€ betekent dat Jarvis het doet nadat jij ja zegt.",
     "Mood": "Stemming", "No fallbacks needed: every service answered.": "Geen reserves nodig: elke dienst antwoordde.",
     "No spoken turns yet in this time.": "Nog geen gesproken beurten in deze periode.", "Normal": "Normaal", "Cheerful": "Vrolijk", "Calm": "Kalm", "Serious": "Serieus", "Dry wit": "Droog",
     "Nothing done yet.": "Nog niets gedaan.", "PC memory used": "pc-geheugen gebruikt", "PC processor": "pc-processor", "Plugs and switches": "Stekkers en schakelaars",
     "Requests per day, last 14 days": "Verzoeken per dag, laatste 14 dagen", "Restart": "Herstarten", "Restart server": "Server herstarten", "Restart the voice server?": "De spraakserver herstarten?",
     "Robot is online": "Robot is online", "Robot not answering": "Robot antwoordt niet", "Robot, server, speed, quotas": "Robot, server, snelheid, quota",
     "Robot, voice server, speed and quotas": "Robot, spraakserver, snelheid en quota", "Save (restarts the voice server)": "Opslaan (herstart de spraakserver)",
-    "Save and restart?": "Opslaan en herstarten?", "Saved. The voice server restarts now.": "Opgeslagen. De spraakserver herstart nu.", "Scenes": "Scènes", "Scripts": "Scripts",
-    "Speed": "Snelheid", "Start": "Start", "Stop the voice server?": "De spraakserver stoppen?", "Starting the voice server…": "De spraakserver start…",
-    "Stopping the voice server…": "De spraakserver stopt…", "Restarting the voice server…": "De spraakserver herstart…", "Could not start it.": "Kon niet starten.",
-    "TVs and speakers": "Tv’s en speakers", "Tavily search": "Tavily-zoeken", "Test the connection": "Verbinding testen", "Testing…": "Testen…",
+    "Save and restart?": "Opslaan en herstarten?", "Saved. The voice server restarts now.": "Opgeslagen. De spraakserver herstart nu.", "Scenes": "ScÃ¨nes", "Scripts": "Scripts",
+    "Speed": "Snelheid", "Start": "Start", "Stop the voice server?": "De spraakserver stoppen?", "Starting the voice serverâ€¦": "De spraakserver startâ€¦",
+    "Stopping the voice serverâ€¦": "De spraakserver stoptâ€¦", "Restarting the voice serverâ€¦": "De spraakserver herstartâ€¦", "Could not start it.": "Kon niet starten.",
+    "TVs and speakers": "Tvâ€™s en speakers", "Tavily search": "Tavily-zoeken", "Test the connection": "Verbinding testen", "Testingâ€¦": "Testenâ€¦",
     "The backend did not accept that.": "De backend accepteerde dat niet.", "The backend did not answer.": "De backend antwoordde niet.",
     "The main brain answers": "Het hoofdbrein antwoordt",
     "The voice server restarts to apply this (about 10 seconds). Jarvis reconnects by itself.": "De spraakserver herstart om dit toe te passen (ongeveer 10 seconden). Jarvis verbindt vanzelf opnieuw.",
@@ -211,9 +211,9 @@ for _k, _v in V2.items():
 # the second round of backend pages (mood, Home Assistant, health and usage, tabs Robot / Speed / Usage / System); setdefault again, so earlier wording wins
 V2B = {
     "24 hours": "24 uur", "7 days": "7 dagen", "Almost used up": "Bijna op", "Getting full": "Raakt vol", "Ask": "Vraag", "Now": "Nu", "No": "Nee",
-    "Applies at once, no restart. You can also say “be cheerful”, “be calm”, “be serious”, “be dry” or “back to normal”.":
-        "Gaat meteen in, zonder herstart. Je kunt ook zeggen: “be cheerful”, “be calm”, “be serious”, “be dry” of “back to normal”.",
-    "Asking Home Assistant…": "Home Assistant wordt gevraagd…", "Brain failovers, 24 h": "Reservebreinen, 24 u",
+    "Applies at once, no restart. You can also say â€œbe cheerfulâ€, â€œbe calmâ€, â€œbe seriousâ€, â€œbe dryâ€ or â€œback to normalâ€.":
+        "Gaat meteen in, zonder herstart. Je kunt ook zeggen: â€œbe cheerfulâ€, â€œbe calmâ€, â€œbe seriousâ€, â€œbe dryâ€ of â€œback to normalâ€.",
+    "Asking Home Assistantâ€¦": "Home Assistant wordt gevraagdâ€¦", "Brain failovers, 24 h": "Reservebreinen, 24 u",
     "Check Groq limits now": "Groq-limieten nu controleren",
     "Check Groq's live numbers now. This costs 1 of the 1,000 free requests a day.": "Controleer de live cijfers van Groq. Dit kost 1 van de 1.000 gratis verzoeken per dag.",
     "Connected": "Verbonden", "Could not restart the voice server.": "De spraakserver kon niet herstarten.", "Could not save": "Opslaan lukte niet",
@@ -226,22 +226,22 @@ V2B = {
     "Latest restarts": "Laatste herstarts", "Latest turns": "Laatste beurten", "Microphone, last minute": "Microfoon, laatste minuut",
     "Measured on the PC from the end of your sentence to the first sound sent to the robot. Green under 2.5 s, amber under 4.5 s.":
         "Gemeten op de pc vanaf het einde van je zin tot het eerste geluid naar de robot. Groen onder 2,5 s, oranje onder 4,5 s.",
-    "No data": "Geen gegevens", "No readings yet. The panel looks at the robot once a minute while it runs.": "Nog geen metingen. Het paneel kijkt één keer per minuut naar de robot zolang het draait.",
+    "No data": "Geen gegevens", "No readings yet. The panel looks at the robot once a minute while it runs.": "Nog geen metingen. Het paneel kijkt Ã©Ã©n keer per minuut naar de robot zolang het draait.",
     "No spoken turns recorded in this period yet. Each time you talk to Jarvis, the time from the end of your sentence to the first sound shows up here.":
         "In deze periode zijn nog geen gesproken beurten vastgelegd. Elke keer dat je met Jarvis praat, verschijnt hier de tijd van het einde van je zin tot het eerste geluid.",
     "Normal: no extra mood instruction.": "Normaal: geen extra stemmingsopdracht.", "Not answering": "Antwoordt niet", "Not checked yet": "Nog niet gecontroleerd",
     "Not set up": "Niet ingesteld", "Not set up: events are only written to the list below.": "Niet ingesteld: gebeurtenissen komen alleen in de lijst hieronder.",
     "Nothing needed a backup in this period.": "In deze periode was geen reserve nodig.",
-    "Now = switched straight away · Ask = only after you say yes · No = refused. Locks and alarms are always refused; that can only be changed in the panel.":
-        "Nu = meteen geschakeld · Vraag = pas nadat je ja zegt · Nee = geweigerd. Sloten en alarmen worden altijd geweigerd; dat kun je alleen in het paneel wijzigen.",
+    "Now = switched straight away Â· Ask = only after you say yes Â· No = refused. Locks and alarms are always refused; that can only be changed in the panel.":
+        "Nu = meteen geschakeld Â· Vraag = pas nadat je ja zegt Â· Nee = geweigerd. Sloten en alarmen worden altijd geweigerd; dat kun je alleen in het paneel wijzigen.",
     "Open the panel": "Open het paneel", "Paid tier: the free daily limits do not apply.": "Betaald abonnement: de gratis daglimieten gelden niet.",
     "Phone alerts": "Telefoonmeldingen", "Reply speed": "Antwoordsnelheid", "Requests today (Groq live)": "Verzoeken vandaag (Groq live)",
     "Restart the voice server": "De spraakserver herstarten", "Restarting. The robot reconnects by itself in about 10 seconds.": "Herstart. De robot verbindt zelf weer over ongeveer 10 seconden.",
-    "Restarting…": "Herstarten…", "Restarts the voice server when it is down or stops answering (at most 3 times in 15 minutes).":
+    "Restartingâ€¦": "Herstartenâ€¦", "Restarts the voice server when it is down or stops answering (at most 3 times in 15 minutes).":
         "Herstart de spraakserver als die uit staat of niet meer antwoordt (hoogstens 3 keer in 15 minuten).",
     "Robot": "Robot", "Robot health": "Gezondheid van de robot", "Robot, reply speed, free quotas, services": "Robot, antwoordsnelheid, gratis quota, diensten",
     "Save and restart the voice server": "Opslaan en de spraakserver herstarten", "Saved. The voice server restarts now, about 10 seconds.": "Opgeslagen. De spraakserver herstart nu, ongeveer 10 seconden.",
-    "Saving…": "Opslaan…", "Send a test alert": "Testmelding sturen", "Sent: it should arrive on the phone in a few seconds.": "Verstuurd: de melding hoort over een paar seconden op de telefoon te komen.",
+    "Savingâ€¦": "Opslaanâ€¦", "Send a test alert": "Testmelding sturen", "Sent: it should arrive on the phone in a few seconds.": "Verstuurd: de melding hoort over een paar seconden op de telefoon te komen.",
     "Server watchdog": "Serverbewaking", "Services & this PC": "Diensten en deze pc", "Services on the PC": "Diensten op de pc", "Test connection": "Verbinding testen",
     "The address and the access token go under API keys in the panel.": "Het adres en de toegangstoken staan onder API-sleutels in het paneel.",
     "The alert switches (which events reach the phone) are in the panel.": "De meldingsschakelaars (welke gebeurtenissen de telefoon bereiken) staan in het paneel.",
@@ -249,9 +249,9 @@ V2B = {
     "The voice server restarts to use the new rules. That takes about 10 seconds; the robot reconnects by itself.":
         "De spraakserver herstart om de nieuwe regels te gebruiken. Dat duurt ongeveer 10 seconden; de robot verbindt zelf weer.",
     "Tokens per day, last 14 days": "Tokens per dag, laatste 14 dagen", "Tokens this minute (Groq live)": "Tokens deze minuut (Groq live)",
-    "Tavily · web search": "Tavily · zoeken op het web", "Gemini · brain and camera": "Gemini · brein en camera", "Groq · brain": "Groq · brein",
-    "Cerebras · brain": "Cerebras · brein", "Claude · brain (paid)": "Claude · brein (betaald)",
-    "Try: “Jarvis, turn off the kitchen light.”": "Probeer: “Jarvis, turn off the kitchen light.”",
+    "Tavily Â· web search": "Tavily Â· zoeken op het web", "Gemini Â· brain and camera": "Gemini Â· brein en camera", "Groq Â· brain": "Groq Â· brein",
+    "Cerebras Â· brain": "Cerebras Â· brein", "Claude Â· brain (paid)": "Claude Â· brein (betaald)",
+    "Try: â€œJarvis, turn off the kitchen light.â€": "Probeer: â€œJarvis, turn off the kitchen light.â€",
     "Watchdog & phone alerts": "Bewaking en telefoonmeldingen", "Watchdog and phone alerts": "Bewaking en telefoonmeldingen", "Voice server": "Spraakserver",
     "Wi-Fi drops in 24 h": "Wifi-onderbrekingen in 24 u", "Wi-Fi drops reported by the robot": "Wifi-onderbrekingen gemeld door de robot", "Wi-Fi signal": "Wifi-signaal",
     "answers from a backup brain": "antwoorden van een reservebrein", "asleep, napping off Wi-Fi, or out of range": "slaapt, dutje zonder wifi, of buiten bereik",
@@ -273,15 +273,15 @@ V2B = {
     "live": "live", "ago": "geleden", "answers": "antwoorden", "fine": "prima", "loud": "luid",
     # the Faces page (named people for the greeter)
     "Faces": "Gezichten", "Greet more people by name": "Begroet meer mensen bij naam", "Jarvis greets the people it knows by name": "Jarvis begroet de mensen die hij kent bij naam",
-    "People I know": "Mensen die ik ken", "People it knows": "Mensen die hij kent", "You": "Jij", "Nobody yet.": "Nog niemand.",
+    "Known": "Bekend", "People it knows": "Mensen die hij kent", "You": "Jij", "Nobody yet.": "Nog niemand.",
     "face samples": "gezichtsvoorbeelden", "1 face sample": "1 gezichtsvoorbeeld", "changed in the panel under Face finding": "aan te passen in het paneel onder Gezichten vinden",
     "Not enrolled yet: enrol your own face in the panel under Face finding.": "Nog niet ingeschreven: schrijf je eigen gezicht in via het paneel onder Gezichten vinden.",
-    "Add more pictures of this person": "Meer foto’s van deze persoon toevoegen", "Forget this person": "Vergeet deze persoon", "Forget this person?": "Deze persoon vergeten?",
-    "The face samples of": "De gezichtsvoorbeelden van", "Taking pictures of": "Foto’s maken van", "Look at the robot and keep still.": "Kijk naar de robot en blijf stil staan.",
-    "last picture": "laatste foto", "Stop (keep what was taken)": "Stoppen (bewaar wat gemaakt is)", "Added": "Toegevoegd", "pictures to": "foto’s aan", "now": "nu", "Nothing added": "Niets toegevoegd",
-    "Enrol a new person": "Een nieuwe persoon inschrijven", "Take 6 pictures": "Maak 6 foto’s", "The face model files are missing on the PC.": "De gezichtsmodelbestanden ontbreken op de pc.",
-    "The person stands about one metre in front of the robot, facing the camera. The robot takes 6 pictures, one every 1.2 seconds; only numbers describing the face are kept, no pictures. Then choose People I know on the Greeter page.":
-        "De persoon staat ongeveer een meter voor de robot, met het gezicht naar de camera. De robot maakt 6 foto’s, een per 1,2 seconden; alleen getallen die het gezicht beschrijven blijven bewaard, geen foto’s. Kies daarna Mensen die ik ken op de pagina Begroeten.",
+    "Add more pictures of this person": "Meer fotoâ€™s van deze persoon toevoegen", "Forget this person": "Vergeet deze persoon", "Forget this person?": "Deze persoon vergeten?",
+    "The face samples of": "De gezichtsvoorbeelden van", "Taking pictures of": "Fotoâ€™s maken van", "Look at the robot and keep still.": "Kijk naar de robot en blijf stil staan.",
+    "last picture": "laatste foto", "Stop (keep what was taken)": "Stoppen (bewaar wat gemaakt is)", "Added": "Toegevoegd", "pictures to": "fotoâ€™s aan", "now": "nu", "Nothing added": "Niets toegevoegd",
+    "Enrol a new person": "Een nieuwe persoon inschrijven", "Take 6 pictures": "Maak 6 fotoâ€™s", "The face model files are missing on the PC.": "De gezichtsmodelbestanden ontbreken op de pc.",
+    "The person stands about one metre in front of the robot, facing the camera. The robot takes 6 pictures, one every 1.2 seconds; only numbers describing the face are kept, no pictures. Then choose Known on the Greeter page.":
+        "De persoon staat ongeveer een meter voor de robot, met het gezicht naar de camera. De robot maakt 6 fotoâ€™s, een per 1,2 seconden; alleen getallen die het gezicht beschrijven blijven bewaard, geen fotoâ€™s. Kies daarna Bekend op de pagina Begroeten.",
     "Greets you and": "Begroet jou en", "Nobody is enrolled yet: add people on the Faces page.": "Nog niemand is ingeschreven: voeg mensen toe op de pagina Gezichten.",
     "this looks like the owner (the owner is enrolled in Face finding, not here)": "dit lijkt op de eigenaar (de eigenaar schrijf je in bij Gezichten vinden, niet hier)",
     "no face in this picture": "geen gezicht in deze foto", "more than one face in this picture": "meer dan een gezicht in deze foto", "the face is not clear enough": "het gezicht is niet duidelijk genoeg",

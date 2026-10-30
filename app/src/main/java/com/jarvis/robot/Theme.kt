@@ -110,7 +110,7 @@ fun JarvisTheme(mode: ThemeMode, palette: AppPalette = AppPalette.CLASSIC, conte
         )
     }
     CompositionLocalProvider(LocalPalette provides p) {
-        MaterialTheme(colorScheme = scheme, typography = Typography(), content = content)
+        if (V3.on) V3Theme(scheme, content) else MaterialTheme(colorScheme = scheme, typography = Typography(), content = content)
     }
 }
 

@@ -1,4 +1,4 @@
-package com.jarvis.robot
+﻿package com.jarvis.robot
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,7 +53,7 @@ internal fun V2MoodPage(actions: MainActions, onOpenPanel: (String) -> Unit, onB
         V2Card {
             V2Row(now?.optString("label") ?: "Normal", now?.optString("prompt")?.takeIf { it.isNotEmpty() } ?: "Normal: no extra mood instruction.")
         }
-        Text("Applies at once, no restart. You can also say “be cheerful”, “be calm”, “be serious”, “be dry” or “back to normal”.", color = v.muted, fontSize = 13.sp)
+        Text("Applies at once, no restart. You can also say â€œbe cheerfulâ€, â€œbe calmâ€, â€œbe seriousâ€, â€œbe dryâ€ or â€œback to normalâ€.", color = v.muted, fontSize = 13.sp)
         V2Button("Open in the panel", { onOpenPanel("moodCard") }, Modifier.fillMaxWidth(), filled = false)
     }
 }
@@ -73,7 +73,7 @@ internal fun V2FacesPage(state: MainUiState, actions: MainActions, onOpenPanel: 
         enrolling = enrol != null
         val owner = s.optInt("owner_samples")
         V2Card {
-            V2Row("You", if (owner > 0) "$owner " + tr("face samples") + " · " + tr("changed in the panel under Face finding") else "Not enrolled yet: enrol your own face in the panel under Face finding.", onClick = { onOpenPanel("faceCard") }) {
+            V2Row("You", if (owner > 0) "$owner " + tr("face samples") + " Â· " + tr("changed in the panel under Face finding") else "Not enrolled yet: enrol your own face in the panel under Face finding.", onClick = { onOpenPanel("faceCard") }) {
                 androidx.compose.material3.Icon(V2Icons.Chevron, contentDescription = null, tint = v.muted, modifier = Modifier.size(16.dp))
             }
         }
@@ -117,7 +117,7 @@ internal fun V2FacesPage(state: MainUiState, actions: MainActions, onOpenPanel: 
         }
         Text(
             "The person stands about one metre in front of the robot, facing the camera. The robot takes 6 pictures, one every 1.2 seconds; only numbers describing the face are kept, no pictures. " +
-                "Then choose People I know on the Greeter page.",
+                "Then choose Known on the Greeter page.",
             color = v.muted, fontSize = 12.sp,
         )
     }
@@ -177,15 +177,15 @@ internal fun V2HomeAssistantPage(actions: MainActions, onOpenPanel: (String) -> 
                 V2IconBadge(V2Icons.House, if (ok) v.accentContainer else v.warmContainer, if (ok) v.onAccentContainer else v.onWarmContainer, size = 48.dp)
                 Column(Modifier.weight(1f)) {
                     Text(
-                        when { !configured -> "Not set up"; testing -> "Checking…"; ok -> "Connected"; test == null -> "Not checked yet"; else -> "Not reachable" },
+                        when { !configured -> "Not set up"; testing -> "Checkingâ€¦"; ok -> "Connected"; test == null -> "Not checked yet"; else -> "Not reachable" },
                         color = v.text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold,
                     )
                     val t = test
                     Text(
                         when {
                             !configured -> "The address and the access token go under API keys in the panel."
-                            testing || t == null -> "Asking Home Assistant…"
-                            ok -> "${t.optInt("ms")} ms · ${t.optInt("entities")} " + tr("things in your home")
+                            testing || t == null -> "Asking Home Assistantâ€¦"
+                            ok -> "${t.optInt("ms")} ms Â· ${t.optInt("entities")} " + tr("things in your home")
                             else -> t.optString("error")
                         },
                         color = v.muted, fontSize = 13.sp,
@@ -208,7 +208,7 @@ internal fun V2HomeAssistantPage(actions: MainActions, onOpenPanel: (String) -> 
             }
         }
         Text(
-            "Now = switched straight away · Ask = only after you say yes · No = refused. Locks and alarms are always refused; that can only be changed in the panel.",
+            "Now = switched straight away Â· Ask = only after you say yes Â· No = refused. Locks and alarms are always refused; that can only be changed in the panel.",
             color = v.muted, fontSize = 12.sp,
         )
         if (dirty) V2Button("Save and restart the voice server", { confirmSave = true }, Modifier.fillMaxWidth())
@@ -221,13 +221,13 @@ internal fun V2HomeAssistantPage(actions: MainActions, onOpenPanel: (String) -> 
             V2Card {
                 rows.forEachIndexed { i, r ->
                     if (i > 0) V2Divider()
-                    V2Row("${r.optString("service")} · ${r.optString("entity")}", hhmm(r.optLong("t")) + if (r.optBoolean("ok")) "" else " · " + tr("failed") + " " + r.optString("error")) {
+                    V2Row("${r.optString("service")} Â· ${r.optString("entity")}", hhmm(r.optLong("t")) + if (r.optBoolean("ok")) "" else " Â· " + tr("failed") + " " + r.optString("error")) {
                         Text(if (r.optBoolean("ok")) "done" else "failed", color = if (r.optBoolean("ok")) v.success else v.danger, fontSize = 13.sp)
                     }
                 }
             }
         }
-        Text("Try: “Jarvis, turn off the kitchen light.”", color = v.muted, fontSize = 13.sp)
+        Text("Try: â€œJarvis, turn off the kitchen light.â€", color = v.muted, fontSize = 13.sp)
         V2Button("Open in the panel", { onOpenPanel("haCard") }, Modifier.fillMaxWidth(), filled = false)
 
         if (confirmSave) {
@@ -248,7 +248,7 @@ internal fun V2HomeAssistantPage(actions: MainActions, onOpenPanel: (String) -> 
                     }
                     val ch = s.optJSONObject("choice")
                     val body = JSONObject().put("ears", ch?.optString("ears")).put("brain", ch?.optString("brain")).put("voice", ch?.optString("voice")).put("params", ps).put("restart", true)
-                    saveNote = "Saving…"
+                    saveNote = "Savingâ€¦"
                     actions.onPanel("api/apply", body) { r ->
                         saveNote = if (r?.optBoolean("ok") == true) "Saved. The voice server restarts now, about 10 seconds." else tr("Could not save") + ": " + (r?.optString("error") ?: tr("no answer"))
                         if (r?.optBoolean("ok") == true) { picks = emptyMap(); actions.onPanel("api/state", null) { r2 -> if (r2 != null) st.data = r2 } }
