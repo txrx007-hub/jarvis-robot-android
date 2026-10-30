@@ -90,6 +90,55 @@ words.update({
     "\u201cstop the radio\u201d, \u201cstop\u201d, or the Stop button in this app": "\u201cstop the radio\u201d, \u201cstop\u201d, of de knop Stop in deze app",
 })
 
+# Jarvis v2 (V2*.kt): added only where the lists above have no Dutch yet, so the classic app's wording never changes
+V2 = {
+    "1 voice enrolled": "1 stem ingeschreven", "Next": "Volgende", "15 min": "15 min", "15 minutes less": "15 minuten minder", "15 minutes more": "15 minuten meer",
+    "All": "Alles", "All details": "Alle details", "Fewer details": "Minder details", "All settings reset to defaults.": "Alle instellingen staan weer op standaard.",
+    "Asking the backend\u2026": "Backend wordt gevraagd\u2026", "Audio and wake word": "Geluid en wekwoord", "Auto": "Auto", "Back": "Terug",
+    "Backend panel": "Backendpaneel", "Backward": "Achteruit", "Forward": "Vooruit", "Brain": "Brein", "Brain model, web search": "Breinmodel, zoeken op het web",
+    "Camera": "Camera", "Change robot or address": "Andere robot of ander adres", "Changes save on the robot at once.": "Wijzigingen worden meteen op de robot opgeslagen.",
+    "Changes apply and save right away. On your home network only.": "Wijzigingen gaan meteen in en worden bewaard. Alleen op je thuisnetwerk.",
+    "Check the address and that this phone is on the robot's Wi-Fi.": "Controleer het adres en of deze telefoon op het wifi van de robot zit.",
+    "Chip": "Chip", "Clear": "Wissen", "Colours": "Kleuren", "Connecting to its server": "Verbindt met zijn server", "Connecting\u2026": "Verbinden\u2026",
+    "Dark": "Donker", "Light": "Licht", "Drive": "Rijden", "Ears, speech detector, smart turn": "Oren, spraakdetector, smart turn",
+    "English": "English", "Nederlands": "Nederlands", "Face and movement": "Gezicht en beweging", "Face me": "Kijk naar mij",
+    "Faces, voices, greeter": "Gezichten, stemmen, begroeten", "Follow me": "Volg mij", "Going to sleep": "Gaat slapen",
+    "Good morning when it sees you": "Goedemorgen als hij je ziet", "Greeter": "Begroeten", "Health": "Gezondheid", "Hearing": "Horen",
+    "Hold an arrow to drive \u00b7 let go to stop": "Houd een pijl ingedrukt om te rijden \u00b7 laat los om te stoppen",
+    "Home": "Start", "House": "Huis", "instant": "direct", "music": "muziek", "Home Assistant, songs, radio": "Home Assistant, nummers, radio", "Home and music": "Huis en muziek",
+    "How it sounds, what it remembers": "Hoe hij klinkt, wat hij onthoudt",
+    "It may be napping off Wi-Fi, asleep, or out of range. Pull down to try again.": "Hij doet misschien een dutje zonder wifi, slaapt, of is buiten bereik. Trek omlaag om het opnieuw te proberen.",
+    "Jarvis has not said which voice server it uses yet.": "Jarvis heeft nog niet gezegd welke spraakserver hij gebruikt.", "Jarvis is not reachable": "Jarvis is niet bereikbaar",
+    "Jarvis talks to the xiaozhi.me cloud now. The brain settings live on your own voice server: set it under Settings \u203a Voice server.":
+        "Jarvis praat nu met de xiaozhi.me-cloud. De breininstellingen staan op je eigen spraakserver: stel die in onder Instellingen \u203a Spraakserver.",
+    "Jarvis turns off Wi-Fi and the screen and wakes up by itself after the time you pick, or when you press its BOOT button.":
+        "Jarvis zet wifi en het scherm uit en wordt vanzelf wakker na de gekozen tijd, of als je op zijn BOOT-knop drukt.",
+    "Language": "Taal", "Last photo": "Laatste foto", "Listening": "Luistert", "Live": "Live", "Live view from the robot's camera": "Live beeld van de camera van de robot",
+    "Live view is off": "Live beeld staat uit", "Loading settings\u2026": "Instellingen laden\u2026", "Look": "Weergave", "Lost the connection to Jarvis": "Verbinding met Jarvis verloren",
+    "Louder": "Harder", "Quieter": "Zachter", "Memory": "Geheugen", "Memory is switched on the panel: it restarts the voice server.": "Geheugen zet je aan of uit in het paneel: dat herstart de spraakserver.",
+    "Mood and memory": "Stemming en geheugen", "Motors": "Motoren", "Mute": "Dempen", "Unmute": "Dempen uit", "Nap": "Dutje", "Napping": "Doet een dutje", "Wake up": "Wakker worden",
+    "Needs your own voice server": "Heeft je eigen spraakserver nodig", "Nobody enrolled yet": "Nog niemand ingeschreven", "Not on this backend": "Niet op deze backend",
+    "Notes about the people it talks to": "Notities over de mensen met wie hij praat", "Nothing playing": "Er speelt niets", "Off": "Uit", "On": "Aan",
+    "Off \u00b7 turns to your face": "Uit \u00b7 draait naar je gezicht", "On \u00b7 keeps turning to you": "Aan \u00b7 blijft naar je draaien", "Offline": "Offline", "Online": "Online",
+    "Open the full panel": "Open het hele paneel", "Other time": "Andere tijd", "Photo": "Foto", "Ping": "Ping", "Ready to listen": "Klaar om te luisteren",
+    "Reply speed, fallbacks, quotas": "Antwoordsnelheid, reserves, quota", "Reset": "Terugzetten", "Reset robot settings\u2026": "Robotinstellingen terugzetten\u2026",
+    "Robot details": "Robotdetails", "Robot, services, alerts": "Robot, diensten, meldingen", "STOP": "STOP", "Say": "Zeggen",
+    "Say \u201cJarvis\u201d first, then one of these": "Zeg eerst \u201cJarvis\u201d, dan een van deze", "Say: Jarvis, play something random.": "Zeg: Jarvis, play something random.",
+    "Screen and quiet hours": "Scherm en stille uren", "Seeing": "Zien", "Setting up Wi-Fi": "Wifi instellen", "Settings": "Instellingen",
+    "Settings show once Jarvis is reachable.": "De instellingen verschijnen zodra Jarvis bereikbaar is.", "Sleep until the button": "Slapen tot de knop", "Sleep\u2026": "Slapen\u2026",
+    "Smart turn": "Smart turn", "Speaking": "Spreken", "Speed and usage": "Snelheid en gebruik", "Start live view": "Live beeld starten", "Stop live view": "Live beeld stoppen",
+    "Starting": "Start op", "Stop": "Stop", "Take a photo": "Maak een foto", "Taking a photo\u2026": "Foto maken\u2026", "Talking": "Praat",
+    "The model file is missing": "Het modelbestand ontbreekt", "The speaker model file is missing": "Het sprekermodel ontbreekt", "The voice server on your PC": "De spraakserver op je pc",
+    "Thinking": "Denken", "This app": "Deze app", "Try \u201ctimer\u201d or \u201cdance\u201d": "Probeer \u201ctimer\u201d of \u201cdans\u201d", "Until the button": "Tot de knop", "Updating": "Bijwerken",
+    "Voice recognition": "Stemherkenning", "Voice, personality": "Stem, persoonlijkheid", "Volume": "Volume", "Waiting for the first picture\u2026": "Wachten op het eerste beeld\u2026",
+    "Waits when you pause mid-sentence": "Wacht als je halverwege een zin pauzeert", "Weather": "Weer", "What can I say?": "Wat kan ik zeggen?", "While Jarvis talks": "Terwijl Jarvis praat",
+    "Wi-Fi dBm": "Wifi dBm", "not found": "niet gevonden", "not set": "niet ingesteld", "own voice server": "eigen spraakserver", "xiaozhi.me cloud": "xiaozhi.me-cloud",
+    "Visualizer": "Visualisatie", "Voice server": "Spraakserver", "Own server": "Eigen server", "Change address": "Adres wijzigen", "Deep sleep": "Diepe slaap",
+    "(leave empty for off)": "(leeg laten voor uit)", "e.g. Amsterdam (leave empty for off)": "bijv. Amsterdam (leeg laten voor uit)",
+}
+for _k, _v in V2.items():
+    words.setdefault(_k, _v)
+
 
 def kt(s):
     return '"' + (s.replace("\\", "\\\\").replace('"', '\\"').replace("$", "\\$").replace("\n", "\\n").replace("\r", "")) + '"'

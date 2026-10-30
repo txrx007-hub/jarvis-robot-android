@@ -81,6 +81,20 @@ private val RULES: List<Pair<Regex, (MatchResult) -> String?>> = listOf(
     Regex("^(\\w+) is already (.+)\\.$") to { m -> (I18nNl.keys[m.groupValues[1]] ?: m.groupValues[1]) + " staat al op " + tr(m.groupValues[2]) + "." },
     Regex("^(\\w+) must be (.+)\\.$") to { m -> (I18nNl.keys[m.groupValues[1]] ?: m.groupValues[1]) + " moet zijn: " + m.groupValues[2] + "." },
     Regex("^([\\s\\S]+) \\(backup\\)$") to { m -> m.groupValues[1] + " (reserve)" },
+    // Jarvis v2 (V2*.kt)
+    Regex("^Up (.+)$") to { m -> "Aan: " + m.groupValues[1] },
+    Regex("^up (.+)$") to { m -> "aan: " + m.groupValues[1] },
+    Regex("^Last one (.+)$") to { m -> "Laatste om " + m.groupValues[1] },
+    Regex("^Quiet hours: at most (\\d+)$") to { m -> "Stille uren: hoogstens " + m.groupValues[1] },
+    Regex("^(\\d+) settings$") to { m -> m.groupValues[1] + " instellingen" },
+    Regex("^(\\d+) voices enrolled$") to { m -> m.groupValues[1] + " stemmen ingeschreven" },
+    Regex("^revision (\\d+)$") to { m -> "revisie " + m.groupValues[1] },
+    Regex("^No answer from ([\\s\\S]+)$") to { m -> "Geen antwoord van " + m.groupValues[1] },
+    Regex("^Nothing found for (.+)\\.$") to { m -> "Niets gevonden voor " + m.groupValues[1] + "." },
+    Regex("^(\\d+) h(?: (\\d+) min)?$") to { m -> m.groupValues[1] + " uur" + (if (m.groupValues[2].isNotEmpty()) " " + m.groupValues[2] + " min" else "") },
+    Regex("^Sleep (\\d+ (?:h|min)(?: \\d+ min)?)$") to { m -> "Slaap " + tr(m.groupValues[1]) },
+    Regex("^(Greeter|Voice recognition|Smart turn) (on|off)$") to { m -> tr(m.groupValues[1]) + " " + (if (m.groupValues[2] == "on") "aan" else "uit") },
+    Regex("^Could not reach the backend: (.+) not changed$") to { m -> "Backend niet bereikt: " + tr(m.groupValues[1]) + " niet gewijzigd" },
 )
 
 /** [s] in the chosen language: English texts come back untouched, Dutch ones are looked up (whole text first, then the sentence patterns). */

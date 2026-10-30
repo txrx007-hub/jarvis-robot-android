@@ -32,5 +32,33 @@ class V2ScreenshotTest {
     private val brain = BrainSwitches(greeter = false, voices = true, voicesPeople = 1, voicesModel = true, smartTurn = true, smartModel = true, memoryOn = true)
     @Test fun v2Brain() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { Tab { V2Brain(playing.copy(brain = brain), MainActions(), onOpenPanel = {}) } } }
     @Test fun v2Settings() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { Tab { V2Settings(online, MainActions()) } } }
+    @Test fun v2SettingsGroups() = paparazzi.snapshot {
+        JarvisTheme(ThemeMode.DARK) {
+            Tab {
+                val all = groupSettings(online.settings)
+                val g = all.maxBy { it.second.size }   // the group with the most settings shows the most kinds of editor
+                V2SettingsGroupPage(g.first.title, g.second, online, MainActions()) {}
+            }
+        }
+    }
+
+    @Test fun v2HomeDutch() {
+        I18n.restore("nl")
+        try {
+            paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2App(playing, MainActions()) } }
+        } finally {
+            I18n.restore("en")
+        }
+    }
+
+    @Test fun v2BrainDutch() {
+        I18n.restore("nl")
+        try {
+            paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { Tab { V2Brain(playing.copy(brain = brain), MainActions(), onOpenPanel = {}) } } }
+        } finally {
+            I18n.restore("en")
+        }
+    }
+
     @Test fun v2Offline() = paparazzi.snapshot { JarvisTheme(ThemeMode.DARK) { V2App(online.copy(online = false, everConnected = true), MainActions()) } }
 }

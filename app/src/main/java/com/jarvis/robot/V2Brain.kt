@@ -76,7 +76,7 @@ fun V2Brain(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> U
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    V2Button("Next song", actions.onMusicNext, Modifier.weight(1f))
+                    V2Button("Next", actions.onMusicNext, Modifier.weight(1f))
                     V2Button("Stop", actions.onMusicStop, Modifier.weight(1f), filled = false)
                 }
             }
@@ -118,11 +118,11 @@ fun V2Brain(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> U
         for (row in PANEL_SECTIONS.chunked(2)) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                 for (sec in row) {
-                    V2Tile(Modifier.weight(1f).height(128.dp), onClick = { onOpenPanel(sec.anchor) }, padding = 14.dp) {
+                    V2Tile(Modifier.weight(1f).height(148.dp), onClick = { onOpenPanel(sec.anchor) }, padding = 14.dp) {
                         V2IconBadge(sec.icon, v.accentContainer, v.onAccentContainer, size = 36.dp)
                         Spacer(Modifier.weight(1f))
                         Text(sec.title, color = v.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                        Text(sec.sub, color = v.muted, fontSize = 12.sp, maxLines = 2)
+                        Text(sec.sub, color = v.muted, fontSize = 12.sp, maxLines = 3)
                     }
                 }
                 if (row.size == 1) Spacer(Modifier.weight(1f))

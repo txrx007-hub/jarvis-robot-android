@@ -130,7 +130,7 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
                         s?.takeIf { it.uptimeS > 0 }?.let { "Up ${fmtUptime(it.uptimeS)}" },
                         s?.server?.let { if (s.serverCustom) "own voice server" else "xiaozhi.me cloud" },
                     )
-                    if (parts.isNotEmpty()) Text(parts.joinToString(" · "), color = v.muted, fontSize = 13.sp)
+                    if (parts.isNotEmpty()) Text(parts.joinToString(" · ") { tr(it) }, color = v.muted, fontSize = 13.sp)   // each part on its own: the word list knows the parts, not their mix
                 }
             }
 
@@ -335,7 +335,7 @@ private fun V2RobotSheet(state: MainUiState, actions: MainActions, onClose: () -
                 s?.boardName?.takeIf { it.isNotEmpty() },
                 s?.revision?.takeIf { it > 0 }?.let { "revision $it" },
                 s?.takeIf { it.uptimeS > 0 }?.let { "up ${fmtUptime(it.uptimeS)}" },
-            ).joinToString(" · ")
+            ).joinToString(" · ") { tr(it) }
             if (sub.isNotEmpty()) Text(sub, color = v.muted, fontSize = 13.sp)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {

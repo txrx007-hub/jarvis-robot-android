@@ -103,7 +103,7 @@ fun V2Say(state: MainUiState) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Text(c.title, color = v.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                     if (c.instant) V2Badge("instant", v.warmContainer, v.onWarmContainer)
-                                    if (c.ha) V2Badge("Home", v.accentContainer, v.onAccentContainer)
+                                    if (c.ha) V2Badge("House", v.accentContainer, v.onAccentContainer)
                                     if (c.music) V2Badge("music", v.accentContainer, v.onAccentContainer)
                                 }
                                 Text(c.example, color = v.muted, fontSize = 13.sp)

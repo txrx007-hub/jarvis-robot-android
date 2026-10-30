@@ -1,6 +1,27 @@
 package com.jarvis.robot
 
+import android.app.TimePickerDialog
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import java.util.Locale
+import kotlin.math.roundToInt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -174,7 +195,7 @@ fun V2Settings(state: MainUiState, actions: MainActions) {
 
 /** One setting group on its own page: a back arrow, the title, then each setting with the same editor as the classic app. */
 @Composable
-private fun V2SettingsGroupPage(title: String, defs: List<SettingDef>, state: MainUiState, actions: MainActions, onBack: () -> Unit) {
+internal fun V2SettingsGroupPage(title: String, defs: List<SettingDef>, state: MainUiState, actions: MainActions, onBack: () -> Unit) {
     val v = v2Colors()
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
@@ -186,8 +207,108 @@ private fun V2SettingsGroupPage(title: String, defs: List<SettingDef>, state: Ma
         }
         // the current values come from the robot: when a save changes one, the list here is the robot's own answer
         val live = defs.map { d -> state.settings.firstOrNull { it.key == d.key } ?: d }
-        for (def in live) SettingCard(def, state.feedback[def.key]) { value -> actions.onSave(def.key, value) }
+        V2Card {
+            live.forEachIndexed { i, def ->
+                if (i > 0) V2Divider()
+                V2SettingEditor(def, state.feedback[def.key]) { value -> actions.onSave(def.key, value) }
+            }
+        }
         Text("Changes save on the robot at once.", color = v.muted, fontSize = 12.sp, modifier = Modifier.padding(4.dp))
         Spacer(Modifier.height(8.dp))
+    }
+}
+
+private fun v2SliderText(def: SettingDef, x: Float): String =
+    if (def.kind == Kind.HUNDREDTHS) "%.2f".format(Locale.US, x) else x.roundToInt().toString()
+
+/**
+ * One robot setting in the v2 style, the same saves as the classic SettingCard: a slider (saved when the finger lifts, a small tick per step),
+ * a switch, a connected group or chips for a choice, a time with an on/off switch, or a text field (saved on Done or when it loses focus).
+ * The robot's answer comes up as a snackbar; only a refusal also stays under the setting.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun V2SettingEditor(def: SettingDef, feedback: Feedback?, onSave: (String) -> Unit) {
+    val v = v2Colors()
+    val tick = rememberTick()
+    val context = LocalContext.current
+    var live by remember(def.value) { mutableFloatStateOf(def.value.toFloatOrNull() ?: def.min.toFloat()) }
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(labelFor(def.key), color = v.text, fontSize = 15.sp)
+                if (def.help.isNotEmpty()) Text(def.help, color = v.muted, fontSize = 13.sp)
+            }
+            when (def.kind) {
+                Kind.BOOL -> V2Switch(def.value == "1", { tick(); onSave(if (it) "1" else "0") })
+                Kind.INT, Kind.HUNDREDTHS -> Text(fmtValue(def.copy(value = v2SliderText(def, live))), color = v.accent, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Kind.TIME -> V2Switch(def.value.isNotEmpty(), { on -> tick(); onSave(if (on) "22:00" else "off") })
+                else -> {}
+            }
+        }
+        when (def.kind) {
+            Kind.INT, Kind.HUNDREDTHS -> {
+                val span = (def.max - def.min).coerceAtLeast(def.step)
+                Slider(
+                    value = live.coerceIn(def.min.toFloat(), def.max.toFloat()),
+                    onValueChange = { x ->
+                        val before = v2SliderText(def, live)
+                        live = x
+                        if (v2SliderText(def, x) != before) tick()
+                    },
+                    onValueChangeFinished = { onSave(v2SliderText(def, live)) },
+                    valueRange = def.min.toFloat()..def.max.toFloat(),
+                    steps = ((span / def.step).roundToInt() - 1).coerceAtLeast(0),
+                    modifier = Modifier.semantics { contentDescription = tr(labelFor(def.key)) },
+                    colors = SliderDefaults.colors(
+                        thumbColor = v.accent, activeTrackColor = v.accent, inactiveTrackColor = v.surfaceHighest,
+                        activeTickColor = Color.Transparent, inactiveTickColor = Color.Transparent,
+                    ),
+                )
+            }
+            Kind.ENUM -> {
+                if (def.options.size <= 3 && def.options.all { it.length <= 10 }) {
+                    V2Connected(def.options.map { it to it }, def.value, { if (it != def.value) { tick(); onSave(it) } })
+                } else {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        for (o in def.options) V2Chip(o, o == def.value) { if (o != def.value) { tick(); onSave(o) } }
+                    }
+                }
+            }
+            Kind.TIME -> if (def.value.isNotEmpty()) {
+                Box(
+                    Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(v.surfaceHigh)
+                        .clickable(role = Role.Button) {
+                            val parts = def.value.split(':')
+                            TimePickerDialog(context, { _, hh, mm -> onSave("%02d:%02d".format(Locale.US, hh, mm)) },
+                                parts.getOrNull(0)?.toIntOrNull() ?: 22, parts.getOrNull(1)?.toIntOrNull() ?: 0, true).show()
+                        }.padding(horizontal = 20.dp),
+                    contentAlignment = Alignment.Center,
+                ) { Text(def.value, color = v.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }
+            }
+            Kind.TEXT -> V2TextSetting(def, onSave)
+            else -> {}
+        }
+        if (feedback != null && !feedback.ok) Text(feedback.text, color = v.danger, fontSize = 13.sp)
+    }
+}
+
+@Composable
+private fun V2TextSetting(def: SettingDef, onSave: (String) -> Unit) {
+    val v = v2Colors()
+    val focus = LocalFocusManager.current
+    var text by remember(def.value) { mutableStateOf(def.value) }
+    Box(
+        Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(16.dp)).background(v.surfaceHigh).padding(horizontal = 16.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        if (text.isEmpty()) Text(if (def.key == "weather_city") "e.g. Amsterdam (leave empty for off)" else "(leave empty for off)", color = v.muted, fontSize = 15.sp)
+        BasicTextField(
+            text, { text = it.take(def.maxLength) }, singleLine = true, cursorBrush = SolidColor(v.accent),
+            textStyle = TextStyle(color = v.text, fontSize = 15.sp),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focus.clearFocus() }),
+            modifier = Modifier.fillMaxWidth().onFocusChanged { if (!it.isFocused && text.trim() != def.value) onSave(text.trim()) },
+        )
     }
 }

@@ -112,7 +112,7 @@ fun V2App(state: MainUiState, actions: MainActions) {
                         NavigationBarItem(
                             selected = t == tab, onClick = { go(t) },
                             icon = { Icon(if (t == tab) t.iconOn else t.icon, contentDescription = null) },
-                            label = { Text(t.label, fontSize = 12.sp, maxLines = 1) },
+                            label = { Text(t.label, fontSize = 11.sp, maxLines = 1, softWrap = false) },   // 11 sp: "Instellingen" fits five across on a phone
                             colors = NavigationBarItemDefaults.colors(
                                 indicatorColor = v.accentContainer, selectedIconColor = v.onAccentContainer, selectedTextColor = v.text,
                                 unselectedIconColor = v.muted, unselectedTextColor = v.muted,
