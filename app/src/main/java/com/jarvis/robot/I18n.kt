@@ -107,6 +107,31 @@ private val RULES: List<Pair<Regex, (MatchResult) -> String?>> = listOf(
     Regex("^Example: ([\\s\\S]+)$") to { m -> "Voorbeeld: " + m.groupValues[1] },
     Regex("^Quiet hours now: at most (\\d+)\\.$") to { m -> "Nu stille uren: hoogstens " + m.groupValues[1] + "." },
     Regex("^([\\d.]+) h$") to { m -> m.groupValues[1].replace('.', ',') + " uur" },
+    // mood, Home Assistant, health / speed / usage pages
+    Regex("^Seen (.+)$") to { m -> "Gezien " + tr(m.groupValues[1]) },
+    Regex("^Last seen (.+)$") to { m -> "Laatst gezien " + tr(m.groupValues[1]) },
+    Regex("^(\\d+) min ago$") to { m -> m.groupValues[1] + " min geleden" },
+    Regex("^(\\d+) h ago$") to { m -> m.groupValues[1] + " uur geleden" },
+    Regex("^(\\d+) days ago$") to { m -> m.groupValues[1] + " dagen geleden" },
+    Regex("^(\\d+) automatic restarts in 24 h$") to { m -> m.groupValues[1] + " automatische herstarts in 24 uur" },
+    Regex("^(\\d+) turns$") to { m -> m.groupValues[1] + " beurten" },
+    Regex("^(\\d+) turns: volume, music, house$") to { m -> m.groupValues[1] + " beurten: volume, muziek, huis" },
+    Regex("^(.+): (\\d+) of (\\d+) requests today$") to { m -> m.groupValues[1] + ": " + m.groupValues[2] + " van " + m.groupValues[3] + " verzoeken vandaag" },
+    Regex("^Tokens left in the daily allowance: about (.+) of (.+)$") to { m -> "Tokens over in het daggebruik: ongeveer " + m.groupValues[1] + " van " + m.groupValues[2] },
+    Regex("^Groq says (\\d+) of (\\d+) requests are left$") to { m -> "Groq zegt dat er nog " + m.groupValues[1] + " van " + m.groupValues[2] + " verzoeken over zijn" },
+    Regex("^Plan (.+): (\\d+) of (\\d+) used$") to { m -> "Abonnement " + m.groupValues[1] + ": " + m.groupValues[2] + " van " + m.groupValues[3] + " gebruikt" },
+    Regex("^Estimated cost today: (.+)$") to { m -> "Geschatte kosten vandaag: " + m.groupValues[1] },
+    Regex("^Main: (.+)$") to { m -> "Hoofdbrein: " + m.groupValues[1].replace(" · last answer: ", " · laatste antwoord: ").replace(" · the main brain failed: ", " · het hoofdbrein faalde: ") },
+    Regex("^(\\d+) answered by a backup, (\\d+) failures$") to { m -> m.groupValues[1] + " beantwoord door een reserve, " + m.groupValues[2] + " mislukt" },
+    Regex("^hearing (.+) · thinking (.+) · voice (.+)$") to { m -> "horen " + m.groupValues[1] + " · denken " + m.groupValues[2] + " · stem " + m.groupValues[3] },
+    Regex("^(\\d\\d:\\d\\d) · (brain|instant)$") to { m -> m.groupValues[1] + " · " + (if (m.groupValues[2] == "brain") "brein" else "direct") },
+    Regex("^typical time until the first sound, from (\\d+) answers\\. The slowest tenth: (.+)\\.$") to
+        { m -> "gebruikelijke tijd tot het eerste geluid, uit " + m.groupValues[1] + " antwoorden. De traagste tien procent: " + m.groupValues[2] + "." },
+    Regex("^Connected in (\\d+) ms: (\\d+) things found\\.$") to { m -> "Verbonden in " + m.groupValues[1] + " ms: " + m.groupValues[2] + " dingen gevonden." },
+    Regex("^Face on the robot: (.+)$") to { m -> "Gezicht op de robot: " + m.groupValues[1] },
+    Regex("^Extra instruction for the brain: ([\\s\\S]+)$") to { m -> "Extra instructie voor het brein: " + m.groupValues[1] },
+    Regex("^Not saved: ([\\s\\S]+)\\. Try again\\.$") to { m -> "Niet opgeslagen: " + m.groupValues[1] + ". Probeer het opnieuw." },
+    Regex("^(.+) · failed: ([\\s\\S]+)$") to { m -> m.groupValues[1] + " · mislukt: " + m.groupValues[2] },
 )
 
 /** [s] in the chosen language: English texts come back untouched, Dutch ones are looked up (whole text first, then the sentence patterns). */

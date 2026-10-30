@@ -25,17 +25,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /** One section of the backend panel: what it holds, and the element the panel page scrolls to. */
-private data class PanelSection(val title: String, val sub: String, val anchor: String, val icon: ImageVector)
+private data class PanelSection(val title: String, val sub: String, val anchor: String, val icon: ImageVector, val page: V2Page? = null)
 
+/** A tile with a [PanelSection.page] opens the app's own page; the others open the panel at their card. */
 private val PANEL_SECTIONS = listOf(
     PanelSection("Hearing", "Ears, speech detector, smart turn", "gEars", V2Icons.Ear),
     PanelSection("Seeing", "Faces, voices, greeter", "faceCard", V2Icons.Eye),
     PanelSection("Thinking", "Brain model, web search", "gBrain", V2Icons.Brain),
     PanelSection("Speaking", "Voice, personality", "gVoice", V2Icons.Speak),
-    PanelSection("Mood and memory", "How it sounds, what it remembers", "moodCard", V2Icons.Heart),
-    PanelSection("Home and music", "Home Assistant, songs, radio", "haCard", V2Icons.House),
-    PanelSection("Health", "Robot, services, alerts", "robotCard", V2Icons.Wave),
-    PanelSection("Speed and usage", "Reply speed, fallbacks, quotas", "speedCard", V2Icons.Clock),
+    PanelSection("Mood", "How Jarvis sounds", "moodCard", V2Icons.Heart, V2Page.MOOD),
+    PanelSection("Home Assistant", "Voice control of the house", "haCard", V2Icons.House, V2Page.HOME),
+    PanelSection("Health and usage", "Robot, server, speed, quotas", "robotCard", V2Icons.Wave, V2Page.HEALTH),
+    PanelSection("Keys and logs", "API keys, debug console", "keys", V2Icons.Gear),
 )
 
 /** The backend (the voice server on the PC): every panel section as a tile that opens the panel right at that section, the music controls, and the full panel. */
@@ -119,7 +120,7 @@ fun V2Brain(state: MainUiState, actions: MainActions, nav: V2Nav = V2Nav()) {
         for (row in PANEL_SECTIONS.chunked(2)) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                 for (sec in row) {
-                    V2Tile(Modifier.weight(1f).height(148.dp), onClick = { onOpenPanel(sec.anchor) }, padding = 14.dp) {
+                    V2Tile(Modifier.weight(1f).height(148.dp), onClick = { if (sec.page != null) nav.openPage(sec.page) else onOpenPanel(sec.anchor) }, padding = 14.dp) {
                         V2IconBadge(sec.icon, v.accentContainer, v.onAccentContainer, size = 36.dp)
                         Spacer(Modifier.weight(1f))
                         Text(sec.title, color = v.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)

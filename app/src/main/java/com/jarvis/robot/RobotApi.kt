@@ -63,6 +63,12 @@ class RobotApi(host: String, demo: DemoRobot? = if (BuildConfig.DEMO) DemoRobot.
         })
         .build()
 
+    // For the few panel answers that take a while on the PC itself (Home Assistant test, the usage and health summaries, saving a setting): same cookies, longer wait.
+    private val panelLong: OkHttpClient = panelClient.newBuilder()
+        .readTimeout(20000, TimeUnit.MILLISECONDS)
+        .callTimeout(25000, TimeUnit.MILLISECONDS)
+        .build()
+
     private fun panelBase(panelUrl: String) = if (panelUrl.endsWith("/")) panelUrl else "$panelUrl/"
 
     private fun panelLogin(panelUrl: String) {
@@ -70,11 +76,11 @@ class RobotApi(host: String, demo: DemoRobot? = if (BuildConfig.DEMO) DemoRobot.
     }
 
     /** One call to the panel: signs in when asked to (401) and tries up to three times, so one slow or lost answer on the Wi-Fi does not count as "no answer". */
-    private fun panelCall(panelUrl: String, build: (String) -> Request): String {
+    private fun panelCall(panelUrl: String, long: Boolean = false, build: (String) -> Request): String {
         var failure = java.io.IOException("not signed in")
         for (attempt in 0..2) {
             try {
-                val body = panelClient.newCall(build(panelBase(panelUrl))).execute().use { r ->
+                val body = (if (long) panelLong else panelClient).newCall(build(panelBase(panelUrl))).execute().use { r ->
                     when {
                         r.code == 401 -> null
                         !r.isSuccessful -> throw java.io.IOException("HTTP ${r.code}")
@@ -105,7 +111,8 @@ class RobotApi(host: String, demo: DemoRobot? = if (BuildConfig.DEMO) DemoRobot.
 
     /** One JSON answer of the panel: a GET, or with [post] a change (the panel wants its X-Panel header on every change). Jarvis v2's Brain switches. */
     fun panelJson(panelUrl: String, path: String, post: JSONObject? = null): JSONObject {
-        val text = panelCall(panelUrl) { base ->
+        val long = path.startsWith("api/telemetry") || path.startsWith("api/usage") || path.startsWith("api/state") || path.startsWith("api/test-") || path == "api/apply"
+        val text = panelCall(panelUrl, long) { base ->
             val b = Request.Builder().url(base + path)
             if (post == null) b.get().build() else b.header("X-Panel", "1").post(post.toString().toRequestBody("application/json".toMediaType())).build()
         }

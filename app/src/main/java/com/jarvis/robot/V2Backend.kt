@@ -50,7 +50,7 @@ import java.util.Date
 import java.util.Locale
 
 /** The app's own detail pages (tap and hold a tile, or a row on the Brain tab); they open over the tabs, back closes them. */
-enum class V2Page { GREETER, VOICES, MUSIC, MEMORY, VOLUME }
+enum class V2Page { GREETER, VOICES, MUSIC, MEMORY, VOLUME, MOOD, HOME, HEALTH }
 
 @Composable
 fun V2PageHost(page: V2Page, state: MainUiState, actions: MainActions, onOpenGroup: (String) -> Unit, onOpenPanel: (String) -> Unit, onClose: () -> Unit) {
@@ -61,12 +61,15 @@ fun V2PageHost(page: V2Page, state: MainUiState, actions: MainActions, onOpenGro
         V2Page.MUSIC -> V2MusicPage(state, actions, onOpenPanel, onClose)
         V2Page.MEMORY -> V2MemoryPage(state, actions, onOpenPanel, onClose)
         V2Page.VOLUME -> V2VolumePage(state, actions, onOpenGroup, onClose)
+        V2Page.MOOD -> V2MoodPage(actions, onOpenPanel, onClose)
+        V2Page.HOME -> V2HomeAssistantPage(actions, onOpenPanel, onClose)
+        V2Page.HEALTH -> V2HealthPage(actions, onOpenPanel, onClose)
     }
 }
 
 /** One page: back arrow, title, the content scrolling below; the theme's background behind. */
 @Composable
-private fun V2PageFrame(title: String, onBack: () -> Unit, sub: String? = null, content: @Composable ColumnScope.() -> Unit) {
+internal fun V2PageFrame(title: String, onBack: () -> Unit, sub: String? = null, content: @Composable ColumnScope.() -> Unit) {
     val v = v2Colors()
     Box(Modifier.fillMaxSize()) {
         ThemeBackdrop()
@@ -88,13 +91,13 @@ private fun V2PageFrame(title: String, onBack: () -> Unit, sub: String? = null, 
 }
 
 /** A panel answer that is asked again every [everyMs] while the page is open. */
-private class PanelData {
+internal class PanelData {
     var data by mutableStateOf<JSONObject?>(null)
     var failed by mutableStateOf(false)
 }
 
 @Composable
-private fun rememberPanelData(actions: MainActions, path: String, everyMs: () -> Long): PanelData {
+internal fun rememberPanelData(actions: MainActions, path: String, everyMs: () -> Long): PanelData {
     // The first question goes out the moment the page opens (not a frame later), then again every everyMs() while it stays open.
     val d = remember(path) { PanelData().also { d -> actions.onPanel(path, null) { r -> if (r != null) { d.data = r; d.failed = false } else d.failed = true } } }
     LaunchedEffect(path) {
@@ -106,18 +109,18 @@ private fun rememberPanelData(actions: MainActions, path: String, everyMs: () ->
     return d
 }
 
-private fun post(actions: MainActions, d: PanelData, path: String, body: JSONObject, after: (JSONObject) -> Unit = {}) =
+internal fun panelPost(actions: MainActions, d: PanelData, path: String, body: JSONObject, after: (JSONObject) -> Unit = {}) =
     actions.onPanel(path, body) { r -> if (r != null) { d.data = r; after(r) } else d.failed = true }
 
 @Composable
-private fun V2Waiting(d: PanelData) {
+internal fun V2Waiting(d: PanelData) {
     val v = v2Colors()
     Text(if (d.failed) "Could not reach the backend. It is asked again in a moment." else "Asking the backend…", color = v.muted, fontSize = 14.sp)
 }
 
-private fun JSONObject.strOrNull(k: String): String? = if (has(k) && !isNull(k)) optString(k) else null
-private fun hhmm(epochS: Long): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(epochS * 1000))
-private fun JSONArray?.objects(): List<JSONObject> = if (this == null) emptyList() else (0 until length()).mapNotNull { optJSONObject(it) }
+internal fun JSONObject.strOrNull(k: String): String? = if (has(k) && !isNull(k)) optString(k) else null
+internal fun hhmm(epochS: Long): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(epochS * 1000))
+internal fun JSONArray?.objects(): List<JSONObject> = if (this == null) emptyList() else (0 until length()).mapNotNull { optJSONObject(it) }
 
 // ---------------------------------------------------------------------------------------------------------------------------------- greeter
 @OptIn(ExperimentalLayoutApi::class)
@@ -129,7 +132,7 @@ private fun V2GreeterPage(state: MainUiState, actions: MainActions, onOpenPanel:
     var testNote by remember { mutableStateOf<String?>(null) }
     V2PageFrame("Greeter", onBack, "Jarvis says good morning when it sees you") {
         val g = d.data ?: run { V2Waiting(d); return@V2PageFrame }
-        fun set(k: String, value: Any) = post(actions, d, "api/greeter", JSONObject().put(k, value))
+        fun set(k: String, value: Any) = panelPost(actions, d, "api/greeter", JSONObject().put(k, value))
         V2Card {
             V2Row("Greet when it sees you", "A small picture about every 20 s while it is idle; two sure looks and it speaks") {
                 V2Switch(g.optBoolean("enabled"), { set("enabled", it) })
@@ -184,7 +187,7 @@ private fun V2GreeterPage(state: MainUiState, actions: MainActions, onOpenPanel:
 
         V2Button("Greet now (test)", {
             testNote = "…"
-            post(actions, d, "api/greeter", JSONObject().put("test", true)) { r ->
+            panelPost(actions, d, "api/greeter", JSONObject().put("test", true)) { r ->
                 val t = r.optJSONObject("test")
                 testNote = if (t?.optBoolean("ok") == true) "Said: ${t.optString("text")}" else "Did not work: ${t?.optString("message") ?: "?"}"
             }
@@ -235,7 +238,7 @@ private fun V2VoicesPage(actions: MainActions, onOpenPanel: (String) -> Unit, on
     var confirmForget by remember { mutableStateOf<String?>(null) }
     V2PageFrame("Voice recognition", onBack, "Who is speaking: label only, nothing is blocked") {
         val s = d.data ?: run { V2Waiting(d); return@V2PageFrame }
-        fun send(body: JSONObject) = post(actions, d, "api/voiceprint", body)
+        fun send(body: JSONObject) = panelPost(actions, d, "api/voiceprint", body)
         val enrol = s.optJSONObject("enrol")
         enrolling = enrol != null
         V2Card {

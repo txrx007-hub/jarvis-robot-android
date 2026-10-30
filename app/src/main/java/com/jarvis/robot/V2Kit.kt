@@ -241,10 +241,10 @@ fun V2Stepper(value: String, onLess: () -> Unit, onMore: () -> Unit, lessLabel: 
 
 /** A big number with a small label under it (today's counters). */
 @Composable
-fun V2Kpi(value: String, label: String, modifier: Modifier = Modifier, accent: Boolean = false) {
+fun V2Kpi(value: String, label: String, modifier: Modifier = Modifier, accent: Boolean = false, tone: Color? = null) {
     val v = v2Colors()
     Column(modifier.clip(RoundedCornerShape(20.dp)).background(v.surfaceHigh).padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(value, color = if (accent) v.accent else v.text, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        Text(value, color = tone ?: if (accent) v.accent else v.text, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1)
         Text(label, color = v.muted, fontSize = 12.sp, maxLines = 2)
     }
 }
