@@ -4,7 +4,7 @@ package com.jarvis.robot
 // The Dutch word list of the app: what is shown for an English text when the language is Dutch (see I18n.kt).
 object I18nNl {
     val words: Map<String, String> by lazy {
-        HashMap<String, String>(1056).apply {
+        HashMap<String, String>(1224).apply {
             putAll(chunk0())
             putAll(chunk1())
             putAll(chunk2())
@@ -19,6 +19,8 @@ object I18nNl {
             putAll(chunk11())
             putAll(chunk12())
             putAll(chunk13())
+            putAll(chunk14())
+            putAll(chunk15())
         }
     }
 
@@ -59,6 +61,7 @@ object I18nNl {
         "(not set)" to "(niet ingesteld)",
         "1 hr" to "1 uur",
         "1 voice enrolled" to "1 stem ingeschreven",
+        "1 voice sample" to "1 stemvoorbeeld",
         "100% is full volume." to "100% is volledig volume.",
         "15 min" to "15 min",
         "15 minutes less" to "15 minuten minder",
@@ -66,18 +69,23 @@ object I18nNl {
         "192.168.x.y or name.local" to "192.168.x.y of naam.local",
         "2 hrs" to "2 uur",
         "8 hrs" to "8 uur",
+        "A small model on the PC compares each sentence with the voices below" to "Een klein model op de pc vergelijkt elke zin met de stemmen hieronder",
+        "A small picture about every 20 s while it is idle; two sure looks and it speaks" to "Een kleine foto ongeveer elke 20 s als hij niets doet; twee zekere blikken en hij praat",
         "Activating" to "Activeren",
         "Add" to "Toevoegen",
+        "Add a sentence to this voice" to "Voeg een zin toe aan deze stem",
         "Address" to "Adres",
         "Advanced" to "Geavanceerd",
         "Advanced ↗" to "Geavanceerd ↗",
         "All" to "Alles",
         "All details" to "Alle details",
         "All settings reset to defaults." to "Alle instellingen zijn teruggezet naar de standaardwaarden.",
+        "Anyone" to "Iedereen",
         "Anything else" to "Al het andere",
         "App" to "App",
         "Appearance" to "Weergave",
         "Asking the backend…" to "Backend wordt gevraagd…",
+        "At most per day" to "Hoogstens per dag",
         "Audio and wake word" to "Audio en wekwoord",
         "Audio tuning" to "Audio-afstelling",
         "Auto" to "Auto",
@@ -89,15 +97,15 @@ object I18nNl {
         "Battery" to "Batterij",
         "Blinds" to "Jaloezieën",
         "Blueberry" to "Blauwe bes",
+    )
+
+    private fun chunk1(): Map<String, String> = mapOf(
         "Board" to "Bord",
         "Both QR codes" to "Beide QR-codes",
         "Brain" to "Brein",
         "Brain model, web search" to "Breinmodel, zoeken op het web",
         "Briefing" to "Briefing",
         "Brightness" to "Helderheid",
-    )
-
-    private fun chunk1(): Map<String, String> = mapOf(
         "Built into upstream" to "Ingebouwd (upstream)",
         "Camera" to "Camera",
         "Camera brightness" to "Camerahelderheid",
@@ -115,6 +123,7 @@ object I18nNl {
         "Check it" to "Opvragen",
         "Check the address and that this phone is on the robot's Wi-Fi." to "Controleer het adres en of deze telefoon op het wifi van de robot zit.",
         "Checking..." to "Controleren...",
+        "Checking…" to "Controleren…",
         "Chip" to "Chip",
         "Chip temperature" to "Chiptemperatuur",
         "Classic" to "Klassiek",
@@ -131,16 +140,17 @@ object I18nNl {
         "Connecting" to "Verbinden",
         "Connecting to its server" to "Verbindt met zijn server",
         "Connecting…" to "Verbinden…",
+    )
+
+    private fun chunk2(): Map<String, String> = mapOf(
         "Console" to "Console",
         "Control" to "Bediening",
         "Could not change it" to "Kon het niet wijzigen",
         "Could not load settings." to "Kon de instellingen niet laden.",
         "Could not reach Jarvis" to "Kan Jarvis niet bereiken",
+        "Could not reach the backend. It is asked again in a moment." to "De backend is niet bereikt. Hij wordt zo opnieuw gevraagd.",
         "Could not reset the settings." to "Kon de instellingen niet terugzetten.",
         "Dance" to "Dansen",
-    )
-
-    private fun chunk2(): Map<String, String> = mapOf(
         "Dark" to "Donker",
         "Dark / light theme" to "Donker / licht thema",
         "Day or night" to "Dag of nacht",
@@ -149,6 +159,7 @@ object I18nNl {
         "Deep sleep in 2 s." to "Diepe slaap over 2 s.",
         "Deep sleep…" to "Diepe slaap…",
         "Demo: deep sleep is pretended (the robot is napping)." to "Demo: diepe slaap wordt gespeeld (de robot doet een dutje).",
+        "Details" to "Details",
         "Diagnostics" to "Diagnostiek",
         "Drive" to "Rijden",
         "Drive backward" to "Achteruit rijden",
@@ -159,8 +170,12 @@ object I18nNl {
         "Driving" to "Rijdt",
         "Ears, speech detector, smart turn" to "Oren, spraakdetector, smart turn",
         "English" to "English",
+        "Enrol (6 sentences)" to "Inschrijven (6 zinnen)",
+        "Enrol a new voice" to "Een nieuwe stem inschrijven",
+        "Enrolled voices" to "Ingeschreven stemmen",
         "Enter the robot's IP address (shown on its screen status and by !status over USB), or scan your WiFi network for it. This phone must be on the same WiFi as the robot." to "Voer het IP-adres van de robot in (te zien op zijn scherm en via !status over USB), of scan je wifi-netwerk ernaar. Deze telefoon moet op hetzelfde wifi zitten als de robot.",
         "Every setting goes back to its default. This cannot be undone." to "Elke instelling gaat terug naar de standaardwaarde. Dit kan niet ongedaan worden gemaakt.",
+        "Everything Jarvis noted about the people it talks to is deleted. It starts again with the next conversation." to "Alles wat Jarvis noteerde over de mensen met wie hij praat wordt gewist. Hij begint opnieuw bij het volgende gesprek.",
         "Everything you can say to Jarvis" to "Alles wat je tegen Jarvis kunt zeggen",
         "Explore" to "Verkennen",
         "Face and movement" to "Gezicht en bewegen",
@@ -168,6 +183,9 @@ object I18nNl {
         "Face me" to "Naar mij kijken",
         "Face me, follow me" to "Naar mij kijken, mij volgen",
         "Face turn: big step" to "Gezichtsdraai: grote stap",
+    )
+
+    private fun chunk3(): Map<String, String> = mapOf(
         "Face turn: maximum power" to "Kracht van gezichts- en volgdraaien",
         "Face turn: medium step" to "Gezichtsdraai: middelgrote stap",
         "Face turn: small step" to "Gezichtsdraai: kleine stap",
@@ -181,18 +199,24 @@ object I18nNl {
         "Follow mode off." to "Volgmodus uit.",
         "Follow mode on: Jarvis turns towards your face." to "Volgmodus aan: Jarvis draait naar je gezicht.",
         "Follow mode: while Jarvis is idle it keeps turning towards your face. It needs your own voice server and your face in front of the camera, and it is always off again after a restart" to "Volgmodus: zolang Jarvis niets doet blijft hij naar je gezicht draaien. Hij heeft je eigen spraakserver nodig en je gezicht voor de camera, en staat na een herstart altijd weer uit",
-    )
-
-    private fun chunk3(): Map<String, String> = mapOf(
         "Follow the device" to "Volg het apparaat",
         "Follow: time between looks" to "Volgen: tijd tussen twee blikken",
+        "Forget" to "Vergeten",
+        "Forget the notes?" to "De notities vergeten?",
+        "Forget these notes" to "Deze notities vergeten",
+        "Forget this voice" to "Vergeet deze stem",
+        "Forget this voice?" to "Deze stem vergeten?",
         "Forward" to "Vooruit",
+        "Found a Jarvis here · tap to connect" to "Hier een Jarvis gevonden · tik om te verbinden",
         "Found a Jarvis here — tap to use it" to "Hier een Jarvis gevonden — tik om te gebruiken",
         "Go back to the xiaozhi.me cloud server" to "Ga terug naar de xiaozhi.me-cloudserver",
+        "Go back to the xiaozhi.me cloud? Jarvis restarts." to "Terug naar de xiaozhi.me-cloud? Jarvis herstart.",
         "Go to deep sleep" to "Ga in diepe slaap",
         "Going to sleep" to "Gaat slapen",
         "Going to sleep..." to "Gaat slapen...",
         "Good morning when it sees you" to "Goedemorgen als hij je ziet",
+        "Greet now (test)" to "Nu begroeten (test)",
+        "Greet when it sees you" to "Begroeten als hij je ziet",
         "Greeter" to "Begroeten",
         "Health" to "Gezondheid",
         "Hearing" to "Horen",
@@ -201,6 +225,10 @@ object I18nNl {
         "Hide picture" to "Verberg foto",
         "Hide remote" to "Verberg afstandsbediening",
         "Hide voice commands" to "Verberg spraakopdrachten",
+        "Higher = fewer strangers get your name, but more of your own sentences stay unlabelled." to "Hoger = minder vreemden krijgen jouw naam, maar meer van je eigen zinnen blijven zonder label.",
+    )
+
+    private fun chunk4(): Map<String, String> = mapOf(
         "Higher for stronger colours, lower for paler ones. 0 is the camera's own." to "Hoger voor sterkere kleuren, lager voor flauwere. 0 is die van de camera zelf.",
         "Higher if photos come out dark, lower if bright spots wash out." to "Hoger als foto’s te donker zijn, lager als lichte plekken overbelicht raken.",
         "Hold an arrow to drive (full speed), let go to stop. Keyboard arrows work too." to "Houd een pijl ingedrukt om te rijden (volle snelheid), laat los om te stoppen. De pijltjestoetsen op het toetsenbord werken ook.",
@@ -218,15 +246,13 @@ object I18nNl {
         "Hours" to "Uren",
         "House" to "Huis",
         "How it sounds, what it remembers" to "Hoe hij klinkt, wat hij onthoudt",
+        "How sure the face finder must be that it is you (it calls 0.35 and up you)." to "Hoe zeker de gezichtszoeker moet zijn dat jij het bent (vanaf 0,35 noemt hij het jou).",
         "Idle" to "Inactief",
         "Idle clock after" to "Klok bij inactiviteit na",
         "In Dutch too" to "Ook in het Nederlands",
         "Instant: explore and briefing" to "Direct: verkennen en briefing",
         "Instant: moods" to "Direct: stemmingen",
         "Instant: notes and macros" to "Direct: notities en macro’s",
-    )
-
-    private fun chunk4(): Map<String, String> = mapOf(
         "Instant: own server, done at once" to "Direct: eigen server, meteen uitgevoerd",
         "Instant: sound and screen" to "Direct: geluid en scherm",
         "Instant: stop and drive" to "Direct: stoppen en rijden",
@@ -235,16 +261,23 @@ object I18nNl {
         "Jarvis has not said which voice server it uses yet." to "Jarvis heeft nog niet gezegd welke spraakserver hij gebruikt.",
         "Jarvis is napping: wake it first" to "Jarvis doet een dutje: maak hem eerst wakker",
         "Jarvis is not reachable" to "Jarvis is niet bereikbaar",
+        "Jarvis says good morning when it sees you" to "Jarvis zegt goedemorgen als hij je ziet",
         "Jarvis settings" to "Jarvis-instellingen",
         "Jarvis talks to the xiaozhi.me cloud now. The brain settings live on your own voice server: set it under Settings › Voice server." to "Jarvis praat nu met de xiaozhi.me-cloud. De breininstellingen staan op je eigen spraakserver: stel die in onder Instellingen › Spraakserver.",
         "Jarvis turns off Wi-Fi and the screen and wakes up by itself after the time you pick, or when you press its BOOT button." to "Jarvis zet wifi en het scherm uit en wordt vanzelf wakker na de gekozen tijd, of als je op zijn BOOT-knop drukt.",
         "Jarvis turns on the spot towards your face. Keep it on a flat table with room to turn." to "Jarvis draait op de plek naar je gezicht. Zet hem op een vlakke tafel met ruimte om te draaien.",
         "Language" to "Taal",
+        "Last greetings" to "Laatste begroetingen",
         "Last photo" to "Laatste foto",
+    )
+
+    private fun chunk5(): Map<String, String> = mapOf(
         "Left motor direction" to "Richting linkermotor",
+        "Less" to "Minder",
         "Light" to "Licht",
         "Light mode" to "Lichte modus",
         "Light theme" to "Licht thema",
+        "Limits" to "Grenzen",
         "List / read / change / reset" to "Opsommen / uitlezen / wijzigen / terugzetten",
         "List / run a check" to "Opsommen / een controle uitvoeren",
         "List expressions" to "Uitdrukkingen opsommen",
@@ -267,13 +300,11 @@ object I18nNl {
         "Looking for your face." to "Zoekt je gezicht.",
         "Looks for the robot on your Wi-Fi" to "Zoekt de robot op je wifi",
         "Lost the connection to Jarvis" to "Verbinding met Jarvis verloren",
-    )
-
-    private fun chunk5(): Map<String, String> = mapOf(
         "Lost the connection to Jarvis. It may be napping off WiFi, asleep, or out of range." to "De verbinding met Jarvis is weg. Hij doet misschien een dutje zonder wifi, slaapt, of is buiten bereik.",
         "Louder" to "Harder",
         "MAC address" to "MAC-adres",
         "Macros" to "Macro’s",
+        "Match needed" to "Nodige overeenkomst",
         "Memory" to "Geheugen",
         "Memory is switched on the panel: it restarts the voice server." to "Geheugen zet je aan of uit in het paneel: dat herstart de spraakserver.",
         "Mic gain" to "Microfoonversterking",
@@ -281,11 +312,17 @@ object I18nNl {
         "Minutes" to "Minuten",
         "Mode" to "Modus",
         "Mood" to "Stemming",
+    )
+
+    private fun chunk6(): Map<String, String> = mapOf(
         "Mood and memory" to "Stemming en geheugen",
+        "More" to "Meer",
         "Motors" to "Motoren",
         "Move while talking" to "Bewegen tijdens praten",
         "Movement" to "Beweging",
         "Music" to "Muziek",
+        "Music and radio" to "Muziek en radio",
+        "Music folder" to "Muziekmap",
         "Music mode" to "Muziekmodus",
         "Music screen picture" to "Afbeelding muziekscherm",
         "Music: radio and podcasts" to "Muziek: radio en podcasts",
@@ -295,6 +332,7 @@ object I18nNl {
         "Mute turns the microphone off until you unmute (or the robot restarts): Jarvis hears nothing. The speaker stays on, so timers and music still sound" to "Dempen zet de microfoon uit tot je het opheft (of de robot herstart): Jarvis hoort niets. De speaker blijft aan, dus timers en muziek klinken nog steeds",
         "Muted: the microphone is off until you unmute." to "Gedempt: de microfoon staat uit tot je het opheft.",
         "NO" to "NEE",
+        "Name" to "Naam",
         "Nap" to "Dutje",
         "Nap = light standby: the screen goes off, Wi-Fi and the wake word stay on" to "Dutje = lichte stand-by: het scherm gaat uit, wifi en het wekwoord blijven aan",
         "Napping" to "Dutje",
@@ -304,34 +342,45 @@ object I18nNl {
         "Never" to "Nooit",
         "Next" to "Volgende",
         "Next song" to "Volgend nummer",
+        "No greeting in this time" to "Geen begroeting in deze tijd",
         "Nobody enrolled yet" to "Nog niemand ingeschreven",
         "Not on this backend" to "Niet op deze backend",
         "Not reachable" to "Niet bereikbaar",
         "Not saved." to "Niet opgeslagen.",
         "Notes" to "Notities",
         "Notes about the people it talks to" to "Notities over de mensen met wie hij praat",
-    )
-
-    private fun chunk6(): Map<String, String> = mapOf(
         "Nothing playing" to "Er speelt niets",
         "Nothing playing. Say: Jarvis, play something random." to "Er speelt niets. Zeg: Jarvis, play something random.",
+        "Nothing remembered yet." to "Nog niets onthouden.",
         "Notifying" to "Melden",
         "Off" to "Uit",
+        "Off · switched in the panel" to "Uit · wordt in het paneel geschakeld",
+    )
+
+    private fun chunk7(): Map<String, String> = mapOf(
         "Off · turns to your face" to "Uit · draait naar je gezicht",
+        "Off: no folder set on the PC" to "Uit: geen map ingesteld op de pc",
         "Offline" to "Offline",
         "On" to "Aan",
         "On and off" to "Aan en uit",
         "On · keeps turning to you" to "Aan · blijft naar je draaien",
+        "On · switched in the panel (it restarts the voice server)" to "Aan · wordt in het paneel geschakeld (dat herstart de spraakserver)",
+        "Once per" to "Eens per",
         "Online" to "Online",
         "Only addresses on your own network are accepted (192.168.x.x, 10.x.x.x, 172.16-31.x.x, a .local name, or Tailscale 100.x.x.x)." to "Alleen adressen op je eigen netwerk worden geaccepteerd (192.168.x.x, 10.x.x.x, 172.16-31.x.x, een .local-naam of Tailscale 100.x.x.x).",
+        "Only me" to "Alleen ik",
         "Open Jarvis backend" to "Open Jarvis-backend",
         "Open Jarvis backend ↗" to "Open Jarvis-backend ↗",
+        "Open in the panel" to "Openen in het paneel",
+        "Open items" to "Open punten",
+        "Open the backend in the browser" to "De backend in de browser openen",
         "Open the full panel" to "Open het hele paneel",
         "Original: any server" to "Origineel: elke server",
         "Other" to "Overig",
         "Other time" to "Andere tijd",
         "Overview" to "Overzicht",
         "Own server" to "Eigen server",
+        "Own server address" to "Adres van de eigen server",
         "Own server…" to "Eigen server…",
         "Pages" to "Pagina2019s",
         "Peach" to "Perzik",
@@ -345,19 +394,24 @@ object I18nNl {
         "Podcasts" to "Podcasts",
         "Port 8003 is assumed; add :port to change it. Only addresses on your own network are accepted." to "Poort 8003 wordt aangenomen; voeg :poort toe om dat te wijzigen. Alleen adressen op je eigen netwerk worden geaccepteerd.",
         "Power" to "Energie",
+        "Preferences" to "Voorkeuren",
         "QR: backend" to "QR: backend",
         "QR: settings page" to "QR: instellingenpagina",
+        "Quiet hours" to "Stille uren",
+    )
+
+    private fun chunk8(): Map<String, String> = mapOf(
         "Quiet hours end" to "Stille uren einde",
         "Quiet hours start" to "Stille uren begin",
+        "Quiet now" to "Nu stil",
         "Quieter" to "Zachter",
         "Radio" to "Radio",
         "Read" to "Voorlezen",
         "Read current tuning" to "Huidige afstelling uitlezen",
-    )
-
-    private fun chunk7(): Map<String, String> = mapOf(
         "Read it" to "Uitlezen",
         "Ready to listen" to "Klaar om te luisteren",
+        "Recent matches" to "Recente overeenkomsten",
+        "Recognise voices" to "Stemmen herkennen",
         "Remote control" to "Afstandsbediening",
         "Remove" to "Verwijderen",
         "Reply speed, fallbacks, quotas" to "Antwoordsnelheid, reserves, quota",
@@ -383,9 +437,13 @@ object I18nNl {
         "Say: Jarvis, play something random." to "Zeg: Jarvis, play something random.",
         "Scan network" to "Netwerk scannen",
         "Scanning..." to "Scannen...",
+        "Scanning…" to "Scannen…",
         "Scenes and scripts" to "Scènes en scripts",
         "Screen" to "Scherm",
         "Screen and quiet hours" to "Scherm en stille uren",
+    )
+
+    private fun chunk9(): Map<String, String> = mapOf(
         "Seeing" to "Zien",
         "Set / list / cancel" to "Instellen / opsommen / annuleren",
         "Sets every robot setting back to its default" to "Zet elke robotinstelling terug naar de standaardwaarde",
@@ -396,15 +454,13 @@ object I18nNl {
         "Show full screen" to "Toon op volledig scherm",
         "Shows what the robot sees while you drive: a new picture about once a second, only while this page is open (stops after 3 minutes)" to "Toont wat de robot ziet terwijl je rijdt: ongeveer elke seconde een nieuw beeld, alleen zolang deze pagina open is (stopt na 3 minuten)",
         "Shows what the robot sees while you drive: a new picture about once a second, only while this screen is open (stops after 3 minutes)" to "Toont wat de robot ziet terwijl je rijdt: ongeveer elke seconde een nieuw beeld, alleen zolang dit scherm open is (stopt na 3 minuten)",
-    )
-
-    private fun chunk8(): Map<String, String> = mapOf(
         "Sleep" to "Slapen",
         "Sleep for" to "Slaap gedurende",
         "Sleep until the button" to "Slapen tot de knop",
         "Sleep…" to "Slapen…",
         "Smart turn" to "Smart turn",
         "Soft start ramp" to "Zachte start",
+        "Someone" to "Iemand",
         "Speaker volume" to "Speakervolume",
         "Speaking" to "Praten",
         "Speaking effect" to "Spreekeffect",
@@ -416,13 +472,21 @@ object I18nNl {
         "Starting" to "Opstarten",
         "Starting..." to "Starten...",
         "State" to "Toestand",
+        "Status" to "Status",
+        "Stayed silent because of" to "Stil gebleven door",
         "Steering trim" to "Stuurcorrectie",
         "Stop" to "Stop",
+        "Stop (keep what was learned)" to "Stoppen (bewaar wat is geleerd)",
         "Stop live view" to "Stop live beeld",
         "Stops the song, radio station or podcast now" to "Stopt het nummer, het radiostation of de podcast direct",
+        "Strictness" to "Strengheid",
         "Succulent" to "Vetplant",
+        "Sure match from" to "Zeker vanaf",
         "Swap left/right" to "Links/rechts omwisselen",
         "System" to "Systeem",
+    )
+
+    private fun chunk10(): Map<String, String> = mapOf(
         "Take a photo" to "Maak een foto",
         "Take a picture" to "Maak een foto",
         "Take another" to "Maak er nog een",
@@ -439,9 +503,6 @@ object I18nNl {
         "The Jarvis backend page shows here" to "De Jarvis-backendpagina verschijnt hier",
         "The backend control panel on your PC: servers, brains, voices, keys" to "Het bedieningspaneel van de backend op je pc: servers, breinen, stemmen, sleutels",
         "The backend control panel: servers, brains, voices and keys" to "Het bedieningspaneel van de backend: servers, breinen, stemmen en sleutels",
-    )
-
-    private fun chunk9(): Map<String, String> = mapOf(
         "The brain that answered the last question" to "Het brein dat de laatste vraag beantwoordde",
         "The model file is missing" to "Het modelbestand ontbreekt",
         "The speaker model file is missing" to "Het sprekermodel ontbreekt",
@@ -450,16 +511,25 @@ object I18nNl {
         "Thinking" to "Denken",
         "This app" to "Deze app",
         "This phone isn't on a WiFi network." to "Deze telefoon zit niet op een wifi-netwerk.",
+        "This phone must be on the same Wi-Fi as the robot. Its address is on the robot's screen status, or let the app look for it." to "Deze telefoon moet op hetzelfde wifi zitten als de robot. Het adres staat in de status op het scherm van de robot, of laat de app ernaar zoeken.",
+        "This robot's firmware has no volume control." to "De firmware van deze robot heeft geen volumeregeling.",
         "Time and date" to "Tijd en datum",
         "Timer" to "Timer",
         "Timers" to "Timers",
+        "Today" to "Vandaag",
         "Top speed" to "Topsnelheid",
+        "Try saying" to "Zeg bijvoorbeeld",
         "Try “timer” or “dance”" to "Probeer “timer” of “dans”",
         "Turn" to "Draaien",
         "Turn duration (90°)" to "Draaitijd (90°)",
         "Turn left" to "Links draaien",
         "Turn right" to "Rechts draaien",
+        "Turn to me first" to "Eerst naar mij draaien",
         "Turning to your face needs your own voice server." to "Naar je gezicht draaien heeft je eigen spraakserver nodig.",
+        "Turns until your face is in the middle, then speaks" to "Draait tot je gezicht in het midden staat, en praat dan",
+    )
+
+    private fun chunk11(): Map<String, String> = mapOf(
         "Unknown" to "Onbekend",
         "Unmute" to "Dempen opheffen",
         "Unmuted: listening again." to "Dempen opgeheven: luistert weer.",
@@ -482,33 +552,44 @@ object I18nNl {
         "Waiting for the first picture…" to "Wachten op het eerste beeld…",
         "Waits when you pause mid-sentence" to "Wacht als je halverwege een zin pauzeert",
         "Wake chirp" to "Wektjilp",
-    )
-
-    private fun chunk10(): Map<String, String> = mapOf(
         "Wake sensitivity" to "Wekgevoeligheid",
         "Wake up" to "Wakker worden",
         "Waking up." to "Wakker worden.",
         "Weather" to "Weer",
         "Weather city" to "Plaats voor het weer",
+        "What Jarvis remembers about the people it talks to" to "Wat Jarvis onthoudt over de mensen met wie hij praat",
         "What can I say?" to "Wat kan ik zeggen?",
+        "When Jarvis is quieter at night" to "Wanneer Jarvis ’s nachts zachter is",
         "While Jarvis talks" to "Terwijl Jarvis praat",
+        "Who" to "Wie",
+        "Who is speaking: label only, nothing is blocked" to "Wie er praat: alleen een label, er wordt niets geblokkeerd",
         "Whole rooms" to "Hele kamers",
         "Wi-Fi and the wake word go off for the time you choose, or until the BOOT button" to "Wifi en het wekwoord gaan uit voor de gekozen tijd, of tot de BOOT-knop",
         "Wi-Fi dBm" to "Wifi dBm",
         "WiFi" to "Wifi",
         "Wifi setup" to "Wifi-installatie",
         "YES" to "JA",
+        "a known voice" to "een bekende stem",
+    )
+
+    private fun chunk12(): Map<String, String> = mapOf(
+        "a look failed" to "een blik mislukte",
         "camera exposure target: raise it if photos come out dark, lower it if bright spots wash out (0 = sensor default)" to "belichtingsdoel van de camera: verhoog het als foto’s te donker zijn, verlaag het als heldere plekken uitvloeien (0 = standaard van de sensor)",
         "cannot take the picture now" to "kan de foto nu niet maken",
         "caps all movement, in percent" to "begrenst alle beweging, in procenten",
         "city for the weather line on the idle clock" to "plaats voor de weerregel op de inactiviteitsklok",
         "city for the weather, for example Amsterdam, or off" to "plaats voor het weer, bijvoorbeeld Amsterdam, of uit",
         "click sound when taking a photo" to "klikgeluid bij het maken van een foto",
+        "daily cap reached" to "dagmaximum bereikt",
         "e.g. Amsterdam (leave empty for off)" to "bijv. Amsterdam (leeg laten = uit)",
         "explore and briefing" to "verkennen en briefing",
+        "follow mode on" to "volgmodus aan",
+        "hours, for the same person" to "uur, voor dezelfde persoon",
         "hrs" to "uur",
         "instant" to "direct",
+        "just talked to Jarvis" to "net met Jarvis gepraat",
         "locks, alarms and garage doors: Jarvis refuses" to "sloten, alarmen en garagedeuren: Jarvis weigert",
+        "microphone muted" to "microfoon uit",
         "milliseconds for a 90 degree turn at speed 60" to "milliseconden voor een draai van 90 graden bij snelheid 60",
         "minutes of idle before the clock shows" to "minuten inactiviteit voordat de klok verschijnt",
         "moods" to "stemmingen",
@@ -517,28 +598,37 @@ object I18nNl {
         "music icon 2" to "muziekicoon 2",
         "music icon 3" to "muziekicoon 3",
         "music icon 4" to "muziekicoon 4",
+        "music or radio playing" to "muziek of radio speelt",
         "night mode end, HH:MM or off" to "einde van de nachtmodus, UU:MM of uit",
         "night mode start, HH:MM or off" to "begin van de nachtmodus, UU:MM of uit",
         "no answer from Jarvis" to "geen antwoord van Jarvis",
         "no camera found" to "geen camera gevonden",
         "no ip" to "geen ip",
+        "nobody seen" to "niemand gezien",
         "not enough memory for a picture" to "niet genoeg geheugen voor een foto",
         "not found" to "niet gevonden",
         "not set" to "niet ingesteld",
-    )
-
-    private fun chunk11(): Map<String, String> = mapOf(
+        "not sure it is you" to "niet zeker dat jij het bent",
         "notes and macros" to "notities en macro’s",
         "off" to "uit",
         "own voice server" to "eigen spraakserver",
+        "per check" to "per controle",
+    )
+
+    private fun chunk13(): Map<String, String> = mapOf(
+        "quiet hours" to "stille uren",
         "ramp-up time that limits current spikes" to "oploptijd die stroompieken beperkt",
         "reverses motor A (right wheel)" to "keert motor A om (rechterwiel)",
         "reverses motor B (left wheel)" to "keert motor B om (linkerwiel)",
+        "robot busy (talking, listening)" to "robot bezig (praat, luistert)",
+        "robot not reachable" to "robot niet bereikbaar",
+        "sentences checked" to "zinnen gecontroleerd",
         "serial log detail" to "detail van het seriële log",
         "serial log detail: error, warn, info or debug" to "detail van het seriële log: error, warn, info of debug",
         "short chirp right after the wake word" to "kort tjilpgeluid direct na het wekwoord",
         "show the big clock after this many idle minutes (0 = off)" to "toon de grote klok na zoveel minuten inactiviteit (0 = uit)",
         "software microphone gain in dB" to "softwarematige microfoonversterking in dB",
+        "somebody else" to "iemand anders",
         "sound and screen" to "geluid en scherm",
         "stop and drive" to "stoppen en rijden",
         "swaps the left and right motors" to "wisselt de linker- en rechtermotor om",
@@ -549,11 +639,13 @@ object I18nNl {
         "time and timers" to "tijd en timers",
         "timed out applying the setting" to "de instelling toepassen duurde te lang",
         "timeout" to "time-out",
+        "waiting for the cooldown" to "wacht op de pauze",
         "wake word threshold, lower wakes more easily" to "drempel voor het wekwoord, lager wekt sneller",
         "what the screen shows while Jarvis speaks" to "wat het scherm toont terwijl Jarvis praat",
         "what the screen shows while Jarvis speaks: off, winamp, rainbow, scope, radial, vu, mouth or orb" to "wat het scherm toont terwijl Jarvis praat: off, winamp, rainbow, scope, radial, vu, mouth of orb",
         "wheel balance: raise it if Jarvis drifts left, lower it if it drifts right" to "wielbalans: verhoog de waarde als Jarvis naar links afdrijft, verlaag hem als hij naar rechts afdrijft",
         "xiaozhi.me cloud" to "xiaozhi.me-cloud",
+        "your name" to "je naam",
         "“add milk and eggs to the shopping list”, “zet melk op de boodschappenlijst”" to "“add milk and eggs to the shopping list”, “zet melk op de boodschappenlijst”",
         "“be cheerful”, “be calm”, “be serious”, “be dry”, “back to normal”" to "“be cheerful”, “be calm”, “be serious”, “be dry”, “back to normal”",
         "“brightness 30”" to "“brightness 30”",
@@ -564,13 +656,13 @@ object I18nNl {
         "“dim the game room to 40”, “zet de lamp op 30 procent”" to "“dim the game room to 40”, “zet de lamp op 30 procent”",
         "“do a little dance” (random, wiggle, spin, or happy)" to "“do a little dance” (willekeurig, wiebelen, draaien of vrolijk)",
         "“don't move while you talk” / “move when you talk”: the small shakes while Jarvis speaks" to "“don't move while you talk” / “beweeg niet tijdens het praten” en “move when you talk”",
+    )
+
+    private fun chunk14(): Map<String, String> = mapOf(
         "“drive forward for two seconds”, “turn around”, “stop”" to "“drive forward for two seconds”, “turn around”, “stop”",
         "“explore the room” (looks around, steps forward, looks again, then tells you what it found)" to "“explore the room” (kijkt rond, stapt vooruit, kijkt opnieuw en vertelt dan wat het vond)",
         "“follow me” / “stop following me”: keeps turning towards your face while idle (off again after a restart)" to "“follow me” / “volg me”, “stop following me” / “stop met volgen”: blijft naar je gezicht draaien zolang hij niets doet (na een herstart weer uit)",
         "“go forward”, “go back”, “go forward for 3 seconds”" to "“go forward”, “go back”, “go forward for 3 seconds”",
-    )
-
-    private fun chunk12(): Map<String, String> = mapOf(
         "“good morning” (weather, timers, notes and news on the topics set in the backend)" to "“good morning” (weer, timers, notities en nieuws over de onderwerpen die in de backend zijn ingesteld)",
         "“is the living room light on?”, “which lights are on?”, “what is the temperature in the living room?”" to "“is the living room light on?”, “which lights are on?”, “what is the temperature in the living room?”",
         "“look around the room” (4 photos, one combined answer)" to "“look around the room” (4 foto’s, één gecombineerd antwoord)",
@@ -607,13 +699,13 @@ object I18nNl {
         "“turn left”, “turn right”, “turn around”" to "“turn left”, “turn right”, “turn around”",
         "“turn off all lights in the living room”, “lights off” (asks first when it is more than five)" to "“turn off all lights in the living room”, “lights off” (vraagt eerst als het er meer dan vijf zijn)",
         "“turn off the living room light”, “turn on the tv”, “switch off the fan”, “woonkamer lamp aan”, “doe de schuur uit”" to "“turn off the living room light”, “turn on the tv”, “switch off the fan”, “woonkamer lamp aan”, “doe de schuur uit”",
+    )
+
+    private fun chunk15(): Map<String, String> = mapOf(
         "“turn the volume up”, “take a photo”, “switch to dark theme”" to "“turn the volume up”, “take a photo”, “switch to dark theme”",
         "“volume 50”, “volume up”, “volume down”, “louder”, “full volume”" to "“volume 50”, “volume up”, “volume down”, “louder”, “full volume”",
         "“vooruit”, “hoe laat is het?”, “zet een timer op 10 minuten”, “wees kalm”, “goedemorgen”" to "“vooruit”, “hoe laat is het?”, “zet een timer op 10 minuten”, “wees kalm”, “goedemorgen”",
         "“wake up more easily”" to "“wake up more easily”",
-    )
-
-    private fun chunk13(): Map<String, String> = mapOf(
         "“what are your audio settings?”" to "“what are your audio settings?”",
         "“what can you check?”, “run a diagnostic on the camera”, “check everything”" to "“what can you check?”, “run a diagnostic on the camera”, “check everything”",
         "“what faces can you make?”" to "“what faces can you make?”",

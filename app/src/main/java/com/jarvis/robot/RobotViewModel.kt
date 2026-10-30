@@ -128,6 +128,18 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
     var brainFeedback by mutableStateOf<Feedback?>(null)
         private set
 
+    /** Jarvis v2's own backend pages (greeter, voices, music, memory): one panel call, GET without [body], a change with it; [done] gets the answer or null. */
+    fun panel(path: String, body: JSONObject?, done: (JSONObject?) -> Unit) {
+        val current = api
+        val url = panelUrlOf(status)
+        if (url.isEmpty()) { done(null); return }
+        viewModelScope.launch {
+            val r = runCatching { withContext(Dispatchers.IO) { current.panelJson(url, path, body) } }.getOrNull()
+            done(r)
+            if (body != null) brain = withContext(Dispatchers.IO) { readBrain(current, url) }   // a change on a page also shows on the Brain tab's switches
+        }
+    }
+
     private fun readBrain(current: RobotApi, url: String): BrainSwitches {
         fun get(path: String) = runCatching { current.panelJson(url, path) }.getOrNull()
         val g = get("api/greeter")

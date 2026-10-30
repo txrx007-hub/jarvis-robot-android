@@ -105,6 +105,7 @@ private fun Root(vm: RobotViewModel) {
     Crossfade(targetState = showSplash, animationSpec = tween(450), label = "splash") { splash ->
         when {
             splash -> SplashScreen()
+            editingAddress && BuildConfig.UI_V2 -> V2ConnectScreen(vm, canCancel = vm.host.isNotEmpty()) { editingAddress = false }
             editingAddress -> ConnectScreen(vm, canCancel = vm.host.isNotEmpty()) { editingAddress = false }
             else -> MainScreen(vm) { editingAddress = true }
         }

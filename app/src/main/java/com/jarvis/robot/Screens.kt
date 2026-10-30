@@ -101,6 +101,7 @@ class MainActions(
     val onSetServer: (String) -> Unit = {},
     val onBrainLoad: () -> Unit = {},                              // Jarvis v2: ask the backend for its switches
     val onBrainSet: (which: String, on: Boolean) -> Unit = { _, _ -> },   // Jarvis v2: greeter | voiceprint | smartturn on or off
+    val onPanel: (path: String, body: org.json.JSONObject?, done: (org.json.JSONObject?) -> Unit) -> Unit = { _, _, done -> done(null) },   // Jarvis v2's backend pages
 )
 
 @Composable
@@ -159,6 +160,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onSetServer = vm::setServer,
             onBrainLoad = vm::loadBrain,
             onBrainSet = vm::setBrain,
+            onPanel = vm::panel,
         )
     }
     // Jarvis v2 (build type "v2"): the same state and actions, the new layout (V2App.kt); the other builds keep the classic screen.

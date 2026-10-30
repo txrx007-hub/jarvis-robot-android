@@ -95,6 +95,18 @@ private val RULES: List<Pair<Regex, (MatchResult) -> String?>> = listOf(
     Regex("^Sleep (\\d+ (?:h|min)(?: \\d+ min)?)$") to { m -> "Slaap " + tr(m.groupValues[1]) },
     Regex("^(Greeter|Voice recognition|Smart turn) (on|off)$") to { m -> tr(m.groupValues[1]) + " " + (if (m.groupValues[2] == "on") "aan" else "uit") },
     Regex("^Could not reach the backend: (.+) not changed$") to { m -> "Backend niet bereikt: " + tr(m.groupValues[1]) + " niet gewijzigd" },
+    Regex("^(\\d+) voice samples$") to { m -> m.groupValues[1] + " stemvoorbeelden" },
+    Regex("^Added to (.+): (\\d+) voice samples now\\.$") to { m -> "Toegevoegd aan " + m.groupValues[1] + ": nu " + m.groupValues[2] + " stemvoorbeelden." },
+    Regex("^Enrolling (.+): (\\d+) of (\\d+) taken\\. Say a sentence of 1\\.2 s or longer, as you normally talk to Jarvis\\.$") to
+        { m -> m.groupValues[1] + " wordt ingeschreven: " + m.groupValues[2] + " van " + m.groupValues[3] + " genomen. Zeg een zin van 1,2 s of langer, zoals je normaal met Jarvis praat." },
+    Regex("^last sentence: (.+)$") to { m -> "laatste zin: " + m.groupValues[1].replace(Regex("^ok \\(([\\d.]+) s\\)$"), "goed ($1 s)").replace(Regex("^too short \\(([\\d.]+) s of speech\\), say a longer sentence$"), "te kort ($1 s spraak), zeg een langere zin") },
+    Regex("^All voice samples of (.+) are deleted\\. You can enrol again later\\.$") to { m -> "Alle stemvoorbeelden van " + m.groupValues[1] + " worden gewist. Je kunt later opnieuw inschrijven." },
+    Regex("^Taken at (.+) · tap the picture for full screen$") to { m -> "Genomen om " + m.groupValues[1] + " · tik op de foto voor volledig scherm" },
+    Regex("^Said: ([\\s\\S]+)$") to { m -> "Gezegd: " + m.groupValues[1] },
+    Regex("^Did not work: ([\\s\\S]+)$") to { m -> "Werkte niet: " + tr(m.groupValues[1]) },
+    Regex("^Example: ([\\s\\S]+)$") to { m -> "Voorbeeld: " + m.groupValues[1] },
+    Regex("^Quiet hours now: at most (\\d+)\\.$") to { m -> "Nu stille uren: hoogstens " + m.groupValues[1] + "." },
+    Regex("^([\\d.]+) h$") to { m -> m.groupValues[1].replace('.', ',') + " uur" },
 )
 
 /** [s] in the chosen language: English texts come back untouched, Dutch ones are looked up (whole text first, then the sentence patterns). */

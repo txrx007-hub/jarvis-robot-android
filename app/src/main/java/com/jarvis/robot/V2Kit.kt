@@ -1,8 +1,12 @@
 package com.jarvis.robot
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -145,10 +149,33 @@ object V2Icons {
     val Gear = svgIcon("gear", circle(12f, 12f, 3f), "M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1")
     val Wifi = svgIcon("wifi", "M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01")
     val External = svgIcon("ext", "M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5")
+    val Plus = svgIcon("plus", "M12 5v14M5 12h14", stroke = 2f)
+    val Minus = svgIcon("minus", "M5 12h14", stroke = 2f)
+    val Music = svgIcon("music", "M9 18V5l11-2v13", circle(6f, 18f, 3f), circle(17f, 16f, 3f))
+    val Notes = svgIcon("notes", "M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z", "M9 9h6M9 13h6M9 17h3")
+    val Hand = svgIcon("hand", "M8 11V5a1.5 1.5 0 0 1 3 0v5M11 10V4a1.5 1.5 0 0 1 3 0v6M14 10V5a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-1a5 5 0 0 1-4-2l-3-4a1.5 1.5 0 0 1 2.3-2L8 14")
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------- pieces
-/** A rounded tile (the bento grid's cell). [onClick] null: not clickable. */
+/**
+ * Tap does the tile's action; tap and hold opens its detailed page (like a quick-settings tile on Android 9), with a short buzz.
+ * [onLongClick] null: tap only.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun Modifier.v2Press(onClick: (() -> Unit)?, onLongClick: (() -> Unit)? = null, role: Role = Role.Button, enabled: Boolean = true, longLabel: String = "Details"): Modifier {
+    if (onClick == null && onLongClick == null) return this
+    val haptic = LocalHapticFeedback.current
+    return this.combinedClickable(
+        enabled = enabled,
+        role = role,
+        onLongClickLabel = if (onLongClick != null) tr(longLabel) else null,
+        onLongClick = onLongClick?.let { f -> { haptic.performHapticFeedback(HapticFeedbackType.LongPress); f() } },
+        onClick = onClick ?: onLongClick ?: {},
+    )
+}
+
+/** A rounded tile (the bento grid's cell). [onClick] null: not clickable; [onLongClick]: tap and hold opens the tile's details. */
 @Composable
 fun V2Tile(
     modifier: Modifier = Modifier,
@@ -157,10 +184,69 @@ fun V2Tile(
     onClick: (() -> Unit)? = null,
     role: Role = Role.Button,
     padding: Dp = 16.dp,
+    onLongClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val m = modifier.clip(shape).background(color).let { if (onClick != null) it.clickable(role = role, onClick = onClick) else it }.padding(padding)
+    val m = modifier.clip(shape).background(color).v2Press(onClick, onLongClick, role).padding(padding)
     Column(m, content = content)
+}
+
+/** A dialog in the v2 look (rounded, the palette's colours); [danger] paints the confirm button red. */
+@Composable
+fun V2Dialog(title: String, text: String, confirmLabel: String, onConfirm: () -> Unit, onDismiss: () -> Unit, danger: Boolean = false) {
+    val v = v2Colors()
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = v.surface,
+        shape = RoundedCornerShape(28.dp),
+        title = { Text(title, color = v.text, fontSize = 22.sp, fontWeight = FontWeight.SemiBold) },
+        text = { Text(text, color = v.muted, fontSize = 15.sp) },
+        confirmButton = { V2Button(confirmLabel, onConfirm, danger = danger) },
+        dismissButton = { V2Button("Cancel", onDismiss, filled = false) },
+    )
+}
+
+/** A rounded text field with its label above it; [onDone] runs on the keyboard's Done. */
+@Composable
+fun V2Field(
+    value: String, onChange: (String) -> Unit, label: String, placeholder: String = "", modifier: Modifier = Modifier,
+    keyboard: androidx.compose.ui.text.input.KeyboardType = androidx.compose.ui.text.input.KeyboardType.Text, onDone: () -> Unit = {},
+) {
+    val v = v2Colors()
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(label, color = v.muted, fontSize = 13.sp)
+        Box(Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(16.dp)).background(v.surfaceHigh).padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) {
+            if (value.isEmpty() && placeholder.isNotEmpty()) Text(placeholder, color = v.muted, fontSize = 16.sp)
+            androidx.compose.foundation.text.BasicTextField(
+                value, onChange, singleLine = true, cursorBrush = SolidColor(v.accent),
+                textStyle = androidx.compose.ui.text.TextStyle(color = v.text, fontSize = 16.sp),
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboard, imeAction = androidx.compose.ui.text.input.ImeAction.Done),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { onDone() }),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+/** − value + : for small whole steps (hours, counts). */
+@Composable
+fun V2Stepper(value: String, onLess: () -> Unit, onMore: () -> Unit, lessLabel: String = "Less", moreLabel: String = "More") {
+    val v = v2Colors()
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        V2IconButton(V2Icons.Minus, lessLabel, onLess, size = 40.dp)
+        Text(value, color = v.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(64.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        V2IconButton(V2Icons.Plus, moreLabel, onMore, size = 40.dp)
+    }
+}
+
+/** A big number with a small label under it (today's counters). */
+@Composable
+fun V2Kpi(value: String, label: String, modifier: Modifier = Modifier, accent: Boolean = false) {
+    val v = v2Colors()
+    Column(modifier.clip(RoundedCornerShape(20.dp)).background(v.surfaceHigh).padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(value, color = if (accent) v.accent else v.text, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        Text(label, color = v.muted, fontSize = 12.sp, maxLines = 2)
+    }
 }
 
 /** A round icon in a tinted square, for list rows and tiles. */
@@ -219,10 +305,10 @@ fun <T> V2Connected(options: List<Pair<T, String>>, selected: T?, onSelect: (T) 
 
 /** A list row with a title, an optional second line and something at the end (a switch, a value, a chevron). */
 @Composable
-fun V2Row(title: String, sub: String? = null, onClick: (() -> Unit)? = null, leading: (@Composable () -> Unit)? = null, trailing: @Composable RowScope.() -> Unit = {}) {
+fun V2Row(title: String, sub: String? = null, onClick: (() -> Unit)? = null, leading: (@Composable () -> Unit)? = null, onLongClick: (() -> Unit)? = null, trailing: @Composable RowScope.() -> Unit = {}) {
     val v = v2Colors()
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp).let { if (onClick != null) it.clickable(onClick = onClick) else it }.padding(horizontal = 16.dp, vertical = 10.dp),
+        Modifier.fillMaxWidth().heightIn(min = 56.dp).v2Press(onClick, onLongClick).padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,10 +70,11 @@ fun v2StateText(state: MainUiState): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
+fun V2Home(state: MainUiState, actions: MainActions, nav: V2Nav = V2Nav()) {
     val v = v2Colors()
     val s = state.status
     var robotSheet by remember { mutableStateOf(false) }
+    var robotDetails by remember { mutableStateOf(false) }   // the sheet opened by tap and hold: all details open at once
     var sleepSheet by remember { mutableStateOf(false) }
     var photoSheet by remember { mutableStateOf(false) }
     val music = state.music
@@ -93,7 +95,7 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
                     }
                 }
                 Row(
-                    Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(v.surfaceHigh).clickable(role = Role.Button, onClickLabel = tr("Robot details")) { robotSheet = true }
+                    Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(v.surfaceHigh).v2Press({ robotDetails = false; robotSheet = true }, { robotDetails = true; robotSheet = true })
                         .padding(horizontal = 14.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
@@ -120,7 +122,7 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
 
             // ---- hero: the face and what it is doing
             Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(v.surface).clickable(role = Role.Button, onClickLabel = tr("Robot details")) { robotSheet = true }.padding(14.dp),
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(v.surface).v2Press({ robotDetails = false; robotSheet = true }, { robotDetails = true; robotSheet = true }).padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 V2Eyes(awake = state.online && s?.napping != true, modifier = Modifier.size(88.dp))
@@ -136,9 +138,9 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
 
             // ---- bento: volume | face me + follow
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().height(204.dp)) {
-                V2VolumeTile(s, actions.onSetVolume, Modifier.weight(1f).fillMaxHeight())
+                V2VolumeTile(s, actions.onSetVolume, Modifier.weight(1f).fillMaxHeight()) { nav.openPage(V2Page.VOLUME) }
                 Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    V2Tile(Modifier.fillMaxWidth().weight(1f), color = v.accent, onClick = actions.onFaceMe) {
+                    V2Tile(Modifier.fillMaxWidth().weight(1f), color = v.accent, onClick = actions.onFaceMe, onLongClick = { nav.openGroup("Face and movement") }) {
                         Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             Icon(V2Icons.Face, contentDescription = null, tint = v.onAccent, modifier = Modifier.size(30.dp))
                             Text("Face me", color = v.onAccent, fontSize = 17.sp, fontWeight = FontWeight.Bold)
@@ -148,7 +150,7 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
                     if (follow != null) {
                         V2Tile(
                             Modifier.fillMaxWidth().weight(1f).semantics { stateDescription = tr(if (follow) "On" else "Off") },
-                            onClick = { actions.onFollow(!follow) }, role = Role.Switch,
+                            onClick = { actions.onFollow(!follow) }, role = Role.Switch, onLongClick = { nav.openGroup("Face and movement") },
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                 Text("Follow me", color = v.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
@@ -157,7 +159,7 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
                             Text(if (follow) "On · keeps turning to you" else "Off · turns to your face", color = v.muted, fontSize = 12.sp)
                         }
                     } else {
-                        V2Tile(Modifier.fillMaxWidth().weight(1f), onClick = { actions.onPhoto(); photoSheet = true }) {
+                        V2Tile(Modifier.fillMaxWidth().weight(1f), onClick = { actions.onPhoto(); photoSheet = true }, onLongClick = { nav.openGroup("Camera") }) {
                             Icon(V2Icons.Camera, contentDescription = null, tint = v.accent, modifier = Modifier.size(24.dp))
                             Spacer(Modifier.weight(1f))
                             Text("Photo", color = v.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -169,18 +171,18 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
             // ---- quick actions: a connected group
             Row(Modifier.fillMaxWidth().height(64.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                 val napping = s?.napping == true
-                V2QuickButton(if (napping) "Wake up" else "Nap", V2Icons.Moon, RoundedCornerShape(22.dp, 8.dp, 8.dp, 22.dp), Modifier.weight(1f), on = napping) { actions.onNap(napping) }
+                V2QuickButton(if (napping) "Wake up" else "Nap", V2Icons.Moon, RoundedCornerShape(22.dp, 8.dp, 8.dp, 22.dp), Modifier.weight(1f), on = napping, onLong = { nav.openGroup("Screen and quiet hours") }) { actions.onNap(napping) }
                 val muted = s?.muted
                 if (muted != null) {
-                    V2QuickButton(if (muted) "Unmute" else "Mute", if (muted) V2Icons.Mic else V2Icons.MicOff, RoundedCornerShape(8.dp), Modifier.weight(1f), on = muted) { actions.onMute(!muted) }
+                    V2QuickButton(if (muted) "Unmute" else "Mute", if (muted) V2Icons.Mic else V2Icons.MicOff, RoundedCornerShape(8.dp), Modifier.weight(1f), on = muted, onLong = { nav.openGroup("Audio and wake word") }) { actions.onMute(!muted) }
                 }
-                V2QuickButton("Sleep…", V2Icons.Power, RoundedCornerShape(8.dp, 22.dp, 22.dp, 8.dp), Modifier.weight(1f), enabled = !state.sleepingNow) { sleepSheet = true }
+                V2QuickButton("Sleep…", V2Icons.Power, RoundedCornerShape(8.dp, 22.dp, 22.dp, 8.dp), Modifier.weight(1f), enabled = !state.sleepingNow, onLong = { sleepSheet = true }) { sleepSheet = true }
             }
 
             // ---- photo with the last picture
             if (s?.follow != null) {
                 Row(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(v.surfaceHigh).clickable(role = Role.Button) { if (state.photo == null) actions.onPhoto(); photoSheet = true }
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(v.surfaceHigh).v2Press({ if (state.photo == null) actions.onPhoto(); photoSheet = true }, { nav.openGroup("Camera") })
                         .padding(start = 10.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
@@ -202,7 +204,7 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
         if (showPlayer && music != null) {
             Row(
                 Modifier.align(Alignment.BottomCenter).padding(horizontal = 12.dp, vertical = 10.dp).fillMaxWidth().height(60.dp)
-                    .clip(RoundedCornerShape(20.dp)).background(v.surfaceHighest).padding(start = 14.dp, end = 6.dp),
+                    .clip(RoundedCornerShape(20.dp)).background(v.surfaceHighest).v2Press({ nav.openPage(V2Page.MUSIC) }, { nav.openPage(V2Page.MUSIC) }).padding(start = 14.dp, end = 6.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 V2Equalizer(v.warm)
@@ -218,7 +220,7 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
 
     if (robotSheet) {
         ModalBottomSheet(onDismissRequest = { robotSheet = false }, sheetState = rememberModalBottomSheetState(), containerColor = v.surface) {
-            V2RobotSheet(state, actions) { robotSheet = false }
+            V2RobotSheet(state, actions, robotDetails) { robotSheet = false }
         }
     }
     if (sleepSheet) {
@@ -230,7 +232,7 @@ fun V2Home(state: MainUiState, actions: MainActions, onOpenBrain: () -> Unit) {
         ModalBottomSheet(onDismissRequest = { photoSheet = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = v.surface) {
             Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Photo", color = v.text, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-                CameraPanel(state, onTake = actions.onPhoto)
+                V2PhotoContent(state, actions)
             }
         }
     }
@@ -259,12 +261,12 @@ private fun V2Equalizer(color: Color) {
 @Composable
 private fun V2QuickButton(
     label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, shape: RoundedCornerShape, modifier: Modifier,
-    on: Boolean = false, enabled: Boolean = true, onClick: () -> Unit,
+    on: Boolean = false, enabled: Boolean = true, onLong: (() -> Unit)? = null, onClick: () -> Unit,
 ) {
     val v = v2Colors()
     Row(
         modifier.fillMaxHeight().clip(if (on) RoundedCornerShape(22.dp) else shape).background(if (on) v.accentContainer else v.surfaceHigh)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+            .v2Press(onClick, onLong, enabled = enabled),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
     ) {
         Icon(icon, contentDescription = null, tint = if (on) v.onAccentContainer else v.text, modifier = Modifier.size(20.dp))
@@ -275,15 +277,17 @@ private fun V2QuickButton(
 
 /** The volume tile: the level fills it from below; drag up or down on it, or use − and +. The robot gets the new value when the finger lifts. */
 @Composable
-private fun V2VolumeTile(s: Status?, onSet: (Int) -> Unit, modifier: Modifier) {
+private fun V2VolumeTile(s: Status?, onSet: (Int) -> Unit, modifier: Modifier, onLong: () -> Unit) {
     val v = v2Colors()
     val robotVolume = s?.volume
     var shown by remember(robotVolume) { mutableIntStateOf(robotVolume ?: 0) }
     var tileHeight by remember { mutableIntStateOf(1) }
     val enabled = robotVolume != null
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     Box(
         modifier.clip(RoundedCornerShape(28.dp)).background(v.surfaceHigh)
             .semantics { contentDescription = tr("Volume"); stateDescription = "$shown%" }
+            .pointerInput(Unit) { detectTapGestures(onLongPress = { haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress); onLong() }) }
             .pointerInput(enabled) {
                 if (!enabled) return@pointerInput
                 tileHeight = size.height
@@ -324,10 +328,10 @@ fun V2StepButton(sign: String, label: String, modifier: Modifier, enabled: Boole
 
 // ---------------------------------------------------------------------------------------------------------------------------------- robot sheet
 @Composable
-private fun V2RobotSheet(state: MainUiState, actions: MainActions, onClose: () -> Unit) {
+private fun V2RobotSheet(state: MainUiState, actions: MainActions, startDetails: Boolean, onClose: () -> Unit) {
     val v = v2Colors()
     val s = state.status
-    var details by remember { mutableStateOf(false) }
+    var details by remember { mutableStateOf(startDetails) }
     Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp).navigationBarsPadding().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Column {
             Text("Jarvis", color = v.text, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
@@ -353,7 +357,7 @@ private fun V2RobotSheet(state: MainUiState, actions: MainActions, onClose: () -
                 Icon(if (details) V2Icons.ChevronUp else V2Icons.ChevronDown, contentDescription = null, tint = v.accent, modifier = Modifier.size(18.dp))
             })
         }
-        if (details) InfoTable(s, state.pingText, !state.music?.title.isNullOrEmpty(), state.netRate)
+        if (details) V2DetailsList(state)
         V2Button("Change robot or address", { onClose(); actions.onChangeAddress() }, Modifier.fillMaxWidth(), filled = false)
     }
 }

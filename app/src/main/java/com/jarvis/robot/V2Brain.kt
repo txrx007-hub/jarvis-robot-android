@@ -40,7 +40,8 @@ private val PANEL_SECTIONS = listOf(
 
 /** The backend (the voice server on the PC): every panel section as a tile that opens the panel right at that section, the music controls, and the full panel. */
 @Composable
-fun V2Brain(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> Unit) {
+fun V2Brain(state: MainUiState, actions: MainActions, nav: V2Nav = V2Nav()) {
+    val onOpenPanel = nav.openPanel
     val v = v2Colors()
     val s = state.status
     val panel = hasPanel(s)
@@ -63,7 +64,7 @@ fun V2Brain(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> U
         // ---- music: the same two buttons as the classic Music card, here even when nothing plays
         val music = state.music
         if (music?.enabled == true) {
-            V2Tile(color = v.surface) {
+            V2Tile(color = v.surface, onClick = { nav.openPage(V2Page.MUSIC) }, onLongClick = { nav.openPage(V2Page.MUSIC) }) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     V2IconBadge(V2Icons.Speak, v.warmContainer, v.onWarmContainer)
                     Column(Modifier.weight(1f)) {
@@ -87,7 +88,7 @@ fun V2Brain(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> U
         val b = state.brain
         val asking = if (b == null) "Asking the backend…" else null
         V2Card {
-            V2Row("Greeter", asking ?: if (b?.greeter == null) "Not on this backend" else "Good morning when it sees you", onClick = { onOpenPanel("greetCard") }) {
+            V2Row("Greeter", asking ?: if (b?.greeter == null) "Not on this backend" else "Good morning when it sees you", onClick = { nav.openPage(V2Page.GREETER) }, onLongClick = { nav.openPage(V2Page.GREETER) }) {
                 V2Switch(b?.greeter == true, { actions.onBrainSet("greeter", it) }, enabled = b?.greeter != null)
             }
             V2Divider()
@@ -99,7 +100,7 @@ fun V2Brain(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> U
                 b.voicesPeople == 1 -> "1 voice enrolled"
                 else -> "${b.voicesPeople} voices enrolled"
             }
-            V2Row("Voice recognition", voicesSub, onClick = { onOpenPanel("voiceCard") }) {
+            V2Row("Voice recognition", voicesSub, onClick = { nav.openPage(V2Page.VOICES) }, onLongClick = { nav.openPage(V2Page.VOICES) }) {
                 V2Switch(b?.voices == true, { actions.onBrainSet("voiceprint", it) }, enabled = b?.voices != null)
             }
             V2Divider()
@@ -107,7 +108,7 @@ fun V2Brain(state: MainUiState, actions: MainActions, onOpenPanel: (String) -> U
                 V2Switch(b?.smartTurn == true, { actions.onBrainSet("smartturn", it) }, enabled = b?.smartTurn != null)
             }
             V2Divider()
-            V2Row("Memory", asking ?: "Notes about the people it talks to", onClick = { onOpenPanel("memCard") }) {
+            V2Row("Memory", asking ?: "Notes about the people it talks to", onClick = { nav.openPage(V2Page.MEMORY) }, onLongClick = { nav.openPage(V2Page.MEMORY) }) {
                 Text(when (b?.memoryOn) { true -> "On"; false -> "Off"; null -> "--" }, color = v.muted, fontSize = 14.sp)
                 Icon(V2Icons.Chevron, contentDescription = null, tint = v.muted, modifier = Modifier.size(16.dp))
             }

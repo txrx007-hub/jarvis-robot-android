@@ -51,6 +51,8 @@ fun V2App(state: MainUiState, actions: MainActions) {
     val v = v2Colors()
     var tab by rememberSaveable { mutableStateOf(V2Tab.HOME) }
     var panelAnchor by rememberSaveable { mutableStateOf<String?>(null) }   // not null: the backend page is open over everything, scrolled to this element ("" = the top)
+    var page by rememberSaveable { mutableStateOf<V2Page?>(null) }          // not null: one of the app's own detail pages is open over the tabs
+    var openGroup by rememberSaveable { mutableStateOf<String?>(null) }     // the settings group page open on the Settings tab
     val snack = remember { SnackbarHostState() }
     val wide = LocalConfiguration.current.screenWidthDp >= TABLET_MIN_DP
 
@@ -64,6 +66,12 @@ fun V2App(state: MainUiState, actions: MainActions) {
         }
         tab = t
     }
+    // Tap and hold a tile: its detailed page. A settings group opens on the Settings tab (back returns to where you were).
+    val nav = V2Nav(
+        openPage = { page = it },
+        openGroup = { g -> openGroup = g; page = null; go(V2Tab.SETTINGS) },
+        openPanel = { panelAnchor = it },
+    )
     BackHandler(enabled = panelAnchor != null || tab != V2Tab.HOME) {
         if (panelAnchor != null) panelAnchor = null else go(V2Tab.HOME)
     }
@@ -73,11 +81,11 @@ fun V2App(state: MainUiState, actions: MainActions) {
             ThemeBackdrop()
             Box(Modifier.fillMaxSize().statusBarsPadding()) {
                 when (tab) {
-                    V2Tab.HOME -> RefreshBox(state.refreshing, actions.onRefresh) { V2Home(state, actions, onOpenBrain = { go(V2Tab.BRAIN) }) }
+                    V2Tab.HOME -> RefreshBox(state.refreshing, actions.onRefresh) { V2Home(state, actions, nav) }
                     V2Tab.DRIVE -> V2Drive(state, actions)
                     V2Tab.SAY -> V2Say(state)
-                    V2Tab.BRAIN -> V2Brain(state, actions, onOpenPanel = { panelAnchor = it })
-                    V2Tab.SETTINGS -> RefreshBox(state.refreshing, actions.onRefresh) { V2Settings(state, actions) }
+                    V2Tab.BRAIN -> V2Brain(state, actions, nav)
+                    V2Tab.SETTINGS -> RefreshBox(state.refreshing, actions.onRefresh) { V2Settings(state, actions, openGroup) { openGroup = it } }
                 }
             }
             SnackbarHost(snack, Modifier.align(Alignment.BottomCenter).padding(12.dp).widthIn(max = 560.dp)) { data ->
@@ -122,9 +130,13 @@ fun V2App(state: MainUiState, actions: MainActions) {
                 }
             }
         }
+        page?.let { pg -> V2PageHost(pg, state, actions, onOpenGroup = nav.openGroup, onOpenPanel = { panelAnchor = it }) { page = null } }
         panelAnchor?.let { anchor -> V2PanelScreen(state, anchor) { panelAnchor = null } }
     }
 }
+
+/** Where a tile's tap and hold (or a Brain row) leads: one of the app's own pages, a settings group, or a card of the backend panel. */
+class V2Nav(val openPage: (V2Page) -> Unit = {}, val openGroup: (String) -> Unit = {}, val openPanel: (String) -> Unit = {})
 
 /** Shows a snackbar whenever one of the robot's answers changes: a saved setting, nap / mute / sleep, the voice server, a failed photo. */
 @Composable

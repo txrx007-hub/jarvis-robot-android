@@ -72,9 +72,8 @@ private fun groupIcon(title: String): ImageVector = when (title) {
 /** Settings: the robot's setting groups as tiles (big) and rows (small), each opening its own page; the voice server; the app's look and language; reset. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun V2Settings(state: MainUiState, actions: MainActions) {
+fun V2Settings(state: MainUiState, actions: MainActions, openGroup: String? = null, onOpenGroup: (String?) -> Unit = {}) {
     val v = v2Colors()
-    var openGroup by rememberSaveable { mutableStateOf<String?>(null) }
     var serverSheet by remember { mutableStateOf(false) }
     var confirmReset by remember { mutableStateOf(false) }
     var resetNote by remember { mutableStateOf<Feedback?>(null) }
@@ -82,8 +81,8 @@ fun V2Settings(state: MainUiState, actions: MainActions) {
 
     val page = openGroup?.let { t -> groups.firstOrNull { it.first.title == t } }
     if (page != null) {
-        BackHandler { openGroup = null }
-        V2SettingsGroupPage(page.first.title, page.second, state, actions) { openGroup = null }
+        BackHandler { onOpenGroup(null) }
+        V2SettingsGroupPage(page.first.title, page.second, state, actions) { onOpenGroup(null) }
         return
     }
 
@@ -101,7 +100,7 @@ fun V2Settings(state: MainUiState, actions: MainActions) {
         for (row in big.chunked(2)) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                 for ((g, defs) in row) {
-                    V2Tile(Modifier.weight(1f).height(128.dp), onClick = { openGroup = g.title }, padding = 14.dp) {
+                    V2Tile(Modifier.weight(1f).height(128.dp), onClick = { onOpenGroup(g.title) }, padding = 14.dp, onLongClick = { onOpenGroup(g.title) }) {
                         V2IconBadge(groupIcon(g.title), if (g.title == "Face and movement") v.warmContainer else v.accentContainer, if (g.title == "Face and movement") v.onWarmContainer else v.onAccentContainer, size = 38.dp)
                         Spacer(Modifier.weight(1f))
                         Text(g.title, color = v.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, maxLines = 2)
@@ -119,7 +118,7 @@ fun V2Settings(state: MainUiState, actions: MainActions) {
                 small.forEachIndexed { i, (g, defs) ->
                     if (i > 0) V2Divider()
                     val summary = if (defs.size == 1) defs[0].value.ifEmpty { "not set" } else "${defs.size} settings"
-                    V2Row(g.title, onClick = { openGroup = g.title }, leading = { Icon(groupIcon(g.title), contentDescription = null, tint = v.muted, modifier = Modifier.size(20.dp)) }) {
+                    V2Row(g.title, onClick = { onOpenGroup(g.title) }, leading = { Icon(groupIcon(g.title), contentDescription = null, tint = v.muted, modifier = Modifier.size(20.dp)) }) {
                         Text(summary, color = v.muted, fontSize = 14.sp, maxLines = 1)
                         Icon(V2Icons.Chevron, contentDescription = null, tint = v.muted, modifier = Modifier.size(16.dp))
                     }
@@ -174,12 +173,12 @@ fun V2Settings(state: MainUiState, actions: MainActions) {
         ModalBottomSheet(onDismissRequest = { serverSheet = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = v.surface) {
             Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Voice server", color = v.text, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-                ServerCard(state.status, state.serverFeedback, state.backendPin, actions.onSetServer)
+                V2ServerContent(state, actions)
             }
         }
     }
     if (confirmReset) {
-        ConfirmDialog(
+        V2Dialog(
             title = "Reset all settings?",
             text = "Every setting goes back to its default. This cannot be undone.",
             confirmLabel = "Reset",
