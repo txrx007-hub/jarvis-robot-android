@@ -347,8 +347,9 @@ private fun MuteIcon(muted: Boolean, tint: Color) {
 
 /** Follow mode: while idle Jarvis keeps turning on the spot towards your face. Shown when the robot reports it (firmware build 81 and newer). */
 @Composable
-fun FollowCard(status: Status?, onFollow: (on: Boolean) -> Unit, onFace: () -> Unit) {
+fun FollowCard(status: Status?, onFollow: (on: Boolean) -> Unit, onFace: () -> Unit, onEyes: (on: Boolean) -> Unit = {}) {
     val follow = status?.follow ?: return
+    val eyes = status.eyes
     val p = LocalPalette.current
     JCard {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -359,6 +360,16 @@ fun FollowCard(status: Status?, onFollow: (on: Boolean) -> Unit, onFace: () -> U
             }
         }
         Text("Jarvis turns on the spot towards your face. Keep it on a flat table with room to turn.", color = p.muted, fontSize = 13.sp)
+        if (eyes != null) {   // firmware build 94 and newer
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("Eyes follow me", fontWeight = FontWeight.SemiBold, color = p.text)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(if (eyes) "On" else "Off", color = if (eyes) p.accent else p.muted, fontSize = 13.sp)
+                    Switch(checked = eyes, onCheckedChange = onEyes, colors = jSwitchColors())
+                }
+            }
+            Text("Only the eyes move; Jarvis stays where it is, unless Follow me is on. It takes a picture every second or so while idle.", color = p.muted, fontSize = 13.sp)
+        }
         JButton(
             "Face me", Modifier.fillMaxWidth(),
             hint = "Look at you once: takes a picture, finds your face and turns in up to three short steps",

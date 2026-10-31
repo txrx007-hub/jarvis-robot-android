@@ -40,6 +40,8 @@ data class Status(
     val muted: Boolean? = null,
     // follow mode on (firmware build 81 and newer; null before: no Follow me card)
     val follow: Boolean? = null,
+    // the eyes follow your face, Jarvis stays where it is (firmware build 94 and newer; null before: no Eyes switch)
+    val eyes: Boolean? = null,
 )
 
 /** The robot's Wi-Fi traffic in packets per second (Tx = sent, Rx = received), worked out from two readings of its counters (/api/net). */
@@ -106,6 +108,7 @@ fun parseStatus(o: JSONObject): Status {
         chipTempC = if (o.has("chip_temp_c") && !o.isNull("chip_temp_c")) o.optDouble("chip_temp_c") else null,
         muted = if (o.has("muted") && !o.isNull("muted")) o.optBoolean("muted") else null,
         follow = if (o.has("follow") && !o.isNull("follow")) o.optBoolean("follow") else null,
+        eyes = if (o.has("eyes") && !o.isNull("eyes")) o.optBoolean("eyes") else null,
         volume = intOrNull("volume"),
         volumeRequested = intOrNull("volume_requested"),
         volumeCap = intOrNull("volume_cap"),
@@ -180,6 +183,10 @@ private val LABELS = mapOf(
     "follow_mode" to "Follow me",
     "follow_ms" to "Follow: time between looks",
     "face_invert" to "Face turn: swap left/right",
+    "eyes_follow" to "Eyes follow me",
+    "eyes_range" to "Eyes: sideways travel",
+    "eyes_range_y" to "Eyes: up and down travel",
+    "eyes_invert" to "Eyes: swap left/right",
     "weather_city" to "Weather city",
     "visualizer_mode" to "Speaking screen effect",
     "music_icon" to "Music screen picture",
@@ -200,6 +207,7 @@ fun fmtValue(def: SettingDef): String = when (def.kind) {
         def.key == "mic_gain_db" -> " dB"
         def.key.contains("speed") || def.key == "talk_power" || def.key == "face_power" || def.key == "face_deadzone" -> "%"
         def.key == "idle_clock_min" -> " min"
+        def.key.startsWith("eyes_range") -> " px"
         else -> ""
     }
 }
@@ -258,7 +266,7 @@ private fun trimKhz(hz: Int): String {
 // ---------------------------------------------------------------- section layout (mirrors the page)
 
 /** Settings that exist on the robot but are fixed at their defaults and not offered on the page. */
-val HIDDEN_KEYS = setOf("motor_max_speed", "shutter_sound", "follow_mode")   // follow_mode has its own card
+val HIDDEN_KEYS = setOf("motor_max_speed", "shutter_sound", "follow_mode", "eyes_follow", "eye_color")   // follow_mode and eyes_follow have their own switches in the Follow me card
 
 data class SettingsGroup(val title: String, val keys: List<String>, val collapsible: Boolean)
 
@@ -268,7 +276,7 @@ val SETTINGS_GROUPS = listOf(
         listOf("motor_trim", "turn_ms_per_90", "motor_a_invert", "motor_b_invert", "motor_swap", "soft_start_ms"),
         true,
     ),
-    SettingsGroup("Face and movement", listOf("talk_motion", "talk_power", "talk_alternate", "face_power", "face_deadzone", "follow_ms", "face_invert"), true),
+    SettingsGroup("Face and movement", listOf("talk_motion", "talk_power", "talk_alternate", "face_power", "face_deadzone", "follow_ms", "face_invert", "eyes_range", "eyes_range_y", "eyes_invert"), true),
     SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
@@ -359,6 +367,9 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("Turn", "“turn left”, “turn right”, “turn around”", instant = true),
         VoiceCommand("Look at me", "“look at me”, “face me”, “turn to me”: a picture, then a few short turns until Jarvis faces your face", instant = true),
         VoiceCommand("Follow me", "“follow me” / “stop following me”: keeps turning towards your face while idle (off again after a restart)", instant = true),
+        VoiceCommand("Eyes follow me", "“follow me with your eyes” / “stop following me with your eyes”: only the eyes look at you, Jarvis stays where it is", instant = true),
+        VoiceCommand("Eye colour", "“make your eyes blue” (red, orange, yellow, green, teal, blue, purple, pink or white), “normal eyes” gives them their own colours back", instant = true),
+        VoiceCommand("Mute the microphone", "“mute” / “mute yourself”, “turn off the microphone”, “stop listening”: Jarvis hears nothing until you press Unmute in the app or on this page (no voice command can unmute it)", instant = true),
         VoiceCommand("Talking movements", "“don't move while you talk” / “move when you talk”: the small shakes while Jarvis speaks", instant = true),
         VoiceCommand("Dance", "“dance”", instant = true),
     ),

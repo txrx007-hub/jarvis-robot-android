@@ -138,7 +138,7 @@ fun V2Home(state: MainUiState, actions: MainActions, nav: V2Nav = V2Nav()) {
             }
 
             // ---- bento: volume | face me + follow
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().height(204.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().height(if (s?.eyes != null) 244.dp else 204.dp)) {   // taller with the second switch
                 V2VolumeTile(s, actions.onSetVolume, Modifier.weight(1f).fillMaxHeight()) { nav.openPage(V2Page.VOLUME) }
                 Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     V2Tile(Modifier.fillMaxWidth().weight(1f), color = v.accent, onClick = actions.onFaceMe, onLongClick = { nav.openGroup("Face and movement") }) {
@@ -157,7 +157,15 @@ fun V2Home(state: MainUiState, actions: MainActions, nav: V2Nav = V2Nav()) {
                                 Text("Follow me", color = v.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                                 V2Switch(follow, { actions.onFollow(it) })
                             }
-                            Text(if (follow) "On · keeps turning to you" else "Off · turns to your face", color = v.muted, fontSize = 12.sp)
+                            val eyes = s.eyes
+                            if (eyes != null) {   // firmware build 94 and newer: the eyes alone, Jarvis stays where it is
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().semantics { stateDescription = tr(if (eyes) "On" else "Off") }) {
+                                    Text("Eyes follow me", color = v.text, fontSize = 12.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                                    V2Switch(eyes, { actions.onEyes(it) })
+                                }
+                            } else {
+                                Text(if (follow) "On · keeps turning to you" else "Off · turns to your face", color = v.muted, fontSize = 12.sp)
+                            }
                         }
                     } else {
                         V2Tile(Modifier.fillMaxWidth().weight(1f), onClick = { actions.onPhoto(); photoSheet = true }, onLongClick = { nav.openGroup("Camera") }) {

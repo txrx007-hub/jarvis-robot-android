@@ -620,6 +620,19 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** The eyes follow your face (Jarvis stays where it is); the status shows the result a second later. */
+    fun setEyes(on: Boolean) {
+        val current = api
+        viewModelScope.launch {
+            val r = runCatching { withContext(Dispatchers.IO) { current.power(if (on) "eyes_on" else "eyes_off") } }
+            powerFeedback = r.fold({ Feedback(it.ok, it.message) }, { Feedback(false, "Could not reach Jarvis") })
+            if (r.isSuccess) {
+                delay(700)
+                runCatching { withContext(Dispatchers.IO) { current.status() } }.onSuccess { if (current === api) status = it }
+            }
+        }
+    }
+
     /** "Face me": one look, then up to three short turns towards the face. */
     fun faceMe() {
         val current = api

@@ -13,7 +13,7 @@ object SampleData {
             "audio_in_hz":16000,"audio_out_hz":24000,"power":"battery","cpu_mhz":240,"ram_free_kb":71,
             "ram_total_kb":399,"psram_free_kb":3300,"psram_total_kb":8192,
             "volume":100,"volume_requested":100,"volume_cap":100,"server":"http://192.168.1.20:8003/xiaozhi/ota/",
-            "server_custom":true,"panel_url":"http://192.168.1.20:8090/"}""",
+            "server_custom":true,"panel_url":"http://192.168.1.20:8090/","follow":false,"eyes":true}""",
         ),
     )
 

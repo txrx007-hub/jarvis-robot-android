@@ -83,6 +83,7 @@ class MainActions(
     val onNap: (currentlyNapping: Boolean) -> Unit = {},
     val onMute: (on: Boolean) -> Unit = {},
     val onFollow: (on: Boolean) -> Unit = {},
+    val onEyes: (on: Boolean) -> Unit = {},
     val onFaceMe: () -> Unit = {},
     val onDeepSleep: (minutes: Int) -> Unit = {},
     val onHold: (Dir, Boolean) -> Unit = { _, _ -> },
@@ -142,6 +143,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onNap = vm::nap,
             onMute = vm::setMuted,
             onFollow = vm::setFollow,
+            onEyes = vm::setEyes,
             onFaceMe = vm::faceMe,
             onDeepSleep = vm::deepSleep,
             onHold = vm::hold,
@@ -298,7 +300,7 @@ fun PhoneContent(
             if (state.music?.enabled == true) MusicCard(state.music, actions.onMusicStop, actions.onMusicNext)
             if (showVoice) VoiceCommandsPanel(haOk = state.haOk, musicOn = state.music?.enabled == true)
 
-            FollowCard(status, actions.onFollow, actions.onFaceMe)
+            FollowCard(status, actions.onFollow, actions.onFaceMe, actions.onEyes)
 
             PowerCard(
                 status = status,
