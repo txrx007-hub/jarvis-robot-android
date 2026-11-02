@@ -33,6 +33,7 @@ object I18nNl {
 
     /** The Dutch names of the settings, by key (used in the robot's own messages, like "motor_trim changed from 0 to 3"). */
     val keys: Map<String, String> = mapOf(
+        "camera_af" to "Camera-autofocus",
         "camera_brightness" to "Camerahelderheid",
         "camera_saturation" to "Camerakleur",
         "eyes_follow" to "Ogen volgen mij",
@@ -40,7 +41,7 @@ object I18nNl {
         "eyes_range" to "Ogen: zijwaarts bewegen",
         "eyes_range_y" to "Ogen: omhoog en omlaag bewegen",
         "face_deadzone" to "Gezichtsdraai: marge rond het midden",
-        "face_invert" to "Gezichtsdraai: links/rechts omwisselen",
+        "face_invert" to "Wielen: links/rechts omwisselen (Gezicht, Volg mij)",
         "face_power" to "Gezichtsdraai: maximale kracht",
         "follow_mode" to "Volg mij",
         "follow_ms" to "Volgen: tijd tussen blikken",

@@ -169,6 +169,7 @@ private val LABELS = mapOf(
     "mic_gain_db" to "Microphone gain",
     "wake_threshold" to "Wake sensitivity",
     "shutter_sound" to "Camera shutter sound",
+    "camera_af" to "Camera autofocus",
     "camera_brightness" to "Camera brightness",
     "camera_saturation" to "Camera colour",
     "wake_chirp" to "Wake chirp",
@@ -182,7 +183,7 @@ private val LABELS = mapOf(
     "face_deadzone" to "Face turn: centre margin",
     "follow_mode" to "Follow me",
     "follow_ms" to "Follow: time between looks",
-    "face_invert" to "Face turn: swap left/right",
+    "face_invert" to "Wheels: swap left/right (Face me, Follow me)",
     "eyes_follow" to "Eyes follow me",
     "eyes_range" to "Eyes: sideways travel",
     "eyes_range_y" to "Eyes: up and down travel",
@@ -266,7 +267,7 @@ private fun trimKhz(hz: Int): String {
 // ---------------------------------------------------------------- section layout (mirrors the page)
 
 /** Settings that exist on the robot but are fixed at their defaults and not offered on the page. */
-val HIDDEN_KEYS = setOf("motor_max_speed", "shutter_sound", "follow_mode", "eyes_follow", "eye_color")   // follow_mode and eyes_follow have their own switches in the Follow me card
+val HIDDEN_KEYS = setOf("motor_max_speed", "shutter_sound", "follow_mode", "eyes_follow", "eye_color", "camera_drive")   // follow_mode and eyes_follow have their own switches in the Follow me card
 
 data class SettingsGroup(val title: String, val keys: List<String>, val collapsible: Boolean)
 
@@ -280,7 +281,7 @@ val SETTINGS_GROUPS = listOf(
     SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
-    SettingsGroup("Camera", listOf("camera_brightness", "camera_saturation"), false),
+    SettingsGroup("Camera", listOf("camera_af", "camera_brightness", "camera_saturation"), false),
     SettingsGroup("Visualizer", listOf("visualizer_mode", "music_icon"), false),
     SettingsGroup("System", listOf("log_level"), false),
 )
