@@ -160,16 +160,35 @@ class ModelsTest {
 
     @Test
     fun driveMath() {
-        assertEquals(Pair(100, 100), wheelCommand(setOf(Dir.UP)))
-        assertEquals(Pair(-100, -100), wheelCommand(setOf(Dir.DOWN)))
-        assertEquals(Pair(-100, 100), wheelCommand(setOf(Dir.LEFT)))
-        assertEquals(Pair(100, -100), wheelCommand(setOf(Dir.RIGHT)))
-        assertEquals(Pair(100, 35), wheelCommand(setOf(Dir.UP, Dir.RIGHT)))
-        assertEquals(Pair(35, 100), wheelCommand(setOf(Dir.UP, Dir.LEFT)))
-        assertEquals(Pair(-100, -35), wheelCommand(setOf(Dir.DOWN, Dir.RIGHT)))
-        assertEquals(Pair(0, 0), wheelCommand(emptySet()))
-        assertEquals(Pair(0, 0), wheelCommand(setOf(Dir.LEFT, Dir.RIGHT)))
-        assertEquals(Pair(0, 0), wheelCommand(setOf(Dir.UP, Dir.DOWN)))
+        // the knob: x to the right, y down (as on the screen)
+        assertEquals(Pair(100, 100), wheelCommand(Stick(0f, -1f)))      // up: straight ahead
+        assertEquals(Pair(-100, -100), wheelCommand(Stick(0f, 1f)))     // down: backwards
+        assertEquals(Pair(-100, 100), wheelCommand(Stick(-1f, 0f)))     // left: spin left on the spot
+        assertEquals(Pair(100, -100), wheelCommand(Stick(1f, 0f)))      // right: spin right
+        assertEquals(Pair(100, 0), wheelCommand(Stick(0.7071f, -0.7071f)))   // up-right: the right wheel stands still
+        assertEquals(Pair(0, 100), wheelCommand(Stick(-0.7071f, -0.7071f)))
+        assertEquals(Pair(0, -100), wheelCommand(Stick(0.7071f, 0.7071f)))
+        assertEquals(Pair(100, 0), wheelCommand(Stick(3f, -3f)))        // outside the circle counts as its edge
+        assertEquals(Pair(0, 0), wheelCommand(Stick()))
+        assertEquals(Pair(0, 0), wheelCommand(Stick(0.05f, -0.05f)))    // inside the dead zone
+        // half way up: the faster wheel runs at the distance from the centre, less the dead zone
+        assertEquals(Pair(46, 46), wheelCommand(Stick(0f, -0.5f)))
+        // the Speed slider scales both wheels, and 100 is the default
+        assertEquals(Pair(50, 50), wheelCommand(Stick(0f, -1f), 50))
+        assertEquals(Pair(-50, 50), wheelCommand(Stick(-1f, 0f), 50))
+        assertEquals(Pair(100, 100), wheelCommand(Stick(0f, -1f), 100))
+        // never more than 100 on any wheel, all the way round
+        for (a in 0 until 360) {
+            val r = Math.toRadians(a.toDouble())
+            val (l, rt) = wheelCommand(Stick(Math.cos(r).toFloat(), Math.sin(r).toFloat()))
+            assertTrue("angle $a: $l/$rt", Math.abs(l) <= 100 && Math.abs(rt) <= 100 && maxOf(Math.abs(l), Math.abs(rt)) == 100)
+        }
+        assertTrue(Stick(0.05f, 0f).idle)
+        assertFalse(Stick(0.2f, 0f).idle)
+        assertEquals(Stick(1f, 0f), Stick(4f, 0f).limited())
+        assertEquals(50, drivePowerOf(52f))
+        assertEquals(10, drivePowerOf(3f))
+        assertEquals(100, drivePowerOf(130f))
     }
 
     @Test

@@ -729,8 +729,11 @@ fun MusicCard(music: MusicStatus, onStop: () -> Unit, onNext: () -> Unit) {
 
 @Composable
 fun RemotePanel(
-    held: List<Dir>,
-    onHold: (Dir, Boolean) -> Unit,
+    stick: Stick,
+    power: Int,
+    onStick: (Stick) -> Unit,
+    onRelease: () -> Unit,
+    onPower: (Int) -> Unit,
     liveOn: Boolean = false,
     liveImage: ImageBitmap? = null,
     liveNote: String? = null,
@@ -754,59 +757,41 @@ fun RemotePanel(
                     modifier = Modifier.widthIn(max = 360.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.dp, p.border, RoundedCornerShape(10.dp)),
                 )
             }
-            PadButton("▲", "Drive forward", Dir.UP in held) { onHold(Dir.UP, it) }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                PadButton("◀", "Turn left", Dir.LEFT in held) { onHold(Dir.LEFT, it) }
-                Spacer(Modifier.size(76.dp))
-                PadButton("▶", "Turn right", Dir.RIGHT in held) { onHold(Dir.RIGHT, it) }
-            }
-            PadButton("▼", "Drive backward", Dir.DOWN in held) { onHold(Dir.DOWN, it) }
             Text(
-                "Hold an arrow to drive (full speed), let go to stop. Two arrows together turn in an arc.",
+                "Drag the knob to steer 360° (forward/back/spin on the spot), let go to stop.",
                 color = p.muted,
                 fontSize = 13.sp,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
+            Joystick(stick, onStick, onRelease, accent = p.accent, ink = p.text, modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth())
+            WheelReadout(stick, power, p.muted)
+            val tickSpeed = rememberTick()
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).border(1.dp, p.border, RoundedCornerShape(16.dp)).padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text("${tr("Speed:")} $power%", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, modifier = Modifier.widthIn(min = 96.dp))
+                Slider(
+                    value = power.toFloat(),
+                    onValueChange = { v -> val next = drivePowerOf(v); if (next != power) { tickSpeed(); onPower(next) } },
+                    valueRange = 10f..100f,
+                    modifier = Modifier.weight(1f).semantics { contentDescription = tr("Speed") },
+                    colors = SliderDefaults.colors(
+                        thumbColor = p.accent,
+                        activeTrackColor = p.accent,
+                        inactiveTrackColor = p.border,
+                        activeTickColor = Color.Transparent,
+                        inactiveTickColor = Color.Transparent,
+                    ),
+                )
+            }
             JButton(
                 if (liveOn) "Stop live view" else "Live view", Modifier.fillMaxWidth(), onClick = onToggleLive,
                 hint = "Shows what the robot sees while you drive: a new picture about once a second, only while this screen is open (stops after 3 minutes)",
             )
             liveNote?.let { Text(it, color = p.danger, fontSize = 13.sp) }
         }
-    }
-}
-
-@Composable
-private fun PadButton(glyph: String, description: String, pressed: Boolean, onHold: (Boolean) -> Unit) {
-    val p = LocalPalette.current
-    val shape = RoundedCornerShape(14.dp)
-    val tickDown = rememberTick(strong = true)
-    val tickUp = rememberTick()
-    Box(
-        modifier = Modifier
-            .size(76.dp)
-            .clip(shape)
-            .background(if (pressed) p.accent.copy(alpha = 0.22f) else p.card)
-            .border(1.dp, p.accent, shape)
-            .clearAndSetSemantics {   // TalkBack reads "Drive forward, button, hold to drive" instead of the arrow glyph
-                role = Role.Button
-                contentDescription = tr(description)
-                stateDescription = tr(if (pressed) "Driving" else "Hold to drive")
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(onPress = {
-                    tickDown()
-                    onHold(true)
-                    try {
-                        tryAwaitRelease()
-                    } finally {
-                        onHold(false)
-                        tickUp()
-                    }
-                })
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(glyph, color = p.accent, fontSize = 30.sp)
     }
 }
 

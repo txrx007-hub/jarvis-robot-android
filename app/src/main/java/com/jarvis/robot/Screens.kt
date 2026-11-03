@@ -55,7 +55,8 @@ data class MainUiState(
     val settings: List<SettingDef> = emptyList(),
     val settingsError: String? = null,
     val feedback: Map<String, Feedback> = emptyMap(),
-    val held: List<Dir> = emptyList(),
+    val stick: Stick = Stick(),
+    val drivePower: Int = 100,
     val powerFeedback: Feedback? = null,
     val sleepingNow: Boolean = false,
     val serverFeedback: Feedback? = null,
@@ -86,7 +87,8 @@ class MainActions(
     val onEyes: (on: Boolean) -> Unit = {},
     val onFaceMe: () -> Unit = {},
     val onDeepSleep: (minutes: Int) -> Unit = {},
-    val onHold: (Dir, Boolean) -> Unit = { _, _ -> },
+    val onStick: (Stick) -> Unit = {},
+    val onDrivePower: (Int) -> Unit = {},
     val onReleaseAll: () -> Unit = {},
     val onSave: (key: String, value: String) -> Unit = { _, _ -> },
     val onReset: ((Boolean) -> Unit) -> Unit = {},
@@ -116,7 +118,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         settings = vm.settings,
         settingsError = vm.settingsError,
         feedback = vm.feedback,
-        held = vm.held,
+        stick = vm.stick,
+        drivePower = vm.drivePower,
         powerFeedback = vm.powerFeedback,
         sleepingNow = vm.sleepingNow,
         serverFeedback = vm.serverFeedback,
@@ -146,7 +149,8 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
             onEyes = vm::setEyes,
             onFaceMe = vm::faceMe,
             onDeepSleep = vm::deepSleep,
-            onHold = vm::hold,
+            onStick = vm::steer,
+            onDrivePower = vm::chooseDrivePower,
             onReleaseAll = vm::releaseAll,
             onSave = vm::save,
             onReset = vm::resetAll,
@@ -314,7 +318,7 @@ fun PhoneContent(
 
             VolumeCard(status, actions.onSetVolume)
 
-            if (showRemote) RemotePanel(state.held, actions.onHold, state.liveOn, state.liveImage, state.liveNote, actions.onToggleLive, actions.onStopLive)
+            if (showRemote) RemotePanel(state.stick, state.drivePower, actions.onStick, actions.onReleaseAll, actions.onDrivePower, state.liveOn, state.liveImage, state.liveNote, actions.onToggleLive, actions.onStopLive)
 
             // ---- settings
             if (state.settings.isEmpty()) {

@@ -35,7 +35,7 @@ class SliceScreenshotTest {
 
     @Test fun shotRemoteDark() = shot(
         ThemeMode.DARK,
-        online.copy(held = listOf(Dir.UP, Dir.RIGHT), status = status.copy(napping = false)),
+        online.copy(stick = Stick(0.45f, -0.6f), status = status.copy(napping = false)),
         remote = true,
     )
 

@@ -66,7 +66,7 @@ class ScreenshotTest {
     @Test
     fun mainOpenGroupsAndRemote() {
         val st = online.copy(
-            held = listOf(Dir.UP, Dir.RIGHT),
+            stick = Stick(0.45f, -0.6f),
             feedback = mapOf("motor_trim" to Feedback(true, "motor_trim set to 0")),
             status = status.copy(napping = true),
         )

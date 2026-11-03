@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -76,7 +77,11 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         private set
     val feedback = mutableStateMapOf<String, Feedback>()
 
-    val held = mutableStateListOf<Dir>()
+    /** The joystick knob, and the Speed slider (percent of full power, back to 100 at every start; it scales only the remote control, no robot setting). */
+    var stick by mutableStateOf(Stick())
+        private set
+    var drivePower by mutableIntStateOf(100)
+        private set
     var powerFeedback by mutableStateOf<Feedback?>(null)
         private set
     var sleepingNow by mutableStateOf(false)
@@ -438,28 +443,30 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
 
     // ------------------------------------------------------------------ remote control
 
-    fun hold(dir: Dir, down: Boolean) {
-        if (down) {
-            if (dir !in held) held.add(dir)
-        } else {
-            held.remove(dir)
-        }
+    /** The knob moved (finger down or dragging): the wheels follow it, re-sent every 150 ms while it is away from the centre. */
+    fun steer(to: Stick) {
+        stick = to.limited()
         updateDrive()
     }
 
-    /** Lets go of every arrow and tells the robot to stop (also called when the app is hidden). */
+    fun chooseDrivePower(percent: Int) {
+        drivePower = percent.coerceIn(10, 100)
+    }
+
+    /** Lets go of the knob and tells the robot to stop (also called when the app is hidden). */
     fun releaseAll() {
-        if (held.isEmpty() && driveJob == null) return
-        held.clear()
+        if (stick == Stick() && driveJob == null) return
+        stick = Stick()
         updateDrive()
     }
 
     private fun updateDrive() {
-        if (held.isEmpty()) {
+        if (stick.idle) {
+            val wasDriving = driveJob != null
             driveJob?.cancel()
             driveJob = null
             val current = api
-            viewModelScope.launch(Dispatchers.IO) { runCatching { current.drive(0, 0) } }
+            if (wasDriving) viewModelScope.launch(Dispatchers.IO) { runCatching { current.drive(0, 0) } }
             return
         }
         if (driveJob?.isActive == true) return
@@ -467,7 +474,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         // Each command drives for only 500 ms on the robot, so a dropped connection stops it by itself.
         driveJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
-                val (l, r) = wheelCommand(held.toSet())
+                val (l, r) = wheelCommand(stick, drivePower)
                 runCatching { current.drive(l, r) }
                 delay(150)
             }

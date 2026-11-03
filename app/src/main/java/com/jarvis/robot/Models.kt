@@ -430,23 +430,37 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
 
 // ---------------------------------------------------------------- remote control
 
-enum class Dir { UP, DOWN, LEFT, RIGHT }
+/** A knob this close to the centre (fraction of its travel) means stop. */
+const val STICK_DEADZONE = 0.08f
 
-const val DRIVE_SPEED = 100
+/** How far the joystick knob's centre can go, as a fraction of the joystick's width (the ring's radius minus the knob's). */
+const val STICK_REACH = 0.29f
+
+/** Where the joystick knob is, as the page has it: x to the right and y down (as on the screen), each -1..1, inside the unit circle. */
+data class Stick(val x: Float = 0f, val y: Float = 0f) {
+    /** The same position, pulled back onto the edge of the circle if it is outside. */
+    fun limited(): Stick {
+        val m = Math.sqrt((x * x + y * y).toDouble()).toFloat()
+        return if (m > 1f) Stick(x / m, y / m) else this
+    }
+
+    /** Inside the dead zone: the wheels stand still. */
+    val idle: Boolean get() = Math.sqrt((x * x + y * y).toDouble()) < STICK_DEADZONE
+}
 
 /**
- * Wheel command (left, right) for the arrows held right now, as the page computes it: up/down alone
- * drive straight, left/right alone spin in place, a combination arcs by slowing the inner wheel to 35%.
+ * Wheel command (left, right), each -100..100, as the page computes it: up is forward, right turns right (left wheel forward, right wheel back). The faster
+ * wheel always runs at the knob's distance from the centre, the other one slower the more the knob leans sideways (a sideways-only knob spins on the spot).
+ * The dead zone around the centre means stop, outside it the speed grows from zero. [power] (0..100, the Speed slider) scales both; 100 is full power.
  */
-fun wheelCommand(held: Set<Dir>): Pair<Int, Int> {
-    val f = (if (Dir.UP in held) 1 else 0) - (if (Dir.DOWN in held) 1 else 0)
-    val t = (if (Dir.RIGHT in held) 1 else 0) - (if (Dir.LEFT in held) 1 else 0)
-    if (f == 0) return Pair(t * DRIVE_SPEED, -t * DRIVE_SPEED)
-    var l = f * DRIVE_SPEED
-    var r = f * DRIVE_SPEED
-    if (t > 0) r = Math.round(r * 0.35f)
-    if (t < 0) l = Math.round(l * 0.35f)
-    return Pair(l, r)
+fun wheelCommand(stick: Stick, power: Int = 100): Pair<Int, Int> {
+    val s = stick.limited()
+    val m = Math.sqrt((s.x * s.x + s.y * s.y).toDouble()).toFloat()
+    if (m < STICK_DEADZONE) return Pair(0, 0)
+    val f = -s.y
+    val t = s.x
+    val k = (m - STICK_DEADZONE) / (1f - STICK_DEADZONE) / (Math.abs(f) + Math.abs(t)) * power.coerceIn(0, 100)
+    return Pair(Math.round((f + t) * k), Math.round((f - t) * k))
 }
 
 // ---------------------------------------------------------------- deep sleep helpers
