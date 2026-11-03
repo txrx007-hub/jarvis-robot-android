@@ -170,6 +170,7 @@ private val LABELS = mapOf(
     "wake_threshold" to "Wake sensitivity",
     "shutter_sound" to "Camera shutter sound",
     "camera_af" to "Camera autofocus",
+    "camera_idle_off" to "Camera off between pictures",
     "camera_brightness" to "Camera brightness",
     "camera_saturation" to "Camera colour",
     "wake_chirp" to "Wake chirp",
@@ -281,7 +282,7 @@ val SETTINGS_GROUPS = listOf(
     SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
-    SettingsGroup("Camera", listOf("camera_af", "camera_brightness", "camera_saturation"), false),
+    SettingsGroup("Camera", listOf("camera_af", "camera_idle_off", "camera_brightness", "camera_saturation"), false),
     SettingsGroup("Visualizer", listOf("visualizer_mode", "music_icon"), false),
     SettingsGroup("System", listOf("log_level"), false),
 )

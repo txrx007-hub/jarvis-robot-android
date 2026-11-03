@@ -35,6 +35,7 @@ object I18nNl {
     val keys: Map<String, String> = mapOf(
         "camera_af" to "Camera-autofocus",
         "camera_brightness" to "Camerahelderheid",
+        "camera_idle_off" to "Camera uit tussen foto's",
         "camera_saturation" to "Camerakleur",
         "eyes_follow" to "Ogen volgen mij",
         "eyes_invert" to "Ogen: links/rechts omwisselen",

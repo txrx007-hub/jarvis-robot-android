@@ -169,6 +169,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
             {"key":"soft_start_ms","kind":"int","help":"ramp-up time that limits current spikes","min":0,"max":1000,"step":10,"value":200},
             {"key":"mic_gain_db","kind":"int","help":"software microphone gain in dB","min":0,"max":24,"step":1,"value":18},
             {"key":"wake_threshold","kind":"hundredths","help":"wake word threshold, lower wakes more easily","min":0.5,"max":0.95,"step":0.01,"value":0.52},
+            {"key":"camera_idle_off","kind":"bool","help":"stop the camera between pictures: leaves the processor and memory to the audio and keeps the camera cooler; the first picture after a pause takes about a second longer","value":true},
             {"key":"camera_af","kind":"bool","help":"autofocus of the OV5640 camera: on keeps the picture sharp at any distance, off holds the focus where it is","value":true},
             {"key":"camera_brightness","kind":"int","help":"camera exposure target: raise it if photos come out dark, lower it if bright spots wash out (0 = sensor default)","min":-5,"max":5,"step":1,"value":2},
             {"key":"camera_saturation","kind":"int","help":"camera colour saturation: higher for stronger colours, lower for paler ones (0 = sensor default)","min":-4,"max":4,"step":1,"value":0},
