@@ -191,6 +191,7 @@ private val LABELS = mapOf(
     "eyes_invert" to "Eyes: swap left/right",
     "weather_city" to "Weather city",
     "visualizer_mode" to "Speaking screen effect",
+    "music_visualizer" to "Moving bars during music",
     "music_icon" to "Music screen picture",
     "log_level" to "Log detail",
 )
@@ -283,7 +284,7 @@ val SETTINGS_GROUPS = listOf(
     SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
     SettingsGroup("Camera", listOf("camera_af", "camera_idle_off", "camera_brightness", "camera_saturation"), false),
-    SettingsGroup("Visualizer", listOf("visualizer_mode", "music_icon"), false),
+    SettingsGroup("Visualizer", listOf("visualizer_mode", "music_visualizer", "music_icon"), false),
     SettingsGroup("System", listOf("log_level"), false),
 )
 

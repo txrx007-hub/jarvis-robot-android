@@ -63,6 +63,7 @@ class DemoRobotTest {
         val camera = groups.first { it.first.title == "Camera" }
         assertEquals(listOf("camera_af", "camera_idle_off", "camera_brightness", "camera_saturation"), camera.second.map { it.key })
         assertEquals("Camera off between pictures", labelFor("camera_idle_off"))
+        assertEquals("Moving bars during music", labelFor("music_visualizer"))
         assertEquals("Camera brightness", labelFor("camera_brightness"))
         assertEquals("Camera autofocus", labelFor("camera_af"))
         assertTrue(groups.none { it.first.title == "Other" })   // nothing the robot reports lands in "Other"

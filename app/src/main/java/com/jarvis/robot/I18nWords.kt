@@ -55,6 +55,7 @@ object I18nNl {
         "motor_swap" to "Links/rechts omwisselen",
         "motor_trim" to "Stuurcorrectie",
         "music_icon" to "Afbeelding muziekscherm",
+        "music_visualizer" to "Bewegende balken bij muziek",
         "quiet_end" to "Stille uren einde",
         "quiet_start" to "Stille uren begin",
         "shutter_sound" to "Sluitergeluid camera",
