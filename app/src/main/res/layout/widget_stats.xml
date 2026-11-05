@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Jarvis live stats widget: one picture drawn by StatsWidget.kt, a tap on it opens the app, a tap on the top right corner refreshes the numbers. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/stats_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/widget_stats_label"
+        android:scaleType="fitXY" />
+
+    <View
+        android:id="@+id/stats_refresh"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|end"
+        android:contentDescription="@string/widget_stats_refresh" />
+</FrameLayout>

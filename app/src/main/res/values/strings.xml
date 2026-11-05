@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Jarvis</string>
+    <string name="widget_stats_label">Jarvis live stats</string>
+    <string name="widget_stats_refresh">Refresh</string>
+    <string name="widget_stats_description">The robot and the backend at a glance: CPU, memory, Wi-Fi, ping, reply time and graphs. Refreshes every 15 minutes or when you tap the arrows.</string>
 </resources>

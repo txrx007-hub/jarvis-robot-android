@@ -13,8 +13,8 @@ android {
         applicationId = "com.jarvis.robot"
         minSdk = 26
         targetSdk = 35
-        versionCode = 45
-        versionName = "2.43"
+        versionCode = 46
+        versionName = "2.44"
         buildConfigField("boolean", "DEMO", "false")
         buildConfigField("boolean", "UI_V2", "false")
         buildConfigField("boolean", "UI_V3", "false")
