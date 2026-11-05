@@ -2,6 +2,7 @@ package com.jarvis.robot
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -46,7 +47,7 @@ val LocalLiveWeb = staticCompositionLocalOf { true }
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifier: Modifier = Modifier, anchor: String = "") {
+fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifier: Modifier = Modifier, anchor: String = "", onFullscreen: ((Boolean) -> Unit)? = null) {
     val p = LocalPalette.current
     if (LocalInspectionMode.current || !LocalLiveWeb.current) { // previews and the screenshot tests have no real WebView
         Box(modifier.background(p.card), contentAlignment = Alignment.Center) {
@@ -65,8 +66,18 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
     var latestJs by remember { mutableStateOf(themeJs) }
     latestJs = themeJs
 
+    // The live stats page (/stats of the panel) asks for the whole screen through window.Jarvis.fullscreen(true) and gives it back with (false) (its X button);
+    // the Android back button closes it the same way. `full` only tells the screen around the page to hide its own bars.
+    var full by remember { mutableStateOf(false) }
+    val fullCallback by androidx.compose.runtime.rememberUpdatedState(onFullscreen)
     val web = remember(base) {
         WebView(context).apply {
+            addJavascriptInterface(object {
+                @JavascriptInterface
+                fun fullscreen(on: Boolean) {
+                    post { full = on; fullCallback?.invoke(on) }
+                }
+            }, "Jarvis")
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             setBackgroundColor(0x00000000)
@@ -79,6 +90,7 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
                     if (demo) DemoWeb.serve(context, request) else null
 
                 override fun onPageFinished(view: WebView, url: String?) {
+                    if (url?.contains("/stats") != true && full) { full = false; fullCallback?.invoke(false) }   // left the stats page some other way
                     view.evaluateJavascript(latestJs, null)
                     (view.parent as? androidx.swiperefreshlayout.widget.SwipeRefreshLayout)?.isRefreshing = false   // a pull-down reload has finished
                 }
@@ -96,7 +108,8 @@ fun BackendWeb(panelUrl: String, robotHost: String, palette: AppPalette, modifie
             setOnRefreshListener { web.reload() }
         }
     }
-    DisposableEffect(web) { onDispose { holder.removeView(web); web.destroy() } }
+    DisposableEffect(web) { onDispose { holder.removeView(web); web.destroy(); fullCallback?.invoke(false) } }
+    BackHandler(enabled = full) { web.evaluateJavascript("closeStats()", null) }
     LaunchedEffect(themeJs) { web.evaluateJavascript(themeJs, null) }
     AndroidView(factory = { holder }, modifier = modifier)
 }
@@ -119,11 +132,22 @@ private fun themeScript(dark: Boolean, palette: AppPalette, lang: Lang): String 
 fun BackendScreen(state: MainUiState, onClose: () -> Unit) {
     val p = LocalPalette.current
     BackHandler(onBack = onClose)
+    var full by remember { mutableStateOf(false) }   // the live stats page is open: it takes the whole screen (bars hidden, like a browser in full screen)
+    val view = androidx.compose.ui.platform.LocalView.current
+    DisposableEffect(full) {
+        val window = (view.context as? android.app.Activity)?.window
+        val ctl = window?.let { androidx.core.view.WindowCompat.getInsetsController(it, view) }
+        if (full) {
+            ctl?.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            ctl?.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+        }
+        onDispose { ctl?.show(androidx.core.view.WindowInsetsCompat.Type.systemBars()) }
+    }
     Box(Modifier.fillMaxSize()) {
         ThemeBackdrop()
-        Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-            PageTabs(advancedSelected = true, advancedVisible = true, onSettings = onClose, onAdvanced = {}, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-            BackendWeb(panelUrlOf(state.status), state.host, state.palette, Modifier.fillMaxSize())
+        Column(Modifier.fillMaxSize().then(if (full) Modifier else Modifier.statusBarsPadding().navigationBarsPadding())) {
+            if (!full) PageTabs(advancedSelected = true, advancedVisible = true, onSettings = onClose, onAdvanced = {}, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            BackendWeb(panelUrlOf(state.status), state.host, state.palette, Modifier.fillMaxSize(), onFullscreen = { full = it })
         }
     }
 }
