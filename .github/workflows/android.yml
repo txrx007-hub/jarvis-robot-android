@@ -1,0 +1,35 @@
+name: Android CI
+
+# Runs the unit tests that are safe on a CI machine and builds the debug APK.
+# PanelApiTest (talks to a local server, can hang) and the screenshot tests (Paparazzi) are left out on purpose.
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Unit tests
+        run: >
+          chmod +x gradlew && ./gradlew testDebugUnitTest
+          --tests "com.jarvis.robot.ModelsTest"
+          --tests "com.jarvis.robot.DemoRobotTest"
+          --tests "com.jarvis.robot.RobotApiTest"
+          --tests "com.jarvis.robot.HomeAddressTest"
+          --tests "com.jarvis.robot.StatsWidgetTest"
+      - name: Build the debug APK
+        run: ./gradlew assembleDebug -x test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: app/build/reports/tests
+          if-no-files-found: ignore
