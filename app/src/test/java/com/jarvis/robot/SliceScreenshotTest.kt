@@ -3,6 +3,11 @@
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import app.cash.paparazzi.detectEnvironment
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 
@@ -51,4 +56,13 @@ class SliceScreenshotTest {
     )
 
     @Test fun shotVoiceLight() = shot(ThemeMode.LIGHT, voice = true, scroll = 380)
+
+    // The command group for the screens (stocks, space station, NASA picture of the day) opened in the voice commands panel
+    @Test fun shotVoiceScreens() = slice.snapshot {
+        JarvisTheme(ThemeMode.LIGHT) {
+            androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.fillMaxSize().background(LocalPalette.current.bg).verticalScroll(androidx.compose.foundation.rememberScrollState(2020)).padding(16.dp)) {
+                VoiceCommandsPanel(haOk = true, musicOn = true, initialGroup = "Instant: stocks, space and pictures")
+            }
+        }
+    }
 }

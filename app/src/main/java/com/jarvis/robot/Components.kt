@@ -262,11 +262,11 @@ private fun InfoColumn(rows: List<Pair<String, String>>, labelWidth: Int, highli
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun VoiceCommandsPanel(columns: Int = 1, haOk: Boolean = false, musicOn: Boolean = false) {
+fun VoiceCommandsPanel(columns: Int = 1, haOk: Boolean = false, musicOn: Boolean = false, initialGroup: String? = null) {
     val p = LocalPalette.current
     val tick = rememberTick()
     val groups = VOICE_COMMANDS.filter { (haOk || it.second.none { c -> c.ha }) && (musicOn || it.second.none { c -> c.music }) }
-    var selected by rememberSaveable { mutableStateOf<String?>(null) }   // the open group: it starts as a row of coloured tiles, a tap opens one group
+    var selected by rememberSaveable { mutableStateOf<String?>(initialGroup) }   // the open group: it starts as a row of coloured tiles, a tap opens one group
     if (selected != null && groups.none { it.first == selected }) selected = null
     fun colorOf(items: List<VoiceCommand>): Color = when {
         items.any { it.music } -> p.music

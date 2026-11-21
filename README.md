@@ -16,6 +16,10 @@ with the firmware as it is. The robot is built on the
 |---|---|---|---|
 | <img src="docs/screenshots/app-voice-light.png" width="200"> | <img src="docs/screenshots/app-offline.png" width="200"> | <img src="docs/screenshots/app-splash.png" width="200"> | <img src="docs/screenshots/app-icon.png" width="200"> |
 
+Voice commands for the picture screens of the own backend (stocks list and 5-day chart, where the space station is, the NASA picture of the day; the group is opened here):
+
+<img src="docs/screenshots/app-voice-screens.png" width="260">
+
 Music card (Stop / Next song) on the cover screen and in the unfolded two-pane layout:
 
 | Folded | Unfolded |
