@@ -437,7 +437,7 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("Volume", "“Spotify volume 40”, “turn Spotify up” / “turn Spotify down” (Spotify's own volume, not Jarvis's)", music = true),
         VoiceCommand("What is playing", "“what is playing on Spotify”", music = true),
         VoiceCommand("Shuffle", "“shuffle Spotify on” / “shuffle Spotify off”", music = true),
-        VoiceCommand("Cover on the screen", "“track Spot” shows the song's cover as the wallpaper of Jarvis's screen, “stop Spot” turns it off (off until you ask)", music = true),
+        VoiceCommand("Cover on the screen", "“spot track” shows the song's cover as the wallpaper of Jarvis's screen, “stop Spot” turns it off (off until you ask)", music = true),
         VoiceCommand("Short form", "While Spotify plays and Jarvis plays nothing itself, “pause”, “next song”, “previous song” and “what is this song” work without saying “Spotify”", music = true),
     ),
     "Instant: stocks, space and pictures" to listOf(

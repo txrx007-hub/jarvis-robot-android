@@ -1071,7 +1071,7 @@ object I18nNl {
         "“stop”, “halt”, “freeze”" to "“stop”, “halt”, “freeze”",
         "“switch the screen effect to radial” (off, winamp, rainbow, scope, radial, vu, mouth, orb)" to "“switch the screen effect to radial” (off, winamp, rainbow, scope, radial, vu, mouth, orb)",
         "“take a nap” / “are you napping?”" to "“take a nap” / “are you napping?”",
-        "“track Spot” shows the song's cover as the wallpaper of Jarvis's screen, “stop Spot” turns it off (off until you ask)" to "“track Spot” toont de hoes van het nummer als achtergrond op het scherm van Jarvis, “stop Spot” zet het uit (uit tot je erom vraagt)",
+        "“spot track” shows the song's cover as the wallpaper of Jarvis's screen, “stop Spot” turns it off (off until you ask)" to "“spot track” toont de hoes van het nummer als achtergrond op het scherm van Jarvis, “stop Spot” zet het uit (uit tot je erom vraagt)",
         "“turn left”, “turn right”, “turn around”" to "“turn left”, “turn right”, “turn around”",
         "“turn off all lights in the living room”, “lights off” (asks first when it is more than five)" to "“turn off all lights in the living room”, “lights off” (vraagt eerst als het er meer dan vijf zijn)",
         "“turn off the living room light”, “turn on the tv”, “switch off the fan”, “woonkamer lamp aan”, “doe de schuur uit”" to "“turn off the living room light”, “turn on the tv”, “switch off the fan”, “woonkamer lamp aan”, “doe de schuur uit”",
