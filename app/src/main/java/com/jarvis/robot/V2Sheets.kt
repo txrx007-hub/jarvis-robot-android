@@ -106,7 +106,7 @@ fun V2PhotoContent(state: MainUiState, actions: MainActions) {
         state.photoTime?.let { Text("Taken at $it · tap the picture for full screen", color = v.muted, fontSize = 13.sp) }
         state.photoError?.let { Text("No picture: $it", color = v.danger, fontSize = 13.sp) }
         V2Button(if (state.photoBusy) "Taking a photo…" else if (photo == null) "Take a photo" else "Take another", actions.onPhoto, Modifier.fillMaxWidth(), enabled = !state.photoBusy && state.online)
-        if (full && photo != null) PhotoFullScreen(photo) { full = false }
+        if (full && photo != null) PhotoFullScreen(photo, state.photoBytes) { full = false }
     }
 }
 

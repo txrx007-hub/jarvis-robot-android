@@ -36,6 +36,9 @@ class ModelsTest {
         assertEquals("Idle", statusName(s, musicPlaying = true))   // music mode only replaces "Speaking"
         assertEquals("Music mode", statusName(s.copy(state = 6), musicPlaying = true))
         assertEquals("Speaking", statusName(s.copy(state = 6), musicPlaying = false))
+        // firmware 109 and newer say it themselves: while Jarvis speaks the line says Speaking even when the backend's player still says "playing"
+        assertEquals("Speaking", statusName(s.copy(state = 6, music = false), musicPlaying = true))
+        assertEquals("Music mode", statusName(s.copy(state = 6, music = true), musicPlaying = false))
         assertEquals("16 / 24 kHz", fmtAudio(s))
         assertEquals("399".toInt() - 69, s.ramTotalKb - s.ramFreeKb)
     }
@@ -147,6 +150,7 @@ class ModelsTest {
     @Test
     fun maxVolumeIsGoneFromTheSettingsLayout() {
         assertFalse(SETTINGS_GROUPS.any { "max_volume" in it.keys })
+        assertTrue(SETTINGS_GROUPS.first { it.title == "Screen and quiet hours" }.keys.first() == "subtitle_style")   // spoken text style (line / chat)
         assertTrue(VOICE_COMMANDS.any { it.first == "Volume" })
     }
 

@@ -611,7 +611,7 @@ fun CameraPanel(
                 )
             }
             state.photoTime?.let { Text("Taken at $it. Tap the picture for full screen, Camera for a new one.", color = p.muted, fontSize = 13.sp) }
-            if (fullScreen) PhotoFullScreen(photo) { fullScreen = false }
+            if (fullScreen) PhotoFullScreen(photo, state.photoBytes) { fullScreen = false }
         } else if (state.photoBusy) {
             Text("Taking a picture...", color = p.muted, fontSize = 13.sp)
         }
@@ -621,18 +621,26 @@ fun CameraPanel(
 }
 
 /** The picture on its own, filling the screen on black: pinch to zoom (up to 5x), drag to move around, double-tap to zoom in or back out.
- *  The ✕ at the top right (or the phone's Back) returns to the app. */
+ *  The ✕ at the top right (or the phone's Back) returns to the app. With the picture's bytes, Share (Android's share sheet: mail, WhatsApp, ...) and
+ *  Download (into the phone's Pictures/Jarvis folder) are at the bottom. */
 @Composable
-fun PhotoFullScreen(photo: ImageBitmap, onClose: () -> Unit) {
+fun PhotoFullScreen(photo: ImageBitmap, bytes: ByteArray? = null, onClose: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     androidx.compose.ui.window.Dialog(
         onDismissRequest = onClose,
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
-    ) { PhotoFullScreenContent(photo, onClose) }
+    ) {
+        PhotoFullScreenContent(
+            photo, onClose,
+            onShare = bytes?.let { b -> { PhotoShare.share(context, b) } },
+            onDownload = bytes?.let { b -> { PhotoShare.download(context, b) } },
+        )
+    }
 }
 
 /** What the full-screen window shows (separate from the Dialog so a screenshot test can draw it). */
 @Composable
-fun PhotoFullScreenContent(photo: ImageBitmap, onClose: () -> Unit) {
+fun PhotoFullScreenContent(photo: ImageBitmap, onClose: () -> Unit, onShare: (() -> Unit)? = null, onDownload: (() -> Unit)? = null) {
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
     var area by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
@@ -696,6 +704,29 @@ fun PhotoFullScreenContent(photo: ImageBitmap, onClose: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             Text("✕", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+        }
+        if (onShare != null || onDownload != null) {
+            Row(
+                Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.safeDrawing).padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                for ((label, hint, action) in listOf(Triple("Share", "Share this picture", onShare), Triple("Download", "Save this picture on the phone", onDownload))) {
+                    if (action == null) continue
+                    Box(
+                        Modifier
+                            .height(48.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(Color.Black.copy(alpha = 0.55f))
+                            .border(1.dp, Color.White.copy(alpha = 0.6f), RoundedCornerShape(24.dp))
+                            .clickable(onClickLabel = tr(hint), role = Role.Button, onClick = action)
+                            .semantics { contentDescription = tr(hint) }
+                            .padding(horizontal = 26.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(tr(label), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
         }
     }
 }

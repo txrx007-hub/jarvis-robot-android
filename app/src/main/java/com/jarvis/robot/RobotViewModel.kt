@@ -60,6 +60,8 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var photoTime by mutableStateOf<String?>(null)
         private set
+    var photoBytes by mutableStateOf<ByteArray?>(null)   // the same picture as the robot sent it: Share and Download use these bytes, not a second JPEG compression
+        private set
     var photoBusy by mutableStateOf(false)
         private set
     var photoError by mutableStateOf<String?>(null)
@@ -375,6 +377,7 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
                         viewModelScope.launch { runCatching { withContext(Dispatchers.IO) { current.uploadPhoto(panel, bytes) } } }
                     }
                     photo = bmp
+                    photoBytes = bytes
                     photoTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
                     photoError = null
                 } else {

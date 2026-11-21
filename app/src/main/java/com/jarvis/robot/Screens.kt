@@ -64,6 +64,7 @@ data class MainUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val photo: ImageBitmap? = null,
     val photoTime: String? = null,
+    val photoBytes: ByteArray? = null,   // the picture as the robot sent it (JPEG), for Share and Download
     val photoBusy: Boolean = false,
     val photoError: String? = null,
     val netRate: NetRate? = null,
@@ -127,6 +128,7 @@ fun MainScreen(vm: RobotViewModel, onChangeAddress: () -> Unit) {
         themeMode = vm.themeMode,
         photo = vm.photo,
         photoTime = vm.photoTime,
+        photoBytes = vm.photoBytes,
         photoBusy = vm.photoBusy,
         photoError = vm.photoError,
         netRate = vm.netRate,
@@ -302,6 +304,7 @@ fun PhoneContent(
             }
             if (showCamera) CameraPanel(state, onHide = { showCamera = false })
             if (state.music?.enabled == true) MusicCard(state.music, actions.onMusicStop, actions.onMusicNext)
+            VolumeCard(status, actions.onSetVolume)
             if (showVoice) VoiceCommandsPanel(haOk = state.haOk, musicOn = state.music?.enabled == true)
 
             FollowCard(status, actions.onFollow, actions.onFaceMe, actions.onEyes)
@@ -315,8 +318,6 @@ fun PhoneContent(
                 onDeepSleep = actions.onDeepSleep,
                 musicPlaying = musicPlaying,
             )
-
-            VolumeCard(status, actions.onSetVolume)
 
             if (showRemote) RemotePanel(state.stick, state.drivePower, actions.onStick, actions.onReleaseAll, actions.onDrivePower, state.liveOn, state.liveImage, state.liveNote, actions.onToggleLive, actions.onStopLive)
 

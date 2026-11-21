@@ -61,8 +61,7 @@ class DemoRobotTest {
     fun cameraBrightnessHasItsOwnGroup() {
         val groups = groupSettings(parseSettings(DemoRobot.defaultSettings()))
         val camera = groups.first { it.first.title == "Camera" }
-        assertEquals(listOf("camera_af", "camera_idle_off", "camera_brightness", "camera_saturation"), camera.second.map { it.key })
-        assertEquals("Camera off between pictures", labelFor("camera_idle_off"))
+        assertEquals(listOf("camera_af", "camera_brightness", "camera_saturation"), camera.second.map { it.key })   // "camera off between pictures" is not offered any more: it stays on
         assertEquals("Moving bars during music", labelFor("music_visualizer"))
         assertEquals("Camera brightness", labelFor("camera_brightness"))
         assertEquals("Camera autofocus", labelFor("camera_af"))

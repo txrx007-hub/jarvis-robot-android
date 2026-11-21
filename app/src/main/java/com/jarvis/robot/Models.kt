@@ -15,6 +15,7 @@ data class Status(
     val power: String = "",
     val state: Int = 0,
     val napping: Boolean = false,
+    val music: Boolean? = null,   // /api/status "music" (firmware 109+): true only while the audio is music, a station or a podcast
     val uptimeS: Long = 0,
     val cpuLoad: Int? = null,
     val cpuMhz: Int? = null,
@@ -94,6 +95,7 @@ fun parseStatus(o: JSONObject): Status {
         power = o.optString("power", ""),
         state = o.optInt("state", 0),
         napping = o.optBoolean("napping", false),
+        music = if (o.has("music")) o.optBoolean("music") else null,
         uptimeS = o.optLong("uptime_s", 0),
         cpuLoad = intOrNull("cpu_load"),
         cpuMhz = intOrNull("cpu_mhz"),
@@ -174,6 +176,7 @@ private val LABELS = mapOf(
     "camera_brightness" to "Camera brightness",
     "camera_saturation" to "Camera colour",
     "wake_chirp" to "Wake chirp",
+    "subtitle_style" to "Spoken text style",
     "idle_clock_min" to "Idle clock after",
     "quiet_start" to "Quiet hours start",
     "quiet_end" to "Quiet hours end",
@@ -233,10 +236,11 @@ private val STATE_NAMES = listOf(
     "speaking", "notifying", "upgrading", "activating", "testing audio", "fatal error",
 )
 
-/** The robot's state as text. While it speaks and a song, a radio station or a podcast is what it plays, that reads "Music mode" (musicPlaying). */
+/** The robot's state as text. While it speaks and a song, a radio station or a podcast is what it plays, that reads "Music mode". The robot itself says whether the audio is music (s.music, firmware 109+);
+ * an older robot falls back to the backend's player state (musicPlaying), which can still say "playing" while Jarvis talks. */
 fun statusName(s: Status, musicPlaying: Boolean = false): String {
     val state = STATE_NAMES.getOrElse(s.state) { "state ${s.state}" }
-    val name = if (s.napping) "napping" else if (musicPlaying && state == "speaking") "music mode" else state
+    val name = if (s.napping) "napping" else if ((s.music ?: musicPlaying) && state == "speaking") "music mode" else state
     return name.replaceFirstChar { it.uppercase() }
 }
 
@@ -269,7 +273,7 @@ private fun trimKhz(hz: Int): String {
 // ---------------------------------------------------------------- section layout (mirrors the page)
 
 /** Settings that exist on the robot but are fixed at their defaults and not offered on the page. */
-val HIDDEN_KEYS = setOf("motor_max_speed", "shutter_sound", "follow_mode", "eyes_follow", "eye_color", "camera_drive")   // follow_mode and eyes_follow have their own switches in the Follow me card
+val HIDDEN_KEYS = setOf("motor_max_speed", "shutter_sound", "follow_mode", "eyes_follow", "eye_color", "camera_drive", "camera_idle_off")   // follow_mode and eyes_follow have their own switches in the Follow me card
 
 data class SettingsGroup(val title: String, val keys: List<String>, val collapsible: Boolean)
 
@@ -281,9 +285,9 @@ val SETTINGS_GROUPS = listOf(
     ),
     SettingsGroup("Face and movement", listOf("talk_motion", "talk_power", "talk_alternate", "face_power", "face_deadzone", "follow_ms", "face_invert", "eyes_range", "eyes_range_y", "eyes_invert"), true),
     SettingsGroup("Audio and wake word", listOf("mic_gain_db", "wake_threshold", "wake_chirp"), true),
-    SettingsGroup("Screen and quiet hours", listOf("idle_clock_min", "quiet_start", "quiet_end"), true),
+    SettingsGroup("Screen and quiet hours", listOf("subtitle_style", "idle_clock_min", "quiet_start", "quiet_end"), true),
     SettingsGroup("Weather", listOf("weather_city"), false),
-    SettingsGroup("Camera", listOf("camera_af", "camera_idle_off", "camera_brightness", "camera_saturation"), false),
+    SettingsGroup("Camera", listOf("camera_af", "camera_brightness", "camera_saturation"), false),
     SettingsGroup("Visualizer", listOf("visualizer_mode", "music_visualizer", "music_icon"), false),
     SettingsGroup("System", listOf("log_level"), false),
 )
@@ -425,6 +429,23 @@ val VOICE_COMMANDS: List<Pair<String, List<VoiceCommand>>> = listOf(
         VoiceCommand("Radio", "“play Radio 538”, “play jazz radio”, “put on NPO Radio 2”, “speel Q-music” (plays until you stop it)", music = true),
         VoiceCommand("Podcasts", "“play the latest episode of <a podcast from your list>”, “play podcast <name>” (the shows you list in music/radio.yaml on the backend)", music = true),
         VoiceCommand("Stop", "“stop the radio”, “stop”, or the Stop button in this app", music = true),
+    ),
+    "Spotify: remote control" to listOf(
+        VoiceCommand("Play", "“play Bohemian Rhapsody on Spotify”, “play Queen on Spotify” (a song or an artist), “play the album A Night at the Opera on Spotify”, “play my Chill Vibes playlist on Spotify”", music = true),
+        VoiceCommand("Pause and resume", "“pause Spotify”, “resume Spotify”, “play Spotify”", music = true),
+        VoiceCommand("Next and previous", "“next song on Spotify”, “previous song on Spotify” (Jarvis says the new title)", music = true),
+        VoiceCommand("Volume", "“Spotify volume 40”, “turn Spotify up” / “turn Spotify down” (Spotify's own volume, not Jarvis's)", music = true),
+        VoiceCommand("What is playing", "“what is playing on Spotify”", music = true),
+        VoiceCommand("Shuffle", "“shuffle Spotify on” / “shuffle Spotify off”", music = true),
+        VoiceCommand("Cover on the screen", "“track Spot” shows the song's cover as the wallpaper of Jarvis's screen, “stop Spot” turns it off (off until you ask)", music = true),
+        VoiceCommand("Short form", "While Spotify plays and Jarvis plays nothing itself, “pause”, “next song”, “previous song” and “what is this song” work without saying “Spotify”", music = true),
+    ),
+    "Instant: stocks, space and pictures" to listOf(
+        VoiceCommand("Stocks", "“show stocks”, “stock overview”, “how are the markets”: your watchlist with a 5-day line, prices in euro and today's change, on the screen for 20 seconds", instant = true),
+        VoiceCommand("One stock", "“show ASML”, “how is Nvidia doing”, “AMD stock”, “show Brent oil”: the price, today's change and a 5-day chart (any name Yahoo Finance knows, for example “show Adyen”)", instant = true),
+        VoiceCommand("Space station", "“where is the ISS”, “show the space station”: a world map with a dot where the station is, and what it flies over", instant = true),
+        VoiceCommand("Picture of the day", "“show the astronomy picture of the day”, “NASA picture of the day”: today's NASA photo with its title", instant = true),
+        VoiceCommand("Ticker and list", "The prices also scroll along the bottom of the idle screen. Switch that off and edit the watchlist in the Screens card of the backend page", instant = true),
     ),
 )
 

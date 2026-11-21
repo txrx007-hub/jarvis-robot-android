@@ -41,7 +41,7 @@ class FoldScreenshotTest {
         JarvisTheme(ThemeMode.DARK, AppPalette.BLUEBERRY) { MainContent(withPhoto.copy(palette = AppPalette.BLUEBERRY), MainActions(), initialShowCamera = true) }
     }
 
-    @Test fun coverPhotoFullScreen() = coverRule.snapshot { JarvisTheme(ThemeMode.DARK) { PhotoFullScreenContent(samplePhoto()) {} } }
+    @Test fun coverPhotoFullScreen() = coverRule.snapshot { JarvisTheme(ThemeMode.DARK) { PhotoFullScreenContent(samplePhoto(), onClose = {}) } }
 
     @Test fun coverMusic() = coverRule.snapshot {
         JarvisTheme(ThemeMode.DARK, AppPalette.SUCCULENT) {

@@ -174,6 +174,7 @@ class DemoRobot(private val photo: () -> ByteArray = { ByteArray(0) }) {
             {"key":"camera_brightness","kind":"int","help":"camera exposure target: raise it if photos come out dark, lower it if bright spots wash out (0 = sensor default)","min":-5,"max":5,"step":1,"value":2},
             {"key":"camera_saturation","kind":"int","help":"camera colour saturation: higher for stronger colours, lower for paler ones (0 = sensor default)","min":-4,"max":4,"step":1,"value":0},
             {"key":"wake_chirp","kind":"bool","help":"short chirp right after the wake word","value":true},
+            {"key":"subtitle_style","kind":"enum","help":"how Jarvis's words show under the face","value":"line","options":["line","chat"]},
             {"key":"idle_clock_min","kind":"int","help":"minutes of idle before the clock shows","min":0,"max":60,"step":1,"value":5},
             {"key":"quiet_start","kind":"time","help":"night mode start, HH:MM or off","value":"22:30"},
             {"key":"quiet_end","kind":"time","help":"night mode end, HH:MM or off","value":null},
