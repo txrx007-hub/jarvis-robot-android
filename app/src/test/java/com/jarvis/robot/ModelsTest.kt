@@ -187,6 +187,11 @@ class ModelsTest {
             val (l, rt) = wheelCommand(Stick(Math.cos(r).toFloat(), Math.sin(r).toFloat()))
             assertTrue("angle $a: $l/$rt", Math.abs(l) <= 100 && Math.abs(rt) <= 100 && maxOf(Math.abs(l), Math.abs(rt)) == 100)
         }
+        // live view on: the stick is reversed (right is left, up is down); the dead zone stays in the middle
+        assertEquals(Pair(-100, -100), wheelCommand(Stick(0f, -1f).flipped()))
+        assertEquals(Pair(-100, 100), wheelCommand(Stick(1f, 0f).flipped()))
+        assertEquals(Stick(-0.3f, 0.4f), Stick(0.3f, -0.4f).flipped())
+        assertTrue(Stick(0.05f, 0f).flipped().idle)
         assertTrue(Stick(0.05f, 0f).idle)
         assertFalse(Stick(0.2f, 0f).idle)
         assertEquals(Stick(1f, 0f), Stick(4f, 0f).limited())

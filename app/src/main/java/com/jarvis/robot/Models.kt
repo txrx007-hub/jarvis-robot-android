@@ -467,6 +467,9 @@ data class Stick(val x: Float = 0f, val y: Float = 0f) {
 
     /** Inside the dead zone: the wheels stand still. */
     val idle: Boolean get() = Math.sqrt((x * x + y * y).toDouble()) < STICK_DEADZONE
+
+    /** The opposite position: right becomes left and up becomes down. Used while the live view is on, so the robot is steered as seen through its camera. */
+    fun flipped(): Stick = Stick(-x, -y)
 }
 
 /**

@@ -477,7 +477,8 @@ class RobotViewModel(app: Application) : AndroidViewModel(app) {
         // Each command drives for only 500 ms on the robot, so a dropped connection stops it by itself.
         driveJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
-                val (l, r) = wheelCommand(stick, drivePower)
+                // Live view on = looking through the robot's camera: the controls are reversed (right is left, up is down). The knob on the screen still follows the finger.
+                val (l, r) = wheelCommand(if (liveOn) stick.flipped() else stick, drivePower)
                 runCatching { current.drive(l, r) }
                 delay(150)
             }
