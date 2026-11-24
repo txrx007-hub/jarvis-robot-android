@@ -807,21 +807,21 @@ function paintConv(c) {
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-cw]'); if (!b) return; convWin = b.dataset.cw; if (T.conv) paintConv(T.conv); });
 
-// ---- live traffic of the robot (Tx = what it sends, Rx = what it receives), three times a second; click a tile to switch between packets per second and Mbit/s
-let netUnit = 'pps'; try { if (localStorage.getItem('netUnit') === 'mbit') netUnit = 'mbit'; } catch (e) {}
+// ---- live traffic of the robot (Tx = what it sends, Rx = what it receives), three times a second; click a tile to switch between KB/s and Mbit/s
+let netUnit = 'kbs'; try { if (localStorage.getItem('netUnit') === 'mbit') netUnit = 'mbit'; } catch (e) {}
 let netBusy = false, netLast = null;
-function fmtRate(v, unit) { return unit === 'mbit' ? v.toFixed(3) + ' Mbit/s' : Math.round(v).toLocaleString('en-US') + ' p/s'; }
+function fmtRate(v, unit) { return unit === 'mbit' ? v.toFixed(3) + ' Mbit/s' : v.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' KB/s'; }
 function paintNet(n) {
   netLast = n; const box = $('#netLive'); if (!box) return;
   const u = netUnit, ok = n && n.online;
-  const tx = n ? (u === 'mbit' ? n.tx_mbps : n.tx_pps) : 0, rx = n ? (u === 'mbit' ? n.rx_mbps : n.rx_pps) : 0;
+  const tx = n ? (u === 'mbit' ? n.tx_mbps : n.tx_kbs) : 0, rx = n ? (u === 'mbit' ? n.rx_mbps : n.rx_kbs) : 0;
   const part = (name, color, v) => `<i class="sq" style="background:${color}"></i><em class="nv" style="color:${color}">${name} ${ok ? fmtRate(v, u) : '–'}</em>`;
   const since = ok ? ` · since start: sent ${n.tx_pkts.toLocaleString('en-US')} packets, ${n.tx_mb} MB · received ${n.rx_pkts.toLocaleString('en-US')} packets, ${n.rx_mb} MB` : ' · the robot does not answer';
-  box.innerHTML = `<div class="kpis"><div class="kpi netk" tabindex="0" role="button" data-net="1" title="Click to switch between packets per second and Mbit/s">
+  box.innerHTML = `<div class="kpis"><div class="kpi netk" tabindex="0" role="button" data-net="1" title="Click to switch between KB/s and Mbit/s">
       <b>${part('Tx', 'var(--c-tool)', tx)}<span class="gap"></span>${part('Rx', 'var(--c-listen)', rx)}</b>
       <span>Wi-Fi traffic of the robot (Tx sent, Rx received)${since}</span></div></div>`;
 }
-function switchNetUnit() { netUnit = netUnit === 'pps' ? 'mbit' : 'pps'; try { localStorage.setItem('netUnit', netUnit); } catch (e) {} paintNet(netLast); }
+function switchNetUnit() { netUnit = netUnit === 'kbs' ? 'mbit' : 'kbs'; try { localStorage.setItem('netUnit', netUnit); } catch (e) {} paintNet(netLast); }
 document.addEventListener('click', e => { if (e.target.closest('[data-net]')) switchNetUnit(); });
 document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('[data-net]')) { e.preventDefault(); switchNetUnit(); } });
 async function pollNet() {
@@ -1356,7 +1356,7 @@ setInterval(() => { if ($('#logLive').checked) loadLog(); }, 2000);
   "tokens, estimated in use": "tokens, geschat in gebruik", "requests, last 24 h": "verzoeken, laatste 24 u", "tokens, last 24 h": "tokens, laatste 24 u",
   "estimate, not yet checked against a Groq refusal": "schatting, nog niet gecontroleerd aan een Groq-weigering",
   "Groq's daily token allowance refills gradually, so a plain 24-hour sum overstates it. This estimate removes what has refilled since each call, and is reset to Groq's own figure whenever Groq refuses a call.": "Groqs dagelijkse tokenruimte wordt geleidelijk aangevuld, dus een gewone 24-uurssom overschat hem. Deze schatting haalt weg wat sinds elke aanroep is aangevuld en wordt teruggezet naar Groqs eigen cijfer zodra Groq een aanroep weigert.",
-  "Where the time goes, for a typical answer from the brain": "Waar de tijd naartoe gaat, voor een typisch antwoord van het brein", "Click to switch between packets per second and Mbit/s": "Klik om te wisselen tussen pakketten per seconde en Mbit/s",
+  "Where the time goes, for a typical answer from the brain": "Waar de tijd naartoe gaat, voor een typisch antwoord van het brein", "Click to switch between KB/s and Mbit/s": "Klik om te wisselen tussen pakketten per seconde en Mbit/s",
   "instant commands": "directe commando’s", "typical total": "typisch totaal", "slowest 10%": "traagste 10%", "Brain answers": "Antwoorden van het brein", "Latest turns": "Laatste beurten",
   "Measured on this PC from the moment the end of your sentence is detected to the first sound leaving for the robot. The short wait for the end of speech and the trip over the Wi-Fi are not included. Green under 2.5 s, amber under 4.5 s.": "Gemeten op deze pc vanaf het moment dat het einde van je zin wordt gedetecteerd tot het eerste geluid naar de robot gaat. De korte wachttijd voor het einde van de spraak en de reis over het wifi zijn niet inbegrepen. Groen onder 2,5 s, oranje onder 4,5 s.",
   "No spoken turns recorded in this period yet. Each time you talk to Jarvis, the time from the end of your sentence to the first sound shows up here.": "In deze periode zijn nog geen gesproken beurten opgenomen. Elke keer dat je met Jarvis praat, verschijnt hier de tijd van het einde van je zin tot het eerste geluid.",

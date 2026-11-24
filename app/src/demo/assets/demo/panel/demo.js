@@ -135,7 +135,7 @@
         case "ping": return json({ server: { online: true, ms: Math.round(rnd(2, 8)) / 10 }, panel: { online: true, ms: Math.round(rnd(1, 5)) / 10 } });
         case "robot-net": {
           var t = (Date.now() - T0) / 1000, tx = rnd(5, 12), rx = rnd(8, 20);
-          return json({ online: true, poll_ms: 333, up_s: 5400 + t, tx_pps: Math.round(tx * 10) / 10, rx_pps: Math.round(rx * 10) / 10,
+          return json({ online: true, poll_ms: 333, up_s: 5400 + t, tx_pps: Math.round(tx * 10) / 10, rx_pps: Math.round(rx * 10) / 10, tx_kbs: Math.round(tx * 0.09 * 100) / 100, rx_kbs: Math.round(rx * 0.17 * 100) / 100,
             tx_mbps: Math.round(tx * 0.0007 * 10000) / 10000, rx_mbps: Math.round(rx * 0.0014 * 10000) / 10000, tx_pkts: Math.round(4321 + t * 9), rx_pkts: Math.round(6003 + t * 14),
             tx_mb: Math.round((0.88 + t * 0.0004) * 100) / 100, rx_mb: Math.round((0.92 + t * 0.0009) * 100) / 100 });
         }
